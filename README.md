@@ -6,3 +6,5 @@
 * bash install.sh
 * npm start
  
+# créditos:
+* @adiwajshing/baileys
