@@ -8,3 +8,4 @@
  
 # créditos:
 * @adiwajshing/baileys
+* base: ©Tio Tomioka 
