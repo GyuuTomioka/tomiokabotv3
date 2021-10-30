@@ -21,7 +21,7 @@
 
 > Termux instalado
 > WhatsApp instalado
-> 2 Celulares     (você irá precisar escanear o código qr para iniciar a Lolizita-BOT)
+> 2 Celulares     (você irá precisar escanear o código qr para iniciar o -BOT)
 
 ```
 
@@ -84,7 +84,8 @@ Para desativar o bot em PM2
 ## Preview bash<img src="https://github.com/TheDudeThatCode/TheDudeThatCode/blob/master/Assets/gandalf_parrot.gif" width="29px">
 <p align="center">
   
-<img src="https://raw.githubusercontent.com/italuH/Tiringa-BOT/main/ezgif-6-59ef6c9dcafd.gif" width="450">
+<img src="https://files.fm/f/yve2tqtye" width="450">
+ 
   
 <p align="center">
   
