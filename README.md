@@ -84,7 +84,7 @@ Para desativar o bot em PM2
 ## Preview bash<img src="https://github.com/TheDudeThatCode/TheDudeThatCode/blob/master/Assets/gandalf_parrot.gif" width="29px">
 <p align="center">
   
-<img src="https://files.fm/f/yve2tqtye" width="450">
+<img src="https://github.com/GyuuTomioka/tomiokabotv3/blob/main/tomioka.gif" width="450">
  
   
 <p align="center">
