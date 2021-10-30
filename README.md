@@ -21,7 +21,7 @@
 
 > Termux instalado
 > WhatsApp instalado
-> 2 Celulares     (você irá precisar escanear o código qr para iniciar o -BOT)
+> 2 Celulares     (você irá precisar escanear o código qr para iniciar o TOMIOKA-BOT)
 
 ```
 
