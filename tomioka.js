@@ -2229,17 +2229,17 @@ if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando
           reply(vcard)
       }
 			if (selectedButton == ("grupo")){
-				addFilter(from)
+				
 	   reply('https://chat.whatsapp.com/EVtJliGrMzmEq2gwNBgOxd')
 	}
 	
 	if (selectedButton == ("dono")){
-		addFilter(from)
+		
 	   reply('wa.me/5544998220867')
 	}
 
 	if (selectedButton == ("menu")){
-		addFilter(from)
+		
 	   const timestampp = speed();
 	const latensii = speed() - timestampp
 	run = process.uptime() 
@@ -4516,7 +4516,7 @@ case 'wikipedia':
 //github
 case 'gitdobot':
 case 'git':  
-addFilter(from)    
+    
 if (isBanned) return reply(mess.only.benned)
 texto = `
 O INDEX ESTÁ CRIPTOGRAFADO, MAS DÁ PARA ALTERAR IMAGENS, VIDEOS E ÁUDIOS.
@@ -4899,10 +4899,10 @@ headerType: 6
 }, MessageType.buttonsMessage)
                
   
-					  addFilter(from)
+					  
           break*/
           case 'menu2':
-addFilter(from)
+
 const tomioks = `_ESCOLHA UM DOS MENUS ABAIXO_
 ` 
 let temporalY= client.prepareMessageFromContent(from, {
@@ -4963,7 +4963,7 @@ client.relayWAMessage(temporalY)
 break
 //_ MENU PRINCIPAL
 case 'menu':
-addFilter(from)
+
 const tempo = speed();
 const latencia = speed() - tempo
 	run = process.uptime() 
@@ -4990,7 +4990,7 @@ await client.sendMessage(from, gbuttonan, MessageType.buttonsMessage, {
            	break
 /*case 'menu':
 case 'comandos':
-addFilter(from)
+
 if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
 wew = fs.readFileSync('./assets/vidmenu.mp4')
 const tomiokm= `❦ ══════ •⊰❂⊱• ══════ ❦
@@ -5244,7 +5244,7 @@ module.exports = {
 }
 break*/
 case 'cry':
-addFilter(from)
+
            data = await fetchJson('https://waifu.pics/api/sfw/cry')
            hasil = await getBuffer(data.url)
                client.sendMessage(from, hasil, MessageType.video, {contextInfo: tomis, mimetype: 'video/gif', thumbnail: null})
@@ -5255,7 +5255,7 @@ addFilter(from)
                 client.sendMessage(from, wew, image, {quoted: { key: { fromMe: false, participant: `0@s.whatsapp.net`, ...(from ? { remoteJid: "status@broadcast" } : {}) }, message: { "imageMessage": { "url": "https://mmg.whatsapp.net/d/f/At0x7ZdIvuicfjlf9oWS6A3AR9XPh0P-hZIVPLsI70nM.enc", "mimetype": "image/jpeg", "caption": "꧁𝕋𝕆𝕄𝕀𝕆𝕂𝔸~𝔹𝕆𝕋꧂", "fileSha256": "+Ia+Dwib70Y1CWRMAP9QLJKjIJt54fKycOfB2OEZbTU=", "fileLength": "28777", "height": 1080, "width": 1079, "mediaKey": "vXmRR7ZUeDWjXy5iQk17TrowBzuwRya0errAFnXxbGc=", "fileEncSha256": "sR9D2RS5JSifw49HeBADguI23fWDz1aZu4faWG/CyRY=", "directPath": "/v/t62.7118-24/21427642_840952686474581_572788076332761430_n.enc?oh=3f57c1ba2fcab95f2c0bb475d72720ba&oe=602F3D69", "mediaKeyTimestamp": "1610993486", "jpegThumbnail": fs.readFileSync('./assets/botlogo.webp')} } }, caption: help(prefix) })
                 break*/
 case 'infodono':
-addFilter(from)
+
                 if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
 					   client.sendMessage(from, infodono(prefix) , text, {contextInfo: ftoko})
 					   break
@@ -5264,16 +5264,16 @@ const tp = `GGGGGFFFFGFFFDFGFGFGou`
 					   client.sendMessage(from, tp, text, {quoted: fgif})
 					   break
 case 'picpay':
-addFilter(from)
+
                  reply(`pra quem quer um banco e é de menor(minimo 16 anos) :\n\nhttp://www.picpay.com/convite?DYULZN`)  
                          break
 case 'ajudantes':
-addFilter(from)
+
 				      if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
 					  client.sendMessage(from, ajudantes(prefix) , text, {contextInfo: tomis, quoted: { key: { fromMe: false, participant: `0@s.whatsapp.net`, ...(from ? { remoteJid: "status@broadcast" } : {}) }, message: { "imageMessage": { "url": "https://mmg.whatsapp.net/d/f/At0x7ZdIvuicfjlf9oWS6A3AR9XPh0P-hZIVPLsI70nM.enc", "mimetype": "image/jpeg","caption": "AJUDANTES 🥰", 'jpegThumbnail': fs.readFileSync('./assets/botlogo.webp')}}}})
 					break
                 case 'leveis':
-                addFilter(from)
+                
                     if (!isGroup) return reply(mess.only.group)
                     if (!isGroupAdmins && !isOwner) return reply('so adm pd usar')
                     if (args.length < 1) return reply(`Digite da forma correta:\nComando: ${prefix}leveis 1 para ativar `)
@@ -5293,7 +5293,7 @@ addFilter(from)
 
                     break
            case 'addxp':
-           addFilter(from)
+           
                 if (!isOwner) return reply('só o dono pode')
                     if (!isGroup) return reply('so grupo')
                     if (mek.message.extendedTextMessage === undefined || mek.message.extendedTextMessage === null) return
@@ -5309,7 +5309,7 @@ addFilter(from)
                     break
             //levEL ATUAL
 case 'level':
-addFilter(from)
+
                 if (!isLevelingOn) return reply(`leveling tem que estar ativado!: ${prefix}leveling 1`)
                 if (!isGroup) return reply('só grupo')
                 const userLevel = getLevelingLevel(sender)
@@ -5322,89 +5322,89 @@ addFilter(from)
 				
 //////////////
 case 'outros':
-addFilter(from)
+
 					if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
 				    client.sendMessage(from, fs.readFileSync('./assets/outros.jpg'), MessageType.image, {quoted: ftoko ,contextInfo: tomis, caption: outros(prefix), thumbnail: fs.readFileSync('./assets/outros.jpg')})
 					break
 				case 'mvoz':
-				addFilter(from)
+				
 				      if (!isUser) return fakegroup(`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
                 client.sendMessage(from, fs.readFileSync('./assets/voz.jpg'), MessageType.image, {quoted: ftoko ,contextInfo: tomis, caption: menuvoz(prefix), thumbnail: fs.readFileSync('./assets/voz.jpg')})
                 break
                     case 'logopremium':
-                    addFilter(from)
+                    
 				      if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
 					  client.sendMessage(from, fs.readFileSync('./assets/logo.jpg'), MessageType.image, {quoted: ftoko ,contextInfo: tomis, caption: logos(prefix), thumbnail: fs.readFileSync('./assets/botlogo.webp')})
 					   break
 case 'novid':
-addFilter(from)
+
 if (!isUser) return fakegroup(`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
 client.sendMessage(from, fs.readFileSync('./assets/novid.jpg'), MessageType.image, {quoted: ftoko ,contextInfo: tomis, caption: novid(prefix), thumbnail: fs.readFileSync('./assets/novid.jpg')})
 break
 					case 'ranks':
-					addFilter(from)
+					
 					  if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
 					client.sendMessage(from, fs.readFileSync('./assets/ranke.jpg'), MessageType.image, {quoted: ftoko ,contextInfo: tomis, caption: rank(prefix), thumbnail: fs.readFileSync('./assets/botlogo.webp')})
 					    break
                         case 'customfig':
-                        addFilter(from)
+                        
                       if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
 					  client.sendMessage(from, custom(prefix) , text, {contextInfo: tomis, quoted: { key: { fromMe: false, participant: `0@s.whatsapp.net`, ...(from ? { remoteJid: "status@broadcast" } : {}) }, message: { "imageMessage": { "url": "https://mmg.whatsapp.net/d/f/At0x7ZdIvuicfjlf9oWS6A3AR9XPh0P-hZIVPLsI70nM.enc", "mimetype": "image/jpeg","caption": `${waktoonyabro}\n𝐜??𝐦𝐚𝐧𝐝𝐨: ${command}`, 'jpegThumbnail': fs.readFileSync('./assets/botlogo.webp')}}}})
 					    break
                 case 'interativos':
-                addFilter(from)
+                
                       if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
 					  client.sendMessage(from, fs.readFileSync('./assets/interact.jpg'), MessageType.image, {quoted: ftoko ,contextInfo: tomis, caption: interact(prefix), thumbnail: fs.readFileSync('./assets/botlogo.webp')})
 					    break
 case 'imagens':
-addFilter(from)
+
 if (!isUser) return fakegroup(`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
 client.sendMessage(from, fs.readFileSync('./assets/image.jpg'), MessageType.image, {quoted: ftoko ,contextInfo: tomis, caption: imagens(prefix), thumbnail: fs.readFileSync('./assets/botlogo.webp')})
 break
                 case 'especifico':
-                addFilter(from)
+                
                       if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
 					     client.sendMessage(from, fs.readFileSync('./assets/interact.jpg'), MessageType.image, {quoted: ftoko ,contextInfo: tomis, caption: especifico(prefix), thumbnail: fs.readFileSync('./assets/botlogo.webp')})
 			            break
 				case 'efeitos':
-				addFilter(from)
+				
 				if (!isUser) return fakegroup(`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
                 client.sendMessage(from, fs.readFileSync('./assets/efeito.jpg'), MessageType.image, {quoted: ftoko ,contextInfo: tomis, caption: efeitoaudio(prefix), thumbnail: fs.readFileSync('./assets/efeito.jpg')})
 break
                 case 'premium':
-                addFilter(from)
+                
                       if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
 					  client.sendMessage(from, fs.readFileSync('./assets/premium.jpg'), MessageType.image, {quoted: ftoko ,contextInfo: tomis, caption: premiuns(prefix), thumbnail: fs.readFileSync('./assets/premium.jpg')})
 				        break
                 case 'grupo':
-                addFilter(from)
+                
                       if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
 					  client.sendMessage(from, fs.readFileSync('./assets/adm.jpg'), MessageType.image, {quoted: ftoko ,contextInfo: tomis, caption: grupo(prefix), thumbnail: fs.readFileSync('./assets/botlogo.webp')})
 						break
 /////////////////////
                          if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
                          case 'mdono':
-                         addFilter(from)
+                         
 					  client.sendMessage(from, fs.readFileSync('./assets/dono.jpg'), MessageType.image, {quoted: ftoko ,contextInfo: tomis, caption: dono(prefix), thumbnail: fs.readFileSync('./me.jpg')})
 					   break
                    case 'modapk':
-                   addFilter(from)
+                   
                     if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
                     client.sendMessage(from, modapk(prefix), text, { quoted: ftoko ,contextInfo: tomis, thumbnail: fs.readFileSync('./me.jpg') })
                     break
                    case 'gbin':
-                   addFilter(from)
+                   
                     if (!isPremium) return fakegroup (mess.only.premium)
                     client.sendMessage(from, gbin(prefix), text, { contextInfo: null, quoted: ftoko ,contextInfo: tomis})
                     break
                    case 'gpessoa':
-                   addFilter(from)
+                   
                    if (!isPremium) return fakegroup (mess.only.premium)
 				
                     client.sendMessage(from, gpessoa(prefix), text, { contextInfo: null, quoted: ftoko ,contextInfo: tomis})
                     break
                    case 'destrava':
-                   addFilter(from)
+                   
                     
                     client.sendMessage(from, destrava(prefix), text, { contextInfo: null, quoted: ftoko ,contextInfo: tomis})
                     client.sendMessage(from, destrava2(prefix), text, { contextInfo: null, quoted: ftoko ,contextInfo: tomis})
@@ -5412,19 +5412,19 @@ break
                     break
                    
                    case 'chentai':
-                   addFilter(from)
+                   
                    if (!isPremium) return fakegroup (mess.only.premium)
 				
                     client.sendMessage(from, chentai(prefix), text, { contextInfo: null, quoted: ftoko ,contextInfo: tomis})
                     break
                    case 'gcpf':
-                   addFilter(from)
+                   
                    if (!isPremium) return fakegroup (mess.only.premium)
 				
                     client.sendMessage(from, gcpf(prefix), text, { contextInfo: null, quoted: ftoko ,contextInfo: tomis})
                     break
 				case 'ytmp4':
-				addFilter(from)
+				
 				    if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
 					if (args.length < 1) return fakegroup ('Cadê o url, hum?')
 					//if(!isUrl(args[0]) && !args[0].includes('youtu')) return fakegroup (mess.error.Iv)
@@ -5436,7 +5436,7 @@ break
 					client.sendMessage(from, buffer, video, {mimetype: 'video/mp4', filename: `${anu.title}.mp4`, contextInfo: tomis})
 					break
 case 'gay2':
-addFilter(from)
+
               if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
 			     	                
 
@@ -5465,7 +5465,7 @@ teks = `Você é ${random}% Gay\n\n${bo}`
 				break
 	
 					case 'antifake': 
-					addFilter(from)
+					
 if (!isGroupAdmins) return fakegroup (mess.only.admin)
 if (!isGroup) return fakegroup (mess.only.group)
 if (args.length < 1) return fakegroup ('ativar 1, desativar 0')
@@ -5491,7 +5491,7 @@ if (!codeInvite) return fakegroup ('「 ❗ 」anti números fakes desativado✔
 }}
 break
 case 'antifake1': 
-					addFilter(from)
+					
 if (!isGroupAdmins) return fakegroup (mess.only.admin)
 if (!isGroup) return fakegroup (mess.only.group)
 if (isAntiFake) return fakegroup ('「 ❗ 」anti números fakes ativado✔️')
@@ -5515,7 +5515,7 @@ fs.writeFileSync('./database/group/antifake.json', JSON.stringify(antifake))
 if (!codeInvite) return fakegroup ('「 ❗ 」anti números fakes desativado✔️')}
 break
 					case 'antiracismo':
-					addFilter(from)
+					
 					if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
 					if (!isGroup) return fakegroup (mess.only.group)
 					if (!isGroupAdmins) return fakegroup (mess.only.admin)
@@ -5534,7 +5534,7 @@ break
 					}
 					break
 				case 'modonsfw':
-				addFilter(from)
+				
 					if (!isGroup) return fakegroup (mess.only.group)
 					if (!isGroupAdmins) return fakegroup (mess.only.admin)
 					if (args.length < 1) return fakegroup ('Hmmmm')
@@ -5552,7 +5552,7 @@ break
 					}
 					break
 				case 'rtext':
-				addFilter(from)
+				
 					if (args.length < 1) return fakegroup (mess.blank)
 					tels5 = body.slice(7)
 					if (tels5.length > 10) return fakegroup ('O texto é longo, com até 10 caracteres')
@@ -5561,7 +5561,7 @@ break
 					client.sendMessage(from, buffer, image, {contextInfo: tomis, caption: tels5})
 					break
 				case 'water':
-				addFilter(from)
+				
 					if (args.length < 1) return fakegroup (mess.blank)
 					tels = body.slice(7)
 					if (tels.length > 15) return fakegroup ('O texto é muito longo, até 20 caracteres')
@@ -5571,11 +5571,11 @@ break
 					client.sendMessage(from, buffer, image, {contextInfo: tomis})
 					break
                  case 'nomegp':
-                 addFilter(from)
+                 
 		             if (args.length < 1) return fakegroup  ('o nome do grupo é: *${groupMetadata.subject}*')
 		             break
 					case 'xd':
-addFilter(from)				
+				
 					if (args.length < 1) return fakegroup (mess.wait)
 					pinte = body.slice(11)
 					anu = await fetchJson(`https://api-zeks.harispoppy.com/api/pin?q=${pin}&apikey=APIKEY`, {method: 'get'})
@@ -5589,7 +5589,7 @@ addFilter(from)
                           
                     case 'morto':
                            case 'morte':
-                           addFilter(from)
+                           
                            if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
                     var imgbb = require('imgbb-uploader')
                     if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
@@ -5610,7 +5610,7 @@ addFilter(from)
                     }
                     break                                                 
                     case 'hitler':
-                    addFilter(from)
+                    
                     var imgbb = require('imgbb-uploader')
                     if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
                         ger = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
@@ -5630,7 +5630,7 @@ addFilter(from)
                     }
                     break    
                     case 'covidglobal':
-addFilter(from)  
+  
 if (isBanned) return reply('Você foi banido de utilizar os comandos, desculpe!')
 get_result = await fetchJson(`http://brizas-api.herokuapp.com/covidmundo?apikey=brizaloka`)
 get_result = get_result.resultado
@@ -5720,7 +5720,7 @@ fs.unlinkSync(ran)
 })
 break
 /*case 'reiniciar':
-addFilter(from)  
+  
 if (!isOwner) return reply(mess.only.ownerB)
 if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
 const encmedia = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo : mek
@@ -5796,7 +5796,7 @@ reply('Use fotos/adesivos!')
 }
 break
                 case 'figulgbt':
-                addFilter(from)
+                
                     		if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro Mande o comando : ${prefix}rg`)
                     var imgbb = require('imgbb-uploader')
                     if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
@@ -5823,7 +5823,7 @@ break
                     break
                     
                      case 'figuc':
-                     addFilter(from)
+                     
                     		if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro Mande o comando : ${prefix}rg`)
                     var imgbb = require('imgbb-uploader')
                     if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
@@ -5849,7 +5849,7 @@ break
                     }
                     break                                   
 case 'tapa':
-addFilter(from)
+
                     if (!isGroup) return reply('só grupo 🤡')
                     mentioned = mek.message.extendedTextMessage.contextInfo.mentionedJid
                     pru = '.\n'
@@ -5864,7 +5864,7 @@ addFilter(from)
                     })
                     break     
                                         case 'borra':
-                                        addFilter(from)
+                                        
                     		if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro Mande o comando : ${prefix}rg`)
                     var imgbb = require('imgbb-uploader')
                     if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
@@ -5890,7 +5890,7 @@ addFilter(from)
                     }
                     break              
                     case 'florest':            
-                    addFilter(from)
+                    
 					if (args.length < 1) return fakegroup (mess.blank)
 					teks = body.slice(8)
 					if (teks.length > 10) return fakegroup ('O texto é longo, até 10 caracteres')
@@ -5899,13 +5899,13 @@ addFilter(from)
 					client.sendMessage(from, buffer, image, {contextInfo: tomis, thumbnail: null, caption: '*prontinho*'})
 					break
 case 'bot2':
-addFilter(from)
+
 reply('http://wa.me/994400733887')
 break
 case 'lolkey':
 
        case 'cekapikey':
-       addFilter(from)
+       
 
               if (args.length < 1) return reply(`Modelo ${prefix}sua key`) 
 
@@ -5917,7 +5917,7 @@ case 'lolkey':
 
               break
                       case 'joke':
-                      addFilter(from)
+                      
                     		if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro Mande o comando : ${prefix}rg`)
                      var imgbb = require('imgbb-uploader')
                     if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
@@ -5938,7 +5938,7 @@ case 'lolkey':
                     }
                     break
                 case 'animerosto':
-                addFilter(from)
+                
                     		if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro Mande o comando : ${prefix}rg`)
                      var imgbb = require('imgbb-uploader')
                     if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
@@ -5959,7 +5959,7 @@ case 'lolkey':
                     }
                     break                                                 
                     case 'quadro':
-                    addFilter(from)
+                    
                     		if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro Mande o comando : ${prefix}rg`)
                      var imgbb = require('imgbb-uploader')
                     if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
@@ -5980,7 +5980,7 @@ case 'lolkey':
                     }
                     break 
                 case 'afetar':
-                addFilter(from)
+                
                     		if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro Mande o comando : ${prefix}rg`)
                      var imgbb = require('imgbb-uploader')
                     if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
@@ -6001,7 +6001,7 @@ case 'lolkey':
                     }
                     break  
                     case 'flower':    
-                    addFilter(from)
+                    
                     if (!isPremium) return fakegroup (`Você não é um Membro Premium, entre em contato com o proprietário ou digite *${prefix}compras* para adquirir o acesso ` ,text, { contextInfo: null, quoted: ftoko ,contextInfo: tomis})
 					if (args.length < 1) return fakegroup (mess.blank)
 					teks = body.slice(8)
@@ -6045,7 +6045,7 @@ if (!isPremium) return fakegroup (mess.only.premium)
                     }
                     break
 case 'ppt':
-addFilter(from)
+
 ppt = ["pedra","papel","tesoura"]
 ppy = ppt[Math.floor(Math.random() * ppt.length)]
 ppg = Math.floor(Math.random() * 13) + 349
@@ -6083,84 +6083,84 @@ reply(pph)
 break
 //MUSICAS LIBERADAS PELO SAYO 
 case 'sound':
-addFilter(from)
+
 reply('Enviando audio tenha paciência e não mande muitas mensagens, pois irá falhar')
 enol = await getBuffer(`https://dappa-result.herokuapp.com/untukbot/sound.mp3`)
 client.sendMessage(from, enol, audio, { mimetype: 'audio/mp4', filename: `5544998220867.mp3`, contextInfo: tomis})
 
 break
 case 'sound1':
-addFilter(from)
+
 reply('Enviando audio tenha paciência e não mande muitas mensagens, pois irá falhar')
 satu = await getBuffer(`https://dappa-result.herokuapp.com/untukbot/sound1.mp3`)
 client.sendMessage(from, satu, audio, { mimetype: 'audio/mp4', filename: `5544998220867.mp3`, contextInfo: tomis})
 
 break
 case 'sound2':
-addFilter(from)
+
 reply('Enviando audio tenha paciência e não mande muitas mensagens, pois irá falhar')
 dua = await getBuffer(`https://dappa-result.herokuapp.com/untukbot/sound2.mp3`)
 client.sendMessage(from, dua, audio, { mimetype: 'audio/mp4', filename: `5544998220867.mp3`, contextInfo: tomis})
 
 break
 case 'sound3':
-addFilter(from)
+
 reply('Enviando audio tenha paciência e não mande muitas mensagens, pois irá falhar')
 tiga = await getBuffer(`https://dappa-result.herokuapp.com/untukbot/sound3.mp3`)
 client.sendMessage(from, tiga, audio, { mimetype: 'audio/mp4', filename: `5544998220867.mp3`, contextInfo: tomis})
 
 break
 case 'sound4':
-addFilter(from)
+
 reply('Enviando audio tenha paciência e não mande muitas mensagens, pois irá falhar')
 empat = await getBuffer(`https://dappa-result.herokuapp.com/untukbot/sound4.mp3`)
 client.sendMessage(from, empat, audio, { mimetype: 'audio/mp4', filename: `5544998220867.mp3`, contextInfo: tomis})
 
 break
 case 'sound5':
-addFilter(from)
+
 reply('Enviando audio tenha paciência e não mande muitas mensagens, pois irá falhar')
 lima = await getBuffer(`https://dappa-result.herokuapp.com/untukbot/sound5.mp3`)
 client.sendMessage(from, lima, audio, { mimetype: 'audio/mp4', filename: `5544998220867.mp3`, contextInfo: tomis})
 
 break
 case 'sound6':
-addFilter(from)
+
 reply('Enviando audio tenha paciência e não mande muitas mensagens, pois irá falhar')
 enam = await getBuffer(`https://dappa-result.herokuapp.com/untukbot/sound6.mp3`)
 client.sendMessage(from, enam, audio, { mimetype: 'audio/mp4', filename: `5544998220867.mp3`, contextInfo: tomis})
 
 break
 case 'sound7':
-addFilter(from)
+
 reply('Enviando audio tenha paciência e não mande muitas mensagens, pois irá falhar')
 tujuh = await getBuffer(`https://dappa-result.herokuapp.com/untukbot/sound7.mp3`)
 client.sendMessage(from, tujuh, audio, { mimetype: 'audio/mp4', filename: `5544998220867.mp3`, contextInfo: tomis})
 
 break
 case 'sound8':
-addFilter(from)
+
 reply('Enviando audio tenha paciência e não mande muitas mensagens, pois irá falhar')
 lapan = await getBuffer(`https://dappa-result.herokuapp.com/untukbot/sound8.mp3`)
 client.sendMessage(from, lapan, audio, { mimetype: 'audio/mp4', filename: `5544998220867.mp3`, contextInfo: tomis})
 
 break
 case 'sound9':
-addFilter(from)
+
 reply('Enviando audio tenha paciência e não mande muitas mensagens, pois irá falhar')
 bilan = await getBuffer(`https://dappa-result.herokuapp.com/untukbot/sound9.mp3`)
 client.sendMessage(from, bilan, audio, { mimetype: 'audio/mp4', filename: `5544998220867.mp3`, contextInfo: tomis})
 
 break
 case 'sound10':
-addFilter(from)
+
 reply('Enviando audio tenha paciência e não mande muitas mensagens, pois irá falhar')
 puluh = await getBuffer(`https://dappa-result.herokuapp.com/untukbot/sound10.mp3`)
 client.sendMessage(from, puluh, audio, { mimetype: 'audio/mp4', filename: `5544998220867.mp3`, contextInfo: tomis})
 
 break
                 case 'wasted':
-                addFilter(from)
+                
                     		if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro Mande o comando : ${prefix}rg`)
                     var imgbb = require('imgbb-uploader')
                     if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
@@ -6186,7 +6186,7 @@ break
                     }
                     break                  
                     case 'metadinha':
-addFilter(from)
+
 if (isBanned) return reply(mess.only.benned)
 reply(mess.wait)
 anu = await fetchJson(`https://leyscoders-api.herokuapp.com/api/ppcouple?apikey=dappakntlll`) 
@@ -6196,7 +6196,7 @@ cewe = await getBuffer(anu.result.female)
 client.sendMessage(from, cewe, image, {quoted: ftoko ,contextInfo: tomis})
 break
 case 'gtav':
-addFilter(from)  
+  
 var imgbb = require('imgbb-uploader')
 if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
 ger = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
@@ -6215,7 +6215,7 @@ reply('Você precisa marcar ou enviar uma imagem para isso')
 }
 break
 case 'zombie':
-addFilter(from)  
+  
 var imgbb = require('imgbb-uploader')
 if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
 ger = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
@@ -6234,7 +6234,7 @@ reply('Você precisa marcar ou enviar uma imagem para isso')
 }
 break
 case 'firef':
-addFilter(from)  
+  
 var imgbb = require('imgbb-uploader')
 if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
 ger = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
@@ -6253,7 +6253,7 @@ reply('Você precisa marcar ou enviar uma imagem para isso')
 }
 break
 case 'vidroqb':
-addFilter(from)  
+  
 var imgbb = require('imgbb-uploader')
 if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
 ger = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
@@ -6272,7 +6272,7 @@ reply('Você precisa marcar ou enviar uma imagem para isso')
 }
 break
 case 'arteft':
-addFilter(from)  
+  
 var imgbb = require('imgbb-uploader')
 if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
 ger = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
@@ -6291,7 +6291,7 @@ reply('Você precisa marcar ou enviar uma imagem para isso')
 }
 break
 case '2arma':
-addFilter(from)  
+  
 var imgbb = require('imgbb-uploader')
 if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
 ger = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
@@ -6310,7 +6310,7 @@ reply('Você precisa marcar ou enviar uma imagem para isso')
 }
 break
 case 'armast':
-addFilter(from)  
+  
 var imgbb = require('imgbb-uploader')
 if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
 ger = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
@@ -6327,7 +6327,7 @@ reply('Você precisa marcar ou enviar uma imagem para isso')
 }
 break
 case 'effect':
-addFilter(from)  
+  
 var imgbb = require('imgbb-uploader')
 if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
 ger = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
@@ -6345,7 +6345,7 @@ reply('Você precisa marcar ou enviar uma imagem para isso')
 break
 
 case 'paisagem':
-addFilter(from)  
+  
 var imgbb = require('imgbb-uploader')
 if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
 ger = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
@@ -6374,7 +6374,7 @@ client.sendMessage(from, stdout, text)
 })
 break
 case 'cubof':
-addFilter(from)  
+  
 var imgbb = require('imgbb-uploader')
 if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
 ger = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
@@ -6393,7 +6393,7 @@ reply('Você precisa marcar ou enviar uma imagem para isso')
 }
 break
 case 'wallimg':
-addFilter(from)  
+  
 var imgbb = require('imgbb-uploader')
 if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
 ger = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
@@ -6413,7 +6413,7 @@ reply('Você precisa marcar ou enviar uma imagem para isso')
 break
 case 'qbcabeca':
 case 'qbcabeça':  
-addFilter(from)  
+  
 var imgbb = require('imgbb-uploader')
 if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
 ger = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
@@ -6433,7 +6433,7 @@ reply('Você precisa marcar ou enviar uma imagem para isso')
 break
                     case 'arma':
 case 'figuarma':
-addFilter(from)  
+  
 var imgbb = require('imgbb-uploader')
 if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
 ger = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
@@ -6482,7 +6482,7 @@ reply('Você precisa marcar ou enviar uma imagem para isso')
 await limitAdd(sender)
 break
 case 'hitler':
-addFilter(from)  
+  
 var imgbb = require('imgbb-uploader')
 if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
 ger = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
@@ -6505,7 +6505,7 @@ reply('Você precisa marcar ou enviar uma imagem para isso')
 }
 break
 case 'wanted':
-addFilter(from)  
+  
 var imgbb = require('imgbb-uploader')
 if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
 ger = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
@@ -6537,7 +6537,7 @@ txt3 = k.split("|")[2];
  client.sendMessage(from, `${txt3}`,text,{quoted:{    key: {fromMe: false,participant: `${txt1}@s.whatsapp.net`,},message: { "extendedTextMessage": {"text": `${txt2}`,"title": `Hmm`}}}})
  break
 case 'triggered':
-addFilter(from)  
+  
 var imgbb = require('imgbb-uploader')
 if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
 ger = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
@@ -6560,7 +6560,7 @@ reply('Você precisa marcar ou enviar uma imagem para isso')
 }
 break
 case 'rip':
-addFilter(from)  
+  
 var imgbb = require('imgbb-uploader')
 if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
 ger = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
@@ -6583,7 +6583,7 @@ reply('Você precisa marcar ou enviar uma imagem para isso')
 }
 break 
 case 'trash':
-addFilter(from)  
+  
 var imgbb = require('imgbb-uploader')
 if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
 ger = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
@@ -6606,7 +6606,7 @@ reply('Você precisa marcar ou enviar uma imagem para isso')
 }
 break
 case 'preso':
-addFilter(from)  
+  
 var imgbb = require('imgbb-uploader')
 if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
 ger = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
@@ -6629,7 +6629,7 @@ reply('Você precisa marcar ou enviar uma imagem para isso')
 }
 break
 case 'figupet':
-addFilter(from)  
+  
 var imgbb = require('imgbb-uploader')
 if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
 ger = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
@@ -6652,7 +6652,7 @@ reply('Você precisa marcar ou enviar uma imagem para isso')
 }
 break 
 case 'heroiimg':
-addFilter(from)  
+  
 var imgbb = require('imgbb-uploader')
 if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
 ger = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
@@ -6883,7 +6883,7 @@ break
                 case 'speed':
                 case 'ping':
                     if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
-                    addFilter(from)  
+                      
 if (isBanned) return reply(mess.only.benned)
 const timestamp = speed();
 const latensi = speed() - timestamp
@@ -7642,7 +7642,7 @@ await client.sendMessage(from, get_audio, audio, { mimetype: 'audio/mp4', filena
 break
 //_LOGOS 
       case 'greenhorror':  //by Ꮥꪖꪗꪮ </>
-                   addFilter(from)
+                   
                    if (!isPremium) return fakegroup (mess.only.premium)
                 			if (args.length == 0) return reply(`Exemplo: ${prefix + command} tomioka`)
                    texto = args.join(" ")
@@ -7652,7 +7652,7 @@ break
                    client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'sciencefiction':  //by Ꮥꪖꪗꪮ </>
-                   addFilter(from)
+                   
                    if (!isPremium) return fakegroup (mess.only.premium)
                 			if (args.length == 0) return reply(`Exemplo: ${prefix + command} tomioka`)
                    texto = args.join(" ")
@@ -7662,7 +7662,7 @@ break
                    client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'transformer':  //by Ꮥꪖꪗꪮ </>
-                   addFilter(from)
+                   
                    if (!isPremium) return fakegroup (mess.only.premium)
                 			if (args.length == 0) return reply(`Exemplo: ${prefix + command} tomioka`)
                    texto = args.join(" ")
@@ -7672,7 +7672,7 @@ break
                    client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'berry':  //by Ꮥꪖꪗꪮ </>
-                   addFilter(from)
+                   
                    if (!isPremium) return fakegroup (mess.only.premium)
                 			if (args.length == 0) return reply(`Exemplo: ${prefix + command} tomioka`)
                    texto = args.join(" ")
@@ -7682,7 +7682,7 @@ break
                    client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'magmahot':  //by Ꮥꪖꪗꪮ </>
-                   addFilter(from)
+                   
                    if (!isPremium) return fakegroup (mess.only.premium)
                 			if (args.length == 0) return reply(`Exemplo: ${prefix + command} tomioka`)
                    texto = args.join(" ")
@@ -7692,7 +7692,7 @@ break
                    client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case '3dstone':  //by Ꮥꪖꪗꪮ </>
-                   addFilter(from)
+                   
                    if (!isPremium) return fakegroup (mess.only.premium)
                 			if (args.length == 0) return reply(`Exemplo: ${prefix + command} tomioka`)
                    texto = args.join(" ")
@@ -7702,7 +7702,7 @@ break
                    client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case '3dneonlight':  //by Ꮥꪖꪗꪮ </>
-                   addFilter(from)
+                   
                    if (!isPremium) return fakegroup (mess.only.premium)
                 			if (args.length == 0) return reply(`Exemplo: ${prefix + command} tomioka`)
                    texto = args.join(" ")
@@ -7712,7 +7712,7 @@ break
                    client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'impressiveglitch':  //by Ꮥꪖꪗꪮ </>
-                   addFilter(from)
+                   
                    if (!isPremium) return fakegroup (mess.only.premium)
                 			if (args.length == 0) return reply(`Exemplo: ${prefix + command} tomioka`)
                    texto = args.join(" ")
@@ -7722,7 +7722,7 @@ break
                    client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'harrypotter':  //by Ꮥꪖꪗꪮ </>
-                   addFilter(from)
+                   
                    if (!isPremium) return fakegroup (mess.only.premium)
                 			if (args.length == 0) return reply(`Exemplo: ${prefix + command} tomioka`)
                    texto = args.join(" ")
@@ -7732,7 +7732,7 @@ break
                    client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'embossed':  //by Ꮥꪖꪗꪮ </>
-                   addFilter(from)
+                   
                    if (!isPremium) return fakegroup (mess.only.premium)
                 			if (args.length == 0) return reply(`Exemplo: ${prefix + command} tomioka`)
                    texto = args.join(" ")
@@ -7742,7 +7742,7 @@ break
                    client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'brokenglass':  //by Ꮥꪖꪗꪮ </>
-                   addFilter(from)
+                   
                    if (!isPremium) return fakegroup (mess.only.premium)
                 			if (args.length == 0) return reply(`Exemplo: ${prefix + command} tomioka`)
                    texto = args.join(" ")
@@ -7752,7 +7752,7 @@ break
                    client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'artpaper':  //by Ꮥꪖꪗꪮ </>
-                   addFilter(from)
+                   
                    if (!isPremium) return fakegroup (mess.only.premium)
                 			if (args.length == 0) return reply(`Exemplo: ${prefix + command} tomioka`)
                    texto = args.join(" ")
@@ -7762,7 +7762,7 @@ break
                    client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case '3dglossy':  //by Ꮥꪖꪗꪮ </>
-                   addFilter(from)
+                   
                    if (!isPremium) return fakegroup (mess.only.premium)
                 			if (args.length == 0) return reply(`Exemplo: ${prefix + command} tomioka`)
                    texto = args.join(" ")
@@ -7772,7 +7772,7 @@ break
                    client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'neondevilwings':  //by Ꮥꪖꪗꪮ </>
-                   addFilter(from)
+                   
                    if (!isPremium) return fakegroup (mess.only.premium)
                 			if (args.length == 0) return reply(`Exemplo: ${prefix + command} tomioka`)
                    texto = args.join(" ")
@@ -7782,7 +7782,7 @@ break
                    client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case '3dunderwater':  //by Ꮥꪖꪗꪮ </>
-                   addFilter(from)
+                   
                    if (!isPremium) return fakegroup (mess.only.premium)
                 			if (args.length == 0) return reply(`Exemplo: ${prefix + command} tomioka`)
                    texto = args.join(" ")
@@ -7792,7 +7792,7 @@ break
                    client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'bearmascot':  //by Ꮥꪖꪗꪮ </>
-                   addFilter(from)
+                   
                    if (!isPremium) return fakegroup (mess.only.premium)
                 			if (args.length == 0) return reply(`Exemplo: ${prefix + command} tomioka`)
                    texto = args.join(" ")
@@ -7802,7 +7802,7 @@ break
                    client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'wonderfulgraffiti':  //by Ꮥꪖꪗꪮ </>
-                   addFilter(from)
+                   
                    if (!isPremium) return fakegroup (mess.only.premium)
                 			if (args.length == 0) return reply(`Exemplo: ${prefix + command} tomioka`)
                    texto = args.join(" ")
@@ -7812,7 +7812,7 @@ break
                    client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'futuristicneon':  //by Ꮥꪖꪗꪮ </>
-                   addFilter(from)
+                   
                    if (!isPremium) return fakegroup (mess.only.premium)
                 			if (args.length == 0) return reply(`Exemplo: ${prefix + command} tomioka`)
                    texto = args.join(" ")
@@ -7822,7 +7822,7 @@ break
                    client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'snow':  //by Ꮥꪖꪗꪮ </>
-                   addFilter(from)
+                   
                    if (!isPremium) return fakegroup (mess.only.premium)
                 			if (args.length == 0) return reply(`Exemplo: ${prefix + command} tomioka`)
                    texto = args.join(" ")
@@ -7832,7 +7832,7 @@ break
                    client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'cloud':  //by Ꮥꪖꪗꪮ </>
-                   addFilter(from)
+                   
                    if (!isPremium) return fakegroup (mess.only.premium)
                 			if (args.length == 0) return reply(`Exemplo: ${prefix + command} tomioka`)
                    texto = args.join(" ")
@@ -7842,7 +7842,7 @@ break
                    client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'luxurygold':  //by Ꮥꪖꪗꪮ </>
-                   addFilter(from)
+                   
                    if (!isPremium) return fakegroup (mess.only.premium)
                 			if (args.length == 0) return reply(`Exemplo: ${prefix + command} tomioka`)
                    texto = args.join(" ")
@@ -7852,7 +7852,7 @@ break
                    client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case '3dgradient':  //by Ꮥꪖꪗꪮ </>
-                   addFilter(from)
+                   
                    if (!isPremium) return fakegroup (mess.only.premium)
                 			if (args.length == 0) return reply(`Exemplo: ${prefix + command} tomioka`)
                    texto = args.join(" ")
@@ -7862,7 +7862,7 @@ break
                    client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'realisticcloud':  //by Ꮥꪖꪗꪮ </>
-                   addFilter(from)
+                   
                    if (!isPremium) return fakegroup (mess.only.premium)
                 			if (args.length == 0) return reply(`Exemplo: ${prefix + command} tomioka`)
                    texto = args.join(" ")
@@ -7872,7 +7872,7 @@ break
                    client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'sandsummer':  //by Ꮥꪖꪗꪮ </>
-                   addFilter(from)
+                   
                    if (!isPremium) return fakegroup (mess.only.premium)
                 			if (args.length == 0) return reply(`Exemplo: ${prefix + command} tomioka`)
                    texto = args.join(" ")
@@ -7882,7 +7882,7 @@ break
                    client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'sandwriting':  //by Ꮥꪖꪗꪮ </>
-                   addFilter(from)
+                   
                    if (!isPremium) return fakegroup (mess.only.premium)
                 			if (args.length == 0) return reply(`Exemplo: ${prefix + command} tomioka`)
                    texto = args.join(" ")
@@ -7892,7 +7892,7 @@ break
                    client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'sandengraved':  //by Ꮥꪖꪗꪮ </>
-                   addFilter(from)
+                   
                    if (!isPremium) return fakegroup (mess.only.premium)
                 			if (args.length == 0) return reply(`Exemplo: ${prefix + command} tomioka`)
                    texto = args.join(" ")
@@ -7902,7 +7902,7 @@ break
                    client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'summerysand':  //by Ꮥꪖꪗꪮ </>
-                   addFilter(from)
+                   
                    if (!isPremium) return fakegroup (mess.only.premium)
                 			if (args.length == 0) return reply(`Exemplo: ${prefix + command} tomioka`)
                    texto = args.join(" ")
@@ -7912,7 +7912,7 @@ break
                    client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case '3dglue':  //by Ꮥꪖꪗꪮ </>
-                   addFilter(from)
+                   
                    if (!isPremium) return fakegroup (mess.only.premium)
                 			if (args.length == 0) return reply(`Exemplo: ${prefix + command} tomioka`)
                    texto = args.join(" ")
@@ -7922,7 +7922,7 @@ break
                    client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'metaldarkgold':  //by Ꮥꪖꪗꪮ </>
-                   addFilter(from)
+                   
                    if (!isPremium) return fakegroup (mess.only.premium)
                 			if (args.length == 0) return reply(`Exemplo: ${prefix + command} tomioka`)
                    texto = args.join(" ")
@@ -7932,7 +7932,7 @@ break
                    client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'neonlight':  //by Ꮥꪖꪗꪮ </>
-                   addFilter(from)
+                   
                    if (!isPremium) return fakegroup (mess.only.premium)
                 			if (args.length == 0) return reply(`Exemplo: ${prefix + command} tomioka`)
                    texto = args.join(" ")
@@ -7942,7 +7942,7 @@ break
                    client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case '1917':  //by Ꮥꪖꪗꪮ </>
-                   addFilter(from)
+                   
                    if (!isPremium) return fakegroup (mess.only.premium)
                 			if (args.length == 0) return reply(`Exemplo: ${prefix + command} tomioka`)
                    texto = args.join(" ")
@@ -7952,7 +7952,7 @@ break
                    client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'xmascards3d':  //by Ꮥꪖꪗꪮ </>
-                   addFilter(from)
+                   
                    if (!isPremium) return fakegroup (mess.only.premium)
                 			if (args.length == 0) return reply(`Exemplo: ${prefix + command} tomioka`)
                    texto = args.join(" ")
@@ -7962,7 +7962,7 @@ break
                    client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'blood':  //by Ꮥꪖꪗꪮ </>
-                   addFilter(from)
+                   
                    if (!isPremium) return fakegroup (mess.only.premium)
                 			if (args.length == 0) return reply(`Exemplo: ${prefix + command} tomioka`)
                    texto = args.join(" ")
@@ -7972,7 +7972,7 @@ break
                    client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'halloweenfire':  //by Ꮥꪖꪗꪮ </>
-                   addFilter(from)
+                   
                    if (!isPremium) return fakegroup (mess.only.premium)
                 			if (args.length == 0) return reply(`Exemplo: ${prefix + command} tomioka`)
                    texto = args.join(" ")
@@ -7982,7 +7982,7 @@ break
                    client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'lava':  //by Ꮥꪖꪗꪮ </>
-                   addFilter(from)
+                   
                    if (!isPremium) return fakegroup (mess.only.premium)
                 			if (args.length == 0) return reply(`Exemplo: ${prefix + command} tomioka`)
                    texto = args.join(" ")
@@ -7992,7 +7992,7 @@ break
                    client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'steeltext':  //by Ꮥꪖꪗꪮ </>
-                   addFilter(from)
+                   
                    if (!isPremium) return fakegroup (mess.only.premium)
                 			if (args.length == 0) return reply(`Exemplo: ${prefix + command} tomioka`)
                    texto = args.join(" ")
@@ -8002,7 +8002,7 @@ break
                    client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'captainamerica':  //by Ꮥꪖꪗꪮ </>
-                   addFilter(from)
+                   
                    if (!isPremium) return fakegroup (mess.only.premium)
                 			if (args.length == 0) return reply(`Exemplo: ${prefix + command} tomioka`)
                    texto = args.join(" ")
@@ -8012,7 +8012,7 @@ break
                    client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'toxic':  //by Ꮥꪖꪗꪮ </>
-                   addFilter(from)
+                   
                    if (!isPremium) return fakegroup (mess.only.premium)
                 			if (args.length == 0) return reply(`Exemplo: ${prefix + command} tomioka`)
                    texto = args.join(" ")
@@ -8022,7 +8022,7 @@ break
                    client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'chocolate':  //by Ꮥꪖꪗꪮ </>
-                   addFilter(from)
+                   
                    if (!isPremium) return fakegroup (mess.only.premium)
                 			if (args.length == 0) return reply(`Exemplo: ${prefix + command} tomioka`)
                    texto = args.join(" ")
@@ -8032,7 +8032,7 @@ break
                    client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'matrix':  //by Ꮥꪖꪗꪮ </>
-                   addFilter(from)
+                   
                    if (!isPremium) return fakegroup (mess.only.premium)
                 			if (args.length == 0) return reply(`Exemplo: ${prefix + command} tomioka`)
                    texto = args.join(" ")
@@ -8042,7 +8042,7 @@ break
                    client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'horrorblood':  //by Ꮥꪖꪗꪮ </>
-                   addFilter(from)
+                   
                    if (!isPremium) return fakegroup (mess.only.premium)
                 			if (args.length == 0) return reply(`Exemplo: ${prefix + command} tomioka`)
                    texto = args.join(" ")
@@ -8052,7 +8052,7 @@ break
                    client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'thunder2':  //by Ꮥꪖꪗꪮ </>
-                   addFilter(from)
+                   
                    if (!isPremium) return fakegroup (mess.only.premium)
                 			if (args.length == 0) return reply(`Exemplo: ${prefix + command} tomioka`)
                    texto = args.join(" ")
@@ -8062,7 +8062,7 @@ break
                    client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case '3dbox':  //by Ꮥꪖꪗꪮ </>
-                   addFilter(from)
+                   
                    if (!isPremium) return fakegroup (mess.only.premium)
                 			if (args.length == 0) return reply(`Exemplo: ${prefix + command} tomioka`)
                    texto = args.join(" ")
@@ -8072,7 +8072,7 @@ break
                    client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'naturalleaves':  //by Ꮥꪖꪗꪮ </>
-                   addFilter(from)
+                   
                    if (!isPremium) return fakegroup (mess.only.premium)
                 			if (args.length == 0) return reply(`Exemplo: ${prefix + command} tomioka`)
                    texto = args.join(" ")
@@ -8082,7 +8082,7 @@ break
                    client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'blackpink':  //by Ꮥꪖꪗꪮ </>
-                   addFilter(from)
+                   
                    if (!isPremium) return fakegroup (mess.only.premium)
                 			if (args.length == 0) return reply(`Exemplo: ${prefix + command} tomioka`)
                    texto = args.join(" ")
@@ -8092,7 +8092,7 @@ break
                    client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'dropwater':  //by Ꮥꪖꪗꪮ </>
-                   addFilter(from)
+                   
                    if (!isPremium) return fakegroup (mess.only.premium)
                 			if (args.length == 0) return reply(`Exemplo: ${prefix + command} tomioka`)
                    texto = args.join(" ")
@@ -8102,7 +8102,7 @@ break
                    client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'christmas':  //by Ꮥꪖꪗꪮ </>
-                   addFilter(from)
+                   
                    if (!isPremium) return fakegroup (mess.only.premium)
                 			if (args.length == 0) return reply(`Exemplo: ${prefix + command} tomioka`)
                    texto = args.join(" ")
@@ -8112,7 +8112,7 @@ break
                    client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case '3dgradient':  //by Ꮥꪖꪗꪮ </>
-                   addFilter(from)
+                   
                    if (!isPremium) return fakegroup (mess.only.premium)
                 			if (args.length == 0) return reply(`Exemplo: ${prefix + command} tomioka`)
                    texto = args.join(" ")
