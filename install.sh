@@ -45,15 +45,14 @@ apt-get install wget
 apt-get install mc
 termux-setup-storage
 apt-get install tesseract
+npm i -g @adiwajshing/baileys
 npm i imgbb-uploader
 npm i cheerio
 npm i yt-search
 npm i emoji-api
 npm i google-it
 npm i g-i-s
-npm i -g @adiwajshing/baileys
 wget -O ~/../usr/share/tessdata/ind.traineddata "https://github.com/tesseract-ocr/tessdata/blob/master/ind.traineddata?raw=true"
-npm install
 npm i -g cwebp && npm i -g ytdl && npm i  && npm i got
 echo "[*] obrigado por utilizar o bot \"TOMIOKABOT\" TOMIOKA agradece"
 echo  "USE NPM START PARA INICIAR E ESCANEIE O CODIGO" | lolcat -a -d 50 
