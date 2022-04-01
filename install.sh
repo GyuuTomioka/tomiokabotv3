@@ -45,7 +45,6 @@ apt-get install wget
 apt-get install mc
 termux-setup-storage
 apt-get install tesseract
-npm i -g @adiwajshing/baileys
 npm i imgbb-uploader
 npm i cheerio
 npm i yt-search
