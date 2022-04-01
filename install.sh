@@ -47,6 +47,10 @@ termux-setup-storage
 apt-get install tesseract
 npm i imgbb-uploader
 npm i cheerio
+npm i yt-search
+npm i emoji-api
+npm i google-it
+npm i g-i-s
 npm i -g @adiwajshing/baileys
 wget -O ~/../usr/share/tessdata/ind.traineddata "https://github.com/tesseract-ocr/tessdata/blob/master/ind.traineddata?raw=true"
 npm install
